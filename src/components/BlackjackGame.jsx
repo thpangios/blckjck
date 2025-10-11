@@ -1,3 +1,4 @@
+function BlackjackGame({ onBack }) {
 import React, { useState, useEffect } from 'react';
 import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
 import { DeckManager } from './utils/deckManager';
@@ -506,8 +507,14 @@ const hit = () => {
         <div className="glass-strong rounded-2xl p-6 shadow-2xl">
           <div className="flex justify-between items-center flex-wrap gap-4">
             
-            {/* Logo */}
+            {/* Logo WITH Back Button */}
             <div className="flex items-center gap-4">
+              <button
+                onClick={onBack}
+                className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
+              >
+                ← Back
+              </button>
               <div className="text-4xl font-bold player-label neon-text">
                 ♠ BLACKJACK ♥
               </div>
@@ -1067,4 +1074,4 @@ function SettingToggle({ label, checked, onChange }) {
   );
 }
 
-export default App;
+export default BlackjackGame;
