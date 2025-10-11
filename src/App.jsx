@@ -3,6 +3,7 @@ import GameSelector from './components/GameSelector';
 import BlackjackGame from './components/BlackjackGame';
 import BaccaratGame from './components/BaccaratGame';
 import VideoPokerGame from './components/VideoPokerGame';
+import PaiGowPokerGame from './components/PaiGowPokerGame';
 
 function App() {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -17,6 +18,10 @@ function App() {
 
   if (selectedGame === 'videopoker') {
     return <VideoPokerGame onBack={() => setSelectedGame(null)} />;
+  }
+
+  if (selectedGame === 'paigowpoker') {
+    return <PaiGowPokerGame onBack={() => setSelectedGame(null)} />;
   }
 
   return <GameSelector onSelectGame={setSelectedGame} />;
