@@ -650,18 +650,18 @@ export class PaiGowPokerRules {
     return true;
   }
 
-  // Find best 5-card hand from 7 cards
+// Find best 5-card hand from 7 cards
   static findBest5CardHand(cards) {
     const combinations = this.getCombinations(cards, 5);
     let bestHand = null;
     let bestEval = null;
 
     for (let combo of combinations) {
-      const eval = this.evaluate5CardHand(combo);
-      if (!bestEval || eval.rank > bestEval.rank || 
-          (eval.rank === bestEval.rank && this.compareHands(eval, bestEval) > 0)) {
+      const handEval = this.evaluate5CardHand(combo);
+      if (!bestEval || handEval.rank > bestEval.rank || 
+          (handEval.rank === bestEval.rank && this.compareHands(handEval, bestEval) > 0)) {
         bestHand = combo;
-        bestEval = eval;
+        bestEval = handEval;
       }
     }
 
