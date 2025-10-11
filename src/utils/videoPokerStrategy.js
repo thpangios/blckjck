@@ -160,4 +160,112 @@ export class VideoPokerStrategy {
     return {
       holdIndices: bestHold,
       expectedValue: bestEV,
-      reasoning: this.getDet
+      reasoning: this.getDetailedReasoning(cards, bestHold, variant),
+      allOptions: allEVs.slice(0, 10) // Top 10 options
+    };
+  }
+
+  static getHoldDescription(cards, holdIndices) {
+    if (holdIndices.length === 0) return 'Draw 5 new cards';
+    if (holdIndices.length === 5) return 'Hold all 5 cards';
+    
+    const heldCards = holdIndices.map(i => `${cards[i].value}${cards[i].suit}`).join(' ');
+    return `Hold: ${heldCards}`;
+  }
+
+  static getDetailedReasoning(cards, holdIndices, variant) {
+    if (holdIndices.length === 0) {
+      return 'No winning combination - draw 5 new cards';
+    }
+
+    const heldCards = holdIndices.map(i => cards[i]);
+    
+    if (holdIndices.length === 5) {
+      const hand = VideoPokerRules.evaluateHand(heldCards, variant);
+      return `Already have ${hand} - hold all cards`;
+    }
+
+    // Analyze what we're drawing to
+    const ranks = heldCards.map(c => VideoPokerRules.valueRanks[c.value]);
+    const suits = heldCards.map(c => c.suit);
+
+    const rankCounts = {};
+    ranks.forEach(r => rankCounts[r] = (rankCounts[r] || 0) + 1);
+    const maxCount = Math.max(...Object.values(rankCounts));
+
+    const isFlushDraw = suits.length >= 4 && suits.every(s => s === suits[0]);
+    const isStraightDraw = this.isStraightDraw(ranks);
+    const hasHighCards = ranks.some(r => r >= 11 || r === 14);
+
+    if (maxCount === 4) return 'Hold four of a kind - draw 1 for possible full house';
+    if (maxCount === 3) return 'Hold three of a kind - draw 2 for four of a kind or full house';
+    if (maxCount === 2 && Object.values(rankCounts).filter(c => c === 2).length === 2) {
+      return 'Hold two pair - draw 1 for full house';
+    }
+    if (maxCount === 2) {
+      const pairRank = Object.entries(rankCounts).find(([_, c]) => c === 2)[0];
+      if (Number(pairRank) >= 11 || Number(pairRank) === 14) {
+        return 'Hold high pair (Jacks or better) - draw 3';
+      }
+      return 'Hold low pair - draw 3 for trips or better';
+    }
+
+    if (isFlushDraw) return `Hold 4 to flush - draw 1 (${(9/47*100).toFixed(1)}% chance)`;
+    if (isStraightDraw) return 'Hold 4 to straight - draw 1';
+
+    if (hasHighCards) {
+      const highCardCount = ranks.filter(r => r >= 11 || r === 14).length;
+      return `Hold ${highCardCount} high card${highCardCount > 1 ? 's' : ''} (J/Q/K/A) - potential for pairs`;
+    }
+
+    return `Hold ${holdIndices.length} cards - drawing to improve`;
+  }
+
+  static isStraightDraw(ranks) {
+    if (ranks.length < 4) return false;
+    
+    const sorted = [...ranks].sort((a, b) => a - b);
+    
+    // Check for open-ended or inside straight draw
+    let consecutive = 1;
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const diff = sorted[i + 1] - sorted[i];
+      if (diff === 1) {
+        consecutive++;
+      } else if (diff > 2) {
+        consecutive = 1;
+      }
+    }
+
+    return consecutive >= 4;
+  }
+
+  // Calculate draw probabilities for display
+  static getDrawProbabilities(heldCards, variant) {
+    const drawCount = 5 - heldCards.length;
+    const cardsRemaining = 52 - 5; // 47 cards left in deck
+
+    const probabilities = {
+      royal: 0,
+      straightFlush: 0,
+      fourOfKind: 0,
+      fullHouse: 0,
+      flush: 0,
+      straight: 0,
+      threeOfKind: 0,
+      twoPair: 0,
+      pair: 0
+    };
+
+    // Simplified probability estimates
+    // (Full calculation would require checking all draw combinations)
+    
+    if (drawCount === 5) {
+      probabilities.royal = 4 / this.binomialCoefficient(47, 5);
+      probabilities.straightFlush = 36 / this.binomialCoefficient(47, 5);
+      probabilities.fourOfKind = 624 / this.binomialCoefficient(47, 5);
+    }
+
+    return probabilities;
+  }
+}
