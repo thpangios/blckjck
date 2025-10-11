@@ -1,5 +1,4 @@
 import React from 'react';
-import { Spade, Heart, Diamond, Club } from 'lucide-react';
 
 function GameSelector({ onSelectGame }) {
   return (
@@ -14,7 +13,7 @@ function GameSelector({ onSelectGame }) {
         </div>
 
         {/* Game Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           
           {/* Blackjack Card */}
           <button
@@ -54,6 +53,30 @@ function GameSelector({ onSelectGame }) {
               </h2>
               <p className="text-gray-300 mb-6">
                 Player vs Banker with roadmaps, pattern tracking, and side bets
+              </p>
+              <div className="flex justify-center gap-4 text-3xl">
+                <span>♠</span>
+                <span className="text-red-500">♥</span>
+                <span className="text-red-500">♦</span>
+                <span>♣</span>
+              </div>
+            </div>
+          </button>
+
+          {/* Video Poker Card */}
+          <button
+            onClick={() => onSelectGame('videopoker')}
+            className="group glass-strong rounded-3xl p-8 hover:scale-105 transition-all duration-300 hover:ring-4 hover:ring-yellow-400 btn-premium"
+          >
+            <div className="text-center">
+              <div className="text-7xl mb-6 transform group-hover:scale-110 transition-transform">
+                🎴
+              </div>
+              <h2 className="text-4xl font-bold player-label text-yellow-400 mb-4">
+                VIDEO POKER
+              </h2>
+              <p className="text-gray-300 mb-6">
+                Jacks or Better, Deuces Wild, and Bonus Poker with optimal strategy
               </p>
               <div className="flex justify-center gap-4 text-3xl">
                 <span>♠</span>
