@@ -6,90 +6,136 @@ function GameSelector({ onSelectGame }) {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+      transition: {
+        staggerChildren: 0.2
+      }
     }
   };
 
   const item = {
-    hidden: { y: 30, opacity: 0 },
-    show: { 
-      y: 0, 
-      opacity: 1,
-      transition: { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }
-    }
+    hidden: { y: 40, opacity: 0 },
+    show: { y: 0, opacity: 1 }
   };
 
   return (
-    <div className="min-h-screen bg-casino-gradient flex items-center justify-center p-6">
+    <div className="min-h-screen casino-background flex items-center justify-center p-4">
       <div className="max-w-7xl w-full">
         
-        {/* Logo & Header */}
+        {/* Casino Logo/Header */}
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="text-center mb-20"
+          transition={{ duration: 0.6, type: "spring" }}
+          className="text-center mb-16"
         >
-          {/* Crown Logo */}
-          <motion.div 
-            initial={{ rotate: -10, scale: 0.8 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block mb-8"
-          >
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-casino-gold-400 via-casino-gold-500 to-casino-gold-700 flex items-center justify-center shadow-glow-strong">
-              <span className="text-5xl">👑</span>
+          <div className="inline-block mb-6">
+            <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-casino-gold via-yellow-500 to-casino-gold-dark flex items-center justify-center shadow-2xl border-4 border-white/20">
+              <span className="text-6xl">👑</span>
             </div>
-          </motion.div>
-
-          {/* Title */}
-          <h1 className="text-7xl md:text-8xl font-display font-black text-glow-strong text-casino-gold-500 mb-4 tracking-wider">
+          </div>
+          <h1 className="text-7xl md:text-8xl font-display font-black neon-text-premium mb-4 tracking-wider">
             ROYAL CASINO
           </h1>
-          
-          {/* Subtitle */}
-          <p className="text-2xl md:text-3xl font-elegant text-casino-gold-600 tracking-widest mb-6">
+          <p className="text-2xl md:text-3xl font-elegant text-casino-gold tracking-widest">
             Elite Gaming Experience
           </p>
-
-          {/* Divider */}
-          <div className="w-64 h-px bg-gradient-to-r from-transparent via-casino-gold-500 to-transparent mx-auto"></div>
+          <div className="w-64 h-1 bg-gradient-to-r from-transparent via-casino-gold to-transparent mx-auto mt-6"></div>
         </motion.div>
 
-        {/* Game Cards Grid */}
+        {/* Game Cards */}
         <motion.div 
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid md:grid-cols-3 gap-8"
+          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
         >
           
-          {/* Blackjack Card */}
-          <GameCard
+          {/* Blackjack */}
+          <motion.button
             variants={item}
-            icon="🃏"
-            title="BLACKJACK"
-            description="Master 21 with card counting and strategy analysis"
+            whileHover={{ scale: 1.05, y: -10 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => onSelectGame('blackjack')}
-          />
+            className="group glass-premium rounded-3xl p-8 hover:glass-premium-strong transition-all duration-300 border-2 border-casino-gold/30 hover:border-casino-gold relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-casino-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <div className="relative z-10">
+              <div className="text-7xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all">
+                🃏
+              </div>
+              <h2 className="text-4xl font-heading font-bold text-casino-gold mb-4 tracking-wider">
+                BLACKJACK
+              </h2>
+              <p className="text-gray-300 mb-6 font-body">
+                Master the art of 21 with card counting, strategy hints, and professional training
+              </p>
+              <div className="flex justify-center gap-3 text-4xl">
+                <span className="transform group-hover:scale-125 transition-transform">♠</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-75">♥</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-150">♦</span>
+                <span className="transform group-hover:scale-125 transition-transform delay-200">♣</span>
+              </div>
+            </div>
+          </motion.button>
 
-          {/* Baccarat Card */}
-          <GameCard
+          {/* Baccarat */}
+          <motion.button
             variants={item}
-            icon="🎰"
-            title="BACCARAT"
-            description="Experience authentic roadmaps and pattern tracking"
+            whileHover={{ scale: 1.05, y: -10 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => onSelectGame('baccarat')}
-          />
+            className="group glass-premium rounded-3xl p-8 hover:glass-premium-strong transition-all duration-300 border-2 border-casino-gold/30 hover:border-casino-gold relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-casino-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <div className="relative z-10">
+              <div className="text-7xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all">
+                🎰
+              </div>
+              <h2 className="text-4xl font-heading font-bold text-casino-gold mb-4 tracking-wider">
+                BACCARAT
+              </h2>
+              <p className="text-gray-300 mb-6 font-body">
+                Experience authentic roadmaps, pattern analysis, and Macau-style gameplay
+              </p>
+              <div className="flex justify-center gap-3 text-4xl">
+                <span className="transform group-hover:scale-125 transition-transform">♠</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-75">♥</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-150">♦</span>
+                <span className="transform group-hover:scale-125 transition-transform delay-200">♣</span>
+              </div>
+            </div>
+          </motion.button>
 
-          {/* Video Poker Card */}
-          <GameCard
+          {/* Video Poker */}
+          <motion.button
             variants={item}
-            icon="🎴"
-            title="VIDEO POKER"
-            description="Perfect your strategy with optimal play guidance"
+            whileHover={{ scale: 1.05, y: -10 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => onSelectGame('videopoker')}
-          />
+            className="group glass-premium rounded-3xl p-8 hover:glass-premium-strong transition-all duration-300 border-2 border-casino-gold/30 hover:border-casino-gold relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-casino-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <div className="relative z-10">
+              <div className="text-7xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all">
+                🎴
+              </div>
+              <h2 className="text-4xl font-heading font-bold text-casino-gold mb-4 tracking-wider">
+                VIDEO POKER
+              </h2>
+              <p className="text-gray-300 mb-6 font-body">
+                Perfect your strategy with optimal play analysis and multiple game variants
+              </p>
+              <div className="flex justify-center gap-3 text-4xl">
+                <span className="transform group-hover:scale-125 transition-transform">♠</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-75">♥</span>
+                <span className="text-red-500 transform group-hover:scale-125 transition-transform delay-150">♦</span>
+                <span className="transform group-hover:scale-125 transition-transform delay-200">♣</span>
+              </div>
+            </div>
+          </motion.button>
 
         </motion.div>
 
@@ -98,78 +144,15 @@ function GameSelector({ onSelectGame }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-center mt-16"
+          className="text-center mt-16 text-gray-400 text-sm font-body"
         >
-          <div className="glass inline-block px-8 py-4 rounded-full">
-            <p className="text-casino-gold-500 font-semibold text-sm tracking-wide mb-1">
-              PROFESSIONAL TRAINING SIMULATOR
-            </p>
-            <p className="text-casino-gray-400 text-xs">
-              Practice Strategies • Track Statistics • Master The Games
-            </p>
+          <div className="glass-premium inline-block px-8 py-4 rounded-full">
+            <p className="font-semibold text-casino-gold mb-1">Professional Casino Training Simulator</p>
+            <p>Practice strategies • Track statistics • Master the games</p>
           </div>
         </motion.div>
       </div>
     </div>
-  );
-}
-
-// === GAME CARD COMPONENT (CONSISTENT STYLING) ===
-function GameCard({ variants, icon, title, description, onClick }) {
-  return (
-    <motion.button
-      variants={variants}
-      whileHover={{ 
-        y: -8,
-        transition: { duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }
-      }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className="group glass-strong rounded-2xl p-8 hover:border-casino-gold-500 transition-all duration-normal relative overflow-hidden"
-    >
-      {/* Hover Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-casino-gold-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-normal"></div>
-      
-      <div className="relative z-10">
-        {/* Icon */}
-        <motion.div 
-          className="text-7xl mb-6"
-          whileHover={{ 
-            scale: 1.1, 
-            rotate: 6,
-            transition: { duration: 0.3 }
-          }}
-        >
-          {icon}
-        </motion.div>
-
-        {/* Title */}
-        <h2 className="text-4xl font-heading font-bold text-casino-gold-500 mb-4 tracking-wider">
-          {title}
-        </h2>
-
-        {/* Description */}
-        <p className="text-casino-gray-300 font-body text-base mb-6">
-          {description}
-        </p>
-
-        {/* Suit Icons */}
-        <div className="flex justify-center gap-3 text-3xl">
-          {['♠', '♥', '♦', '♣'].map((suit, i) => (
-            <motion.span
-              key={suit}
-              className={suit === '♥' || suit === '♦' ? 'text-red-500' : ''}
-              whileHover={{ 
-                scale: 1.2,
-                transition: { delay: i * 0.05 }
-              }}
-            >
-              {suit}
-            </motion.span>
-          ))}
-        </div>
-      </div>
-    </motion.button>
   );
 }
 
