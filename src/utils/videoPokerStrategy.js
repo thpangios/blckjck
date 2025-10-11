@@ -1,132 +1,163 @@
 import { VideoPokerRules } from './videoPokerRules';
 
-// Video Poker Strategy Calculator
+// Professional Expected Value Calculator using Combinatorics
 export class VideoPokerStrategy {
-  // Generate all possible hold combinations
-  static getAllHoldCombinations(cards) {
+  
+  // Calculate EXACT expected value for a hold combination
+  static calculateExactEV(heldCards, variant, coins) {
+    const deck = VideoPokerRules.createDeck();
+    
+    // Remove held cards from deck
+    const availableCards = deck.filter(deckCard => 
+      !heldCards.some(held => held.value === deckCard.value && held.suit === deckCard.suit)
+    );
+
+    const drawCount = 5 - heldCards.length;
+    
+    if (drawCount === 0) {
+      // No draw needed, evaluate current hand
+      const hand = VideoPokerRules.evaluateHand(heldCards, variant);
+      return VideoPokerRules.getPayout(hand, variant, coins);
+    }
+
+    // Calculate EV by trying all possible draw combinations
+    const combinations = this.getCombinations(availableCards, drawCount);
+    let totalPayout = 0;
+
+    for (const drawnCards of combinations) {
+      const finalHand = [...heldCards, ...drawnCards];
+      const hand = VideoPokerRules.evaluateHand(finalHand, variant);
+      const payout = VideoPokerRules.getPayout(hand, variant, coins);
+      totalPayout += payout;
+    }
+
+    // Average payout across all possible draws
+    return totalPayout / combinations.length;
+  }
+
+  // Generate all combinations of size k from array
+  static getCombinations(array, k) {
+    if (k === 0) return [[]];
+    if (k > array.length) return [];
+    
     const combinations = [];
     
-    // Generate all 32 possible combinations (2^5)
-    for (let i = 0; i < 32; i++) {
+    // For video poker, we need manageable computation
+    // For 0 cards held: C(47,5) = 1,533,939 combinations (too many!)
+    // We'll use sampling for large combination counts
+    
+    const totalCombinations = this.binomialCoefficient(array.length, k);
+    
+    if (totalCombinations > 50000) {
+      // Use Monte Carlo sampling for large combination spaces
+      return this.sampleCombinations(array, k, 10000);
+    }
+
+    // Generate all combinations for manageable sizes
+    function generateCombos(arr, size, start = 0, current = []) {
+      if (current.length === size) {
+        combinations.push([...current]);
+        return;
+      }
+      
+      for (let i = start; i <= arr.length - (size - current.length); i++) {
+        current.push(arr[i]);
+        generateCombos(arr, size, i + 1, current);
+        current.pop();
+      }
+    }
+
+    generateCombos(array, k);
+    return combinations;
+  }
+
+  // Monte Carlo sampling for large combination spaces
+  static sampleCombinations(array, k, sampleSize) {
+    const samples = [];
+    const seen = new Set();
+
+    for (let i = 0; i < sampleSize; i++) {
+      const sample = [];
+      const indices = [];
+      
+      while (sample.length < k) {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        if (!indices.includes(randomIndex)) {
+          indices.push(randomIndex);
+          sample.push(array[randomIndex]);
+        }
+      }
+
+      const key = sample.map(c => c.id).sort().join(',');
+      if (!seen.has(key)) {
+        seen.add(key);
+        samples.push(sample);
+      }
+    }
+
+    return samples;
+  }
+
+  // Binomial coefficient C(n,k) = n! / (k! * (n-k)!)
+  static binomialCoefficient(n, k) {
+    if (k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    
+    let result = 1;
+    for (let i = 1; i <= k; i++) {
+      result *= (n - i + 1) / i;
+    }
+    return Math.round(result);
+  }
+
+  // Get ALL possible hold combinations (32 total including hold none)
+  static getAllHoldCombinations() {
+    const combinations = [];
+    
+    // Generate all 31 non-empty combinations
+    for (let i = 1; i < 32; i++) {
       const holds = [];
       for (let j = 0; j < 5; j++) {
         if (i & (1 << j)) {
           holds.push(j);
         }
       }
-      if (holds.length > 0) {
-        combinations.push(holds);
-      }
+      combinations.push(holds);
     }
 
-    // Add empty combination (draw all 5)
+    // Add hold nothing (draw all 5)
     combinations.push([]);
 
     return combinations;
   }
 
-  // Calculate expected value for a hold combination
-  static calculateEV(cards, holdIndices, variant, coins) {
-    // This is a simplified EV calculation
-    // In a real implementation, you'd calculate exact EV based on remaining deck
-    const heldCards = holdIndices.map(i => cards[i]);
-    const analysis = VideoPokerRules.analyzeHand(heldCards, variant === 'deucesWild');
-    
-    // Estimate based on current partial hand
-    let ev = 0;
-
-    if (heldCards.length === 5) {
-      // Already have 5 cards, evaluate as-is
-      const hand = VideoPokerRules.evaluateHand(heldCards, variant);
-      return VideoPokerRules.getPayout(hand, variant, coins);
-    }
-
-    // Simplified heuristic scoring
-    if (analysis.isRoyalFlush) ev = 4000;
-    else if (analysis.isStraightFlush) ev = 250;
-    else if (analysis.isFourOfAKind) ev = 125;
-    else if (analysis.isFullHouse) ev = 45;
-    else if (analysis.isFlush) ev = 30;
-    else if (analysis.isStraight) ev = 20;
-    else if (analysis.isThreeOfAKind) ev = 15;
-    else if (analysis.isTwoPair) ev = 10;
-    else if (analysis.isJacksOrBetter) ev = 5;
-
-    // Adjust EV based on drawing potential
-    const drawCount = 5 - heldCards.length;
-    const drawPenalty = Math.pow(0.7, drawCount);
-    
-    return ev * drawPenalty;
-  }
-
-  // Get optimal hold strategy
+  // Find optimal hold strategy with exact EV
   static getOptimalHold(cards, variant, coins) {
-    const combinations = this.getAllHoldCombinations(cards);
-    let bestEV = -1;
+    const combinations = this.getAllHoldCombinations();
+    let bestEV = -Infinity;
     let bestHold = [];
-    let bestReasoning = '';
+    let allEVs = [];
 
     for (const holdIndices of combinations) {
-      const ev = this.calculateEV(cards, holdIndices, variant, coins);
+      const heldCards = holdIndices.map(i => cards[i]);
+      const ev = this.calculateExactEV(heldCards, variant, coins);
       
+      allEVs.push({
+        holdIndices,
+        ev,
+        description: this.getHoldDescription(cards, holdIndices)
+      });
+
       if (ev > bestEV) {
         bestEV = ev;
         bestHold = holdIndices;
-        bestReasoning = this.getHoldReasoning(cards, holdIndices, variant);
       }
     }
+
+    // Sort all EVs by value for display
+    allEVs.sort((a, b) => b.ev - a.ev);
 
     return {
       holdIndices: bestHold,
       expectedValue: bestEV,
-      reasoning: bestReasoning
-    };
-  }
-
-  // Get reasoning for hold decision
-  static getHoldReasoning(cards, holdIndices, variant) {
-    if (holdIndices.length === 0) {
-      return 'Draw all 5 cards - no winning combination';
-    }
-
-    const heldCards = holdIndices.map(i => cards[i]);
-    const analysis = VideoPokerRules.analyzeHand(heldCards, variant === 'deucesWild');
-
-    if (holdIndices.length === 5) {
-      const hand = VideoPokerRules.evaluateHand(heldCards, variant);
-      return `Hold all - you have ${hand}`;
-    }
-
-    if (analysis.isFourOfAKind) return 'Hold four of a kind, draw 1';
-    if (analysis.isThreeOfAKind) return 'Hold three of a kind, draw 2 for full house or four of a kind';
-    if (analysis.isTwoPair) return 'Hold two pair, draw 1 for full house';
-    if (analysis.isJacksOrBetter) return 'Hold high pair (Jacks or better), draw 3';
-
-    // Check for drawing hands
-    const suits = heldCards.map(c => c.suit);
-    const values = heldCards.map(c => VideoPokerRules.valueMap[c.value]).sort((a, b) => a - b);
-
-    if (suits.every(s => s === suits[0]) && heldCards.length === 4) {
-      return 'Draw to flush (4 suited cards)';
-    }
-
-    if (this.isOpenEndedStraightDraw(values)) {
-      return 'Draw to open-ended straight';
-    }
-
-    if (values.includes(14) || values.includes(13) || values.includes(12) || values.includes(11)) {
-      return 'Hold high cards for potential pairs';
-    }
-
-    return `Hold ${heldCards.length} cards`;
-  }
-
-  static isOpenEndedStraightDraw(values) {
-    if (values.length !== 4) return false;
-    
-    for (let i = 0; i < values.length - 1; i++) {
-      if (values[i + 1] - values[i] !== 1) return false;
-    }
-    return true;
-  }
-}
+      reasoning: this.getDet
