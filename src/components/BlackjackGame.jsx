@@ -984,7 +984,6 @@ const hit = () => {
     </div>
   );
 }
-
 // Premium Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
@@ -1013,7 +1012,6 @@ function Card({ card, hidden = false }) {
     </div>
   );
 }
-
 // Modal Component
 function Modal({ children, onClose, title }) {
   return (
