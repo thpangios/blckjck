@@ -356,39 +356,38 @@ export class PaiGowPokerStrategy {
     };
   }
 
-  static findBestStraightOrFlush(cards) {
+ static findBestStraightOrFlush(cards) {
     // Find best 5-card combination that makes straight or flush
     const combos = PaiGowPokerRules.getCombinations(cards, 5);
     let best = null;
     let bestRank = -1;
     
     for (let combo of combos) {
-      const eval = PaiGowPokerRules.evaluate5CardHand(combo);
-      if (eval.rank >= 4 && eval.rank > bestRank) { // Straight or better
+      const handEval = PaiGowPokerRules.evaluate5CardHand(combo);
+      if (handEval.rank >= 4 && handEval.rank > bestRank) { // Straight or better
         best = combo;
-        bestRank = eval.rank;
+        bestRank = handEval.rank;
       }
     }
     
     return best || cards.slice(0, 5);
   }
 
-  static findBestStraightFlush(cards) {
+  static findstatic findBestStraightFlush(cards) {
     const combos = PaiGowPokerRules.getCombinations(cards, 5);
     let best = null;
     let bestRank = -1;
     
     for (let combo of combos) {
-      const eval = PaiGowPokerRules.evaluate5CardHand(combo);
-      if (eval.rank === 8) { // Straight flush
+      const handEval = PaiGowPokerRules.evaluate5CardHand(combo);
+      if (handEval.rank === 8) { // Straight flush
         best = combo;
-        bestRank = eval.rank;
+        bestRank = handEval.rank;
       }
     }
     
     return best || this.findBestStraightOrFlush(cards);
   }
-
   // Get all possible ways to set a hand
   static getAllPossibleSets(cards) {
     const allSets = [];
