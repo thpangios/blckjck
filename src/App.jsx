@@ -177,7 +177,9 @@ function App() {
         endGame(updatedHands);
       }
     } else if (handValue === 21) {
-      stand();
+      // AUTO-STAND on 21 - this is standard blackjack rules
+      setMessage('21! Auto-standing...');
+      setTimeout(() => stand(), 800);
     } else {
       if (trainingMode) {
         updateStrategyAdvice(updatedCards, dealerHand[0], false, false, playerHands.length);
