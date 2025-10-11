@@ -611,29 +611,29 @@ export class PaiGowPokerRules {
       return { hand: 'Five Aces', payout: 400 };
     }
 
-    // Evaluate best 5-card hand
+// Evaluate best 5-card hand
     const best5Card = this.findBest5CardHand(allSevenCards);
-    const eval5 = this.evaluate5CardHand(best5Card);
+    const handEval5 = this.evaluate5CardHand(best5Card);
 
-    if (eval5.name === 'Royal Flush') {
+    if (handEval5.name === 'Royal Flush') {
       return { hand: 'Royal Flush', payout: 150 };
     }
-    if (eval5.name === 'Straight Flush') {
+    if (handEval5.name === 'Straight Flush') {
       return { hand: 'Straight Flush', payout: 50 };
     }
-    if (eval5.name === 'Four of a Kind') {
+    if (handEval5.name === 'Four of a Kind') {
       return { hand: 'Four of a Kind', payout: 25 };
     }
-    if (eval5.name === 'Full House') {
+    if (handEval5.name === 'Full House') {
       return { hand: 'Full House', payout: 5 };
     }
-    if (eval5.name === 'Flush') {
+    if (handEval5.name === 'Flush') {
       return { hand: 'Flush', payout: 4 };
     }
-    if (eval5.name === 'Three of a Kind') {
+    if (handEval5.name === 'Three of a Kind') {
       return { hand: 'Three of a Kind', payout: 3 };
     }
-    if (eval5.name === 'Straight') {
+    if (handEval5.name === 'Straight') {
       return { hand: 'Straight', payout: 2 };
     }
 
