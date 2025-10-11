@@ -3,6 +3,7 @@ import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Ey
 import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
+import CardCountingDisplay from './CardCountingDisplay';
 
 function BlackjackGame({ onBack }) {  // ✅ Then the function
 
@@ -15,6 +16,8 @@ function BlackjackGame({ onBack }) {  // ✅ Then the function
   const [gameState, setGameState] = useState('betting');
   const [message, setMessage] = useState('Place your bet to start playing');
   const [showDealerCard, setShowDealerCard] = useState(false);
+  const [betHistory, setBetHistory] = useState([]);
+const [baseBet, setBaseBet] = useState(10); // Base betting unit
 
   // Theme
   const [theme, setTheme] = useState('classic'); // classic, modern, high-contrast
@@ -66,19 +69,23 @@ function BlackjackGame({ onBack }) {  // ✅ Then the function
 
   // Place bet
   const placeBet = (amount) => {
-    if (balance >= amount && gameState === 'betting') {
-      const newHand = {
-        cards: [],
-        bet: amount,
-        status: 'active',
-        doubled: false,
-        surrendered: false
-      };
-      setPlayerHands([newHand]);
-      setBalance(balance - amount);
-      setTimeout(() => startGame([newHand]), 300);
-    }
-  };
+  if (balance >= amount && gameState === 'betting') {
+    const newHand = {
+      cards: [],
+      bet: amount,
+      status: 'active',
+      doubled: false,
+      surrendered: false
+    };
+    setPlayerHands([newHand]);
+    setBalance(balance - amount);
+    
+    // Track bet history for heat calculation
+    setBetHistory(prev => [...prev, amount].slice(-30)); // Keep last 30 bets
+    
+    setTimeout(() => startGame([newHand]), 300);
+  }
+};
 
   // Start new game
   const startGame = (hands) => {
@@ -645,7 +652,18 @@ const hit = () => {
           )}
         </div>
       </div>
-
+      
+{/* Card Counting Display Panel - ADD THIS ENTIRE SECTION */}
+      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
+        <CardCountingDisplay 
+          deckManager={deckManager}
+          betHistory={betHistory}
+          currentBet={playerHands[0]?.bet || 0}
+          baseBet={baseBet}
+        />
+      </div>
+      {/* Game Table */}
+      <div className="max-w-7xl mx-auto">
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
         <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
