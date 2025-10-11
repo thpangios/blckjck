@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';  // ✅ CORRECT - imports first
+import React, { useState, useEffect } from 'react';
 import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
 import CardCountingDisplay from './CardCountingDisplay';
 
-function BlackjackGame({ onBack }) {  // ✅ Then the function
-
+function BlackjackGame({ onBack }) {
   // Game state
   const [deckManager, setDeckManager] = useState(null);
   const [playerHands, setPlayerHands] = useState([]);
@@ -17,7 +16,7 @@ function BlackjackGame({ onBack }) {  // ✅ Then the function
   const [message, setMessage] = useState('Place your bet to start playing');
   const [showDealerCard, setShowDealerCard] = useState(false);
   const [betHistory, setBetHistory] = useState([]);
-const [baseBet, setBaseBet] = useState(10); // Base betting unit
+  const [baseBet, setBaseBet] = useState(10); // Base betting unit
 
   // Theme
   const [theme, setTheme] = useState('classic'); // classic, modern, high-contrast
@@ -69,23 +68,23 @@ const [baseBet, setBaseBet] = useState(10); // Base betting unit
 
   // Place bet
   const placeBet = (amount) => {
-  if (balance >= amount && gameState === 'betting') {
-    const newHand = {
-      cards: [],
-      bet: amount,
-      status: 'active',
-      doubled: false,
-      surrendered: false
-    };
-    setPlayerHands([newHand]);
-    setBalance(balance - amount);
-    
-    // Track bet history for heat calculation
-    setBetHistory(prev => [...prev, amount].slice(-30)); // Keep last 30 bets
-    
-    setTimeout(() => startGame([newHand]), 300);
-  }
-};
+    if (balance >= amount && gameState === 'betting') {
+      const newHand = {
+        cards: [],
+        bet: amount,
+        status: 'active',
+        doubled: false,
+        surrendered: false
+      };
+      setPlayerHands([newHand]);
+      setBalance(balance - amount);
+
+      // Track bet history for heat calculation
+      setBetHistory(prev => [...prev, amount].slice(-30)); // Keep last 30 bets
+
+      setTimeout(() => startGame([newHand]), 300);
+    }
+  };
 
   // Start new game
   const startGame = (hands) => {
@@ -153,7 +152,7 @@ const [baseBet, setBaseBet] = useState(10); // Base betting unit
     return null;
   };
 
-const hit = () => {
+  const hit = () => {
     checkDecision('HIT');
     const currentHand = playerHands[currentHandIndex];
     const newCard = deckManager.dealCard();
@@ -189,7 +188,7 @@ const hit = () => {
       // Got 21 - automatically move to next hand or dealer
       updatedHands[currentHandIndex].status = 'stood';
       setPlayerHands(updatedHands);
-      
+
       if (currentHandIndex < playerHands.length - 1) {
         // Move to next hand
         setCurrentHandIndex(currentHandIndex + 1);
@@ -253,7 +252,7 @@ const hit = () => {
 
     checkDecision('DOUBLE');
     setBalance(balance - currentHand.bet);
-    
+
     const newCard = deckManager.dealCard();
     const updatedCards = [...currentHand.cards, newCard];
 
@@ -501,19 +500,17 @@ const hit = () => {
 
   const currentHand = playerHands[currentHandIndex];
   const canDouble = currentHand && currentHand.cards.length === 2 && gameState === 'playing' && balance >= currentHand.bet;
-  const canSplit = currentHand && HandCalculator.canSplit(currentHand.cards) && 
-                   playerHands.length <= rules.maxSplits && gameState === 'playing' && balance >= currentHand.bet;
-  const canSurrender = rules.surrenderAllowed && currentHand && 
-                       currentHand.cards.length === 2 && gameState === 'playing';
+  const canSplit = currentHand && HandCalculator.canSplit(currentHand.cards) &&
+    playerHands.length <= rules.maxSplits && gameState === 'playing' && balance >= currentHand.bet;
+  const canSurrender = rules.surrenderAllowed && currentHand &&
+    currentHand.cards.length === 2 && gameState === 'playing';
 
   return (
     <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
-      
       {/* Premium Header */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
         <div className="glass-strong rounded-2xl p-6 shadow-2xl">
           <div className="flex justify-between items-center flex-wrap gap-4">
-            
             {/* Logo WITH Back Button */}
             <div className="flex items-center gap-4">
               <button
@@ -526,29 +523,25 @@ const hit = () => {
                 ♠ BLACKJACK ♥
               </div>
             </div>
-            
             {/* Stats Bar */}
             <div className="flex gap-6 items-center flex-wrap">
               <div className="stat-card p-3 rounded-xl">
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
                 <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
               </div>
-
               <div className="stat-card p-3 rounded-xl">
                 <div className="text-xs text-gray-400 uppercase tracking-wider">True Count</div>
                 <div className={`text-2xl font-bold font-mono ${
-                  deckManager.getTrueCount() > 2 ? 'text-green-400' : 
+                  deckManager.getTrueCount() > 2 ? 'text-green-400' :
                   deckManager.getTrueCount() < -2 ? 'text-red-400' : 'text-gray-300'
                 }`}>
                   {deckManager.getTrueCount() > 0 ? '+' : ''}{deckManager.getTrueCount()}
                 </div>
               </div>
-
               <div className="stat-card p-3 rounded-xl">
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Penetration</div>
                 <div className="text-xl font-mono text-blue-400">{deckManager.getPenetration()}%</div>
               </div>
-
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <button
@@ -558,7 +551,6 @@ const hit = () => {
                 >
                   <BarChart3 size={20} className="text-blue-400" />
                 </button>
-
                 <button
                   onClick={() => setShowSettings(!showSettings)}
                   className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
@@ -566,7 +558,6 @@ const hit = () => {
                 >
                   <Settings size={20} className="text-purple-400" />
                 </button>
-
                 <button
                   onClick={resetGame}
                   className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
@@ -577,7 +568,6 @@ const hit = () => {
               </div>
             </div>
           </div>
-
           {/* Training Controls */}
           <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
             <label className="flex items-center gap-3 cursor-pointer group">
@@ -590,7 +580,6 @@ const hit = () => {
               <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
               <span className="font-semibold text-lg">Training Mode</span>
             </label>
-
             {trainingMode && (
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input
@@ -603,7 +592,6 @@ const hit = () => {
                 <span className="text-sm">Strategy Hints</span>
               </label>
             )}
-
             <button
               onClick={() => {
                 const themes = ['classic', 'modern', 'high-contrast'];
@@ -616,7 +604,6 @@ const hit = () => {
               <span className="text-sm capitalize">{theme}</span>
             </button>
           </div>
-
           {/* Strategy Advice Panel */}
           {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
             <div className="mt-4 training-overlay rounded-xl p-4 slide-in-top">
@@ -629,7 +616,6 @@ const hit = () => {
               </div>
             </div>
           )}
-
           {/* Decision Feedback */}
           {lastDecision && (
             <div className={`mt-4 rounded-xl p-4 slide-in-top ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
@@ -641,7 +627,7 @@ const hit = () => {
                   </div>
                   {!lastDecision.correct && (
                     <div className="text-sm mt-1">
-                      You chose <span className="font-semibold">{lastDecision.action}</span>, 
+                      You chose <span className="font-semibold">{lastDecision.action}</span>,
                       but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
                       <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
                     </div>
@@ -652,10 +638,9 @@ const hit = () => {
           )}
         </div>
       </div>
-      
-{/* Card Counting Display Panel - ADD THIS ENTIRE SECTION */}
+      {/* Card Counting Display Panel */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <CardCountingDisplay 
+        <CardCountingDisplay
           deckManager={deckManager}
           betHistory={betHistory}
           currentBet={playerHands[0]?.bet || 0}
@@ -664,10 +649,7 @@ const hit = () => {
       </div>
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
-      {/* Game Table */}
-      <div className="max-w-7xl mx-auto">
         <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
-          
           {/* Dealer Section */}
           <div className="mb-16">
             <div className="text-center mb-6">
@@ -675,7 +657,7 @@ const hit = () => {
               {dealerHand.length > 0 && (
                 <div className="glass inline-block px-6 py-2 rounded-full">
                   <span className="text-2xl font-bold font-mono">
-                    {showDealerCard 
+                    {showDealerCard
                       ? HandCalculator.calculateValue(dealerHand)
                       : `${dealerHand[0].value}${dealerHand[0].suit}`
                     }
@@ -686,32 +668,28 @@ const hit = () => {
                 </div>
               )}
             </div>
-            
             <div className="flex justify-center gap-3 flex-wrap">
               {dealerHand.map((card, index) => (
-                <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{animationDelay: `${index * 0.1}s`}}>
+                <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${index * 0.1}s` }}>
                   <Card card={card} hidden={index === 1 && !showDealerCard} />
                 </div>
               ))}
             </div>
           </div>
-
           {/* Message Display */}
           <div className="text-center my-10">
             <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
               <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
             </div>
           </div>
-
           {/* Player Section */}
           <div className="mb-12">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-bold player-label text-yellow-400 mb-4 tracking-widest">PLAYER</h2>
             </div>
-            
             <div className="flex justify-center gap-6 flex-wrap">
               {playerHands.map((hand, index) => (
-                <div 
+                <div
                   key={index}
                   className={`glass-strong rounded-2xl p-6 transition-all duration-300 ${
                     index === currentHandIndex && gameState === 'playing'
@@ -737,7 +715,7 @@ const hit = () => {
                   </div>
                   <div className="flex gap-3 justify-center flex-wrap">
                     {hand.cards.map((card, cardIndex) => (
-                      <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{animationDelay: `${cardIndex * 0.1}s`}}>
+                      <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${cardIndex * 0.1}s` }}>
                         <Card card={card} />
                       </div>
                     ))}
@@ -746,7 +724,6 @@ const hit = () => {
               ))}
             </div>
           </div>
-
           {/* Betting Area */}
           {gameState === 'betting' && (
             <div className="mt-12 fade-in-up">
@@ -760,13 +737,13 @@ const hit = () => {
                       disabled={balance < amount}
                       className={`chip-animate relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 btn-premium chip-glow ${
                         amount === 5 ? 'bg-white text-black border-gray-400' :
-                        amount === 10 ? 'bg-red-600 border-red-800 text-white' :
-                        amount === 25 ? 'bg-green-600 border-green-800 text-white' :
-                        amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
-                        amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
-                        'bg-purple-700 border-purple-900 text-white'
+                          amount === 10 ? 'bg-red-600 border-red-800 text-white' :
+                          amount === 25 ? 'bg-green-600 border-green-800 text-white' :
+                          amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
+                          amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
+                          'bg-purple-700 border-purple-900 text-white'
                       } ${balance < amount ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:shadow-2xl'}`}
-                      style={{animationDelay: `${index * 0.1}s`}}
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="relative z-10">
                         ${amount}
@@ -777,7 +754,6 @@ const hit = () => {
               </div>
             </div>
           )}
-
           {/* Action Buttons */}
           {gameState === 'playing' && (
             <div className="mt-10 flex justify-center gap-5 flex-wrap">
@@ -819,7 +795,6 @@ const hit = () => {
               )}
             </div>
           )}
-
           {/* New Round Button */}
           {gameState === 'gameOver' && (
             <div className="mt-10 text-center fade-in-up">
@@ -833,7 +808,6 @@ const hit = () => {
           )}
         </div>
       </div>
-
       {/* Statistics Modal */}
       {showStats && (
         <Modal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
@@ -843,22 +817,22 @@ const hit = () => {
             <StatCard label="Losses" value={stats.losses} color="red" />
             <StatCard label="Pushes" value={stats.pushes} color="yellow" />
             <StatCard label="Blackjacks" value={stats.blackjacks} color="purple" icon="🃏" />
-            <StatCard 
-              label="Profit/Loss" 
-              value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss}`} 
-              color={stats.profitLoss >= 0 ? 'green' : 'red'} 
+            <StatCard
+              label="Profit/Loss"
+              value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss}`}
+              color={stats.profitLoss >= 0 ? 'green' : 'red'}
             />
-            <StatCard 
-              label="Win Rate" 
-              value={stats.handsPlayed > 0 ? `${((stats.wins / stats.handsPlayed) * 100).toFixed(1)}%` : '0%'} 
-              color="blue" 
+            <StatCard
+              label="Win Rate"
+              value={stats.handsPlayed > 0 ? `${((stats.wins / stats.handsPlayed) * 100).toFixed(1)}%` : '0%'}
+              color="blue"
               className="col-span-2 md:col-span-3"
             />
             {trainingMode && stats.totalDecisions > 0 && (
-              <StatCard 
-                label="Strategy Accuracy" 
-                value={`${((stats.correctDecisions / stats.totalDecisions) * 100).toFixed(1)}%`} 
-                color="indigo" 
+              <StatCard
+                label="Strategy Accuracy"
+                value={`${((stats.correctDecisions / stats.totalDecisions) * 100).toFixed(1)}%`}
+                color="indigo"
                 subtitle={`${stats.correctDecisions} / ${stats.totalDecisions} optimal`}
                 className="col-span-2 md:col-span-3"
               />
@@ -866,69 +840,61 @@ const hit = () => {
           </div>
         </Modal>
       )}
-
       {/* Settings Modal */}
       {showSettings && (
         <Modal onClose={() => setShowSettings(false)} title="GAME SETTINGS">
           <div className="space-y-6">
-            <SettingSelect 
-              label="Number of Decks" 
+            <SettingSelect
+              label="Number of Decks"
               value={rules.numDecks}
-              onChange={(val) => setRules({...rules, numDecks: parseInt(val)})}
+              onChange={(val) => setRules({ ...rules, numDecks: parseInt(val) })}
               options={[
-                {value: 1, label: '1 Deck'},
-                {value: 2, label: '2 Decks'},
-                {value: 6, label: '6 Decks'},
-                {value: 8, label: '8 Decks'}
+                { value: 1, label: '1 Deck' },
+                { value: 2, label: '2 Decks' },
+                { value: 6, label: '6 Decks' },
+                { value: 8, label: '8 Decks' }
               ]}
             />
-
-            <SettingSelect 
-              label="Blackjack Pays" 
+            <SettingSelect
+              label="Blackjack Pays"
               value={rules.blackjackPays}
-              onChange={(val) => setRules({...rules, blackjackPays: parseFloat(val)})}
+              onChange={(val) => setRules({ ...rules, blackjackPays: parseFloat(val) })}
               options={[
-                {value: 1.5, label: '3:2'},
-                {value: 1.2, label: '6:5'}
+                { value: 1.5, label: '3:2' },
+                { value: 1.2, label: '6:5' }
               ]}
             />
-
-            <SettingToggle 
+            <SettingToggle
               label="Dealer Hits Soft 17"
               checked={rules.dealerHitsSoft17}
-              onChange={(val) => setRules({...rules, dealerHitsSoft17: val})}
+              onChange={(val) => setRules({ ...rules, dealerHitsSoft17: val })}
             />
-
-            <SettingToggle 
+            <SettingToggle
               label="Double After Split (DAS)"
               checked={rules.doubleAfterSplit}
-              onChange={(val) => setRules({...rules, doubleAfterSplit: val})}
+              onChange={(val) => setRules({ ...rules, doubleAfterSplit: val })}
             />
-
-            <SettingToggle 
+            <SettingToggle
               label="Surrender Allowed"
               checked={rules.surrenderAllowed}
-              onChange={(val) => setRules({...rules, surrenderAllowed: val})}
+              onChange={(val) => setRules({ ...rules, surrenderAllowed: val })}
             />
-
-            <SettingToggle 
+            <SettingToggle
               label="Re-split Aces"
               checked={rules.resplitAces}
-              onChange={(val) => setRules({...rules, resplitAces: val})}
+              onChange={(val) => setRules({ ...rules, resplitAces: val })}
             />
-
-            <SettingSelect 
-              label="Maximum Splits" 
+            <SettingSelect
+              label="Maximum Splits"
               value={rules.maxSplits}
-              onChange={(val) => setRules({...rules, maxSplits: parseInt(val)})}
+              onChange={(val) => setRules({ ...rules, maxSplits: parseInt(val) })}
               options={[
-                {value: 1, label: '1 Split'},
-                {value: 2, label: '2 Splits'},
-                {value: 3, label: '3 Splits'},
-                {value: 4, label: '4 Splits'}
+                { value: 1, label: '1 Split' },
+                { value: 2, label: '2 Splits' },
+                { value: 3, label: '3 Splits' },
+                { value: 4, label: '4 Splits' }
               ]}
             />
-
             <div className="pt-6 border-t border-gray-700">
               <button
                 onClick={() => {
@@ -945,7 +911,6 @@ const hit = () => {
           </div>
         </Modal>
       )}
-
       {/* House Rules Footer */}
       <div className="max-w-7xl mx-auto mt-8 fade-in-up">
         <details className="glass-strong rounded-xl p-5">
@@ -984,6 +949,7 @@ const hit = () => {
     </div>
   );
 }
+
 // Premium Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
@@ -1012,6 +978,7 @@ function Card({ card, hidden = false }) {
     </div>
   );
 }
+
 // Modal Component
 function Modal({ children, onClose, title }) {
   return (
