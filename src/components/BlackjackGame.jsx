@@ -1013,23 +1013,6 @@ function Card({ card, hidden = false }) {
     </div>
   );
 }
-  
-  return (
-    <div className="w-28 h-40 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 p-3 flex flex-col justify-between transform transition-all hover:scale-105 card-3d">
-      <div className={`text-2xl font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-4xl leading-none">{card.suit}</div>
-      </div>
-      <div className="text-center text-5xl">
-        <div className={isRed ? 'text-red-600' : 'text-black'}>{card.suit}</div>
-      </div>
-      <div className={`text-2xl font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-4xl leading-none">{card.suit}</div>
-      </div>
-    </div>
-  );
-}
 
 // Modal Component
 function Modal({ children, onClose, title }) {
