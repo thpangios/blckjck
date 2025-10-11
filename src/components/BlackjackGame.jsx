@@ -1,5 +1,20 @@
+// src/components/BlackjackGame.jsx
 import React, { useState, useEffect } from 'react';
-import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Confetti from './Confetti';
+import {
+  Settings,
+  TrendingUp,
+  Brain,
+  BarChart3,
+  RotateCcw,
+  Info,
+  X,
+  Palette,
+  Eye,
+  EyeOff,
+  ArrowLeft
+} from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
@@ -115,6 +130,7 @@ function BlackjackGame({ onBack }) {
       } else {
         setMessage('🎉 BLACKJACK! You Win!');
         resolveHand(updatedHands[0], 'blackjack');
+        // update stats handled inside resolveHand
       }
       return;
     }
@@ -508,136 +524,201 @@ function BlackjackGame({ onBack }) {
   return (
     <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
       {/* Premium Header */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <div className="glass-strong rounded-2xl p-6 shadow-2xl">
+      <div className="max-w-7xl mx-auto mb-6 fade-in-up-premium">
+        <div className="glass-premium-strong rounded-2xl p-6 shadow-2xl border border-casino-gold/20">
           <div className="flex justify-between items-center flex-wrap gap-4">
+
             {/* Logo WITH Back Button */}
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onBack}
-                className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
+                className="btn-premium-secondary px-4 py-2 rounded-lg flex items-center gap-2"
               >
-                ← Back
-              </button>
-              <div className="text-4xl font-bold player-label neon-text">
+                <ArrowLeft size={20} />
+                <span className="font-heading tracking-wider">BACK</span>
+              </motion.button>
+              <div className="text-5xl font-display font-black neon-text-premium tracking-wider">
                 ♠ BLACKJACK ♥
               </div>
             </div>
+
             {/* Stats Bar */}
-            <div className="flex gap-6 items-center flex-wrap">
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
-                <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
-              </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">True Count</div>
-                <div className={`text-2xl font-bold font-mono ${
+            <div className="flex gap-4 items-center flex-wrap">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-4 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">Balance</div>
+                <div className="text-3xl font-tech font-bold gold-shimmer">${balance}</div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-4 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">True Count</div>
+                <div className={`text-3xl font-tech font-bold ${
                   deckManager.getTrueCount() > 2 ? 'text-green-400' :
                   deckManager.getTrueCount() < -2 ? 'text-red-400' : 'text-gray-300'
                 }`}>
                   {deckManager.getTrueCount() > 0 ? '+' : ''}{deckManager.getTrueCount()}
                 </div>
-              </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Penetration</div>
-                <div className="text-xl font-mono text-blue-400">{deckManager.getPenetration()}%</div>
-              </div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-4 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">Penetration</div>
+                <div className="text-2xl font-tech font-bold text-blue-400">{deckManager.getPenetration()}%</div>
+              </motion.div>
+
               {/* Action Buttons */}
               <div className="flex gap-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setShowStats(!showStats)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass-premium p-3 rounded-lg hover:border-casino-gold border border-transparent transition-all"
                   title="Statistics"
                 >
                   <BarChart3 size={20} className="text-blue-400" />
-                </button>
-                <button
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setShowSettings(!showSettings)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass-premium p-3 rounded-lg hover:border-casino-gold border border-transparent transition-all"
                   title="Settings"
                 >
                   <Settings size={20} className="text-purple-400" />
-                </button>
-                <button
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={resetGame}
-                  className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  className="btn-premium-secondary px-4 py-2 rounded-lg flex items-center gap-2"
                 >
                   <RotateCcw size={16} />
-                  <span className="font-semibold">Reset</span>
-                </button>
+                  <span className="font-heading tracking-wider">RESET</span>
+                </motion.button>
               </div>
             </div>
           </div>
+
           {/* Training Controls */}
-          <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
-            <label className="flex items-center gap-3 cursor-pointer group">
+          <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-casino-gold/20 pt-4">
+            <motion.label
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
               <input
                 type="checkbox"
                 checked={trainingMode}
                 onChange={(e) => setTrainingMode(e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-6 h-6 cursor-pointer accent-casino-gold"
               />
-              <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
-              <span className="font-semibold text-lg">Training Mode</span>
-            </label>
+              <Brain size={24} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
+              <span className="font-heading text-lg tracking-wider">TRAINING MODE</span>
+            </motion.label>
+
             {trainingMode && (
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={showStrategy}
-                  onChange={(e) => setShowStrategy(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-                {showStrategy ? <Eye size={18} className="text-green-400" /> : <EyeOff size={18} className="text-gray-400" />}
-                <span className="text-sm">Strategy Hints</span>
-              </label>
+              <>
+                <motion.label
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-3 cursor-pointer group"
+                >
+                  <input
+                    type="checkbox"
+                    checked={showStrategy}
+                    onChange={(e) => setShowStrategy(e.target.checked)}
+                    className="w-5 h-5 cursor-pointer accent-casino-gold"
+                  />
+                  {showStrategy ? <Eye size={20} className="text-green-400" /> : <EyeOff size={20} className="text-gray-400" />}
+                  <span className="text-sm font-body">Strategy Hints</span>
+                </motion.label>
+              </>
             )}
-            <button
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 const themes = ['classic', 'modern', 'high-contrast'];
                 const currentIndex = themes.indexOf(theme);
                 setTheme(themes[(currentIndex + 1) % themes.length]);
               }}
-              className="flex items-center gap-2 glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all"
+              className="flex items-center gap-2 glass-premium px-4 py-2 rounded-lg hover:border-casino-gold border border-transparent transition-all"
             >
               <Palette size={18} />
-              <span className="text-sm capitalize">{theme}</span>
-            </button>
+              <span className="text-sm font-heading tracking-wider capitalize">{theme}</span>
+            </motion.button>
           </div>
-          {/* Strategy Advice Panel */}
-          {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
-            <div className="mt-4 training-overlay rounded-xl p-4 slide-in-top">
-              <div className="flex items-start gap-3">
-                <TrendingUp size={20} className="text-yellow-400 mt-1 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-yellow-300 text-lg mb-1">OPTIMAL PLAY: {strategyAdvice.action}</div>
-                  <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Decision Feedback */}
-          {lastDecision && (
-            <div className={`mt-4 rounded-xl p-4 slide-in-top ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{lastDecision.correct ? '✓' : '✗'}</span>
-                <div>
-                  <div className="font-bold text-lg">
-                    {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
-                  </div>
-                  {!lastDecision.correct && (
-                    <div className="text-sm mt-1">
-                      You chose <span className="font-semibold">{lastDecision.action}</span>,
-                      but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
-                      <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
+
+          {/* Strategy Advice with Animation */}
+          <AnimatePresence>
+            {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4 training-overlay-premium rounded-xl p-4 overflow-hidden"
+              >
+                <div className="flex items-start gap-3">
+                  <TrendingUp size={24} className="text-casino-gold mt-1 flex-shrink-0" />
+                  <div>
+                    <div className="font-heading text-xl font-bold text-casino-gold tracking-wider mb-1">
+                      OPTIMAL PLAY: {strategyAdvice.action}
                     </div>
-                  )}
+                    <div className="text-sm text-gray-200 font-body">{strategyAdvice.reason}</div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Decision Feedback with Animation */}
+          <AnimatePresence>
+            {lastDecision && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className={`mt-4 rounded-xl p-4 ${lastDecision.correct ? 'feedback-success-premium' : 'feedback-error-premium'}`}
+              >
+                <div className="flex items-start gap-3">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="text-3xl"
+                  >
+                    {lastDecision.correct ? '✓' : '✗'}
+                  </motion.span>
+                  <div>
+                    <div className="font-heading text-xl font-bold tracking-wider">
+                      {lastDecision.correct ? 'PERFECT DECISION!' : 'SUBOPTIMAL PLAY'}
+                    </div>
+                    {!lastDecision.correct && (
+                      <div className="text-sm mt-1 font-body">
+                        You chose <span className="font-bold">{lastDecision.action}</span>,
+                        but <span className="font-bold text-casino-gold">{lastDecision.optimal}</span> was optimal
+                        <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
       {/* Card Counting Display Panel */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
         <CardCountingDisplay
@@ -647,9 +728,10 @@ function BlackjackGame({ onBack }) {
           baseBet={baseBet}
         />
       </div>
+
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
-        <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
+        <div className="felt-texture-premium table-border-premium rounded-[3rem] shadow-2xl p-12 relative">
           {/* Dealer Section */}
           <div className="mb-16">
             <div className="text-center mb-6">
@@ -676,12 +758,14 @@ function BlackjackGame({ onBack }) {
               ))}
             </div>
           </div>
+
           {/* Message Display */}
           <div className="text-center my-10">
             <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
               <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
             </div>
           </div>
+
           {/* Player Section */}
           <div className="mb-12">
             <div className="text-center mb-6">
@@ -724,90 +808,119 @@ function BlackjackGame({ onBack }) {
               ))}
             </div>
           </div>
+
           {/* Betting Area */}
           {gameState === 'betting' && (
-            <div className="mt-12 fade-in-up">
-              <div className="glass-strong rounded-2xl p-8 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-center mb-6 text-yellow-400 player-label tracking-wider">PLACE YOUR BET</h3>
+            <div className="mt-12 fade-in-up-premium">
+              <div className="glass-premium-strong rounded-2xl p-8 max-w-3xl mx-auto border border-casino-gold/30">
+                <h3 className="text-3xl font-heading font-bold text-center mb-6 text-casino-gold tracking-widest">
+                  PLACE YOUR BET
+                </h3>
                 <div className="flex justify-center gap-5 flex-wrap mb-6">
                   {[5, 10, 25, 50, 100, 500].map((amount, index) => (
-                    <button
+                    <motion.button
                       key={amount}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.15, rotate: 5 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => placeBet(amount)}
                       disabled={balance < amount}
-                      className={`chip-animate relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 btn-premium chip-glow ${
+                      className={`chip-premium relative w-24 h-24 rounded-full border-4 font-tech font-bold text-xl transition-all ${
+                        betHistory[betHistory.length - 1] === amount ? 'ring-4 ring-casino-gold pulse-glow-premium' : ''
+                      } ${
                         amount === 5 ? 'bg-white text-black border-gray-400' :
-                          amount === 10 ? 'bg-red-600 border-red-800 text-white' :
-                          amount === 25 ? 'bg-green-600 border-green-800 text-white' :
-                          amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
-                          amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
-                          'bg-purple-700 border-purple-900 text-white'
-                      } ${balance < amount ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:shadow-2xl'}`}
-                      style={{ animationDelay: `${index * 0.1}s` }}
+                        amount === 10 ? 'bg-gradient-to-br from-red-600 to-red-800 border-red-900 text-white' :
+                        amount === 25 ? 'bg-gradient-to-br from-green-600 to-green-800 border-green-900 text-white' :
+                        amount === 50 ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-blue-900 text-white' :
+                        amount === 100 ? 'bg-gradient-to-br from-black to-gray-900 text-casino-gold border-casino-gold' :
+                        'bg-gradient-to-br from-purple-700 to-purple-900 border-purple-950 text-white'
+                      } ${balance < amount ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className="relative z-10">
                         ${amount}
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
             </div>
           )}
+
           {/* Action Buttons */}
           {gameState === 'playing' && (
             <div className="mt-10 flex justify-center gap-5 flex-wrap">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={hit}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="btn-premium-casino px-10 py-5 rounded-2xl text-2xl shadow-2xl"
               >
                 HIT
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={stand}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="btn-premium-casino px-10 py-5 rounded-2xl text-2xl shadow-2xl"
               >
                 STAND
-              </button>
+              </motion.button>
               {canDouble && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={doubleDown}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium-casino px-8 py-5 rounded-2xl text-2xl shadow-2xl"
                 >
                   DOUBLE
-                </button>
+                </motion.button>
               )}
               {canSplit && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={split}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium-casino px-8 py-5 rounded-2xl text-2xl shadow-2xl"
                 >
                   SPLIT
-                </button>
+                </motion.button>
               )}
               {canSurrender && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={surrender}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-xl transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium-secondary px-8 py-5 rounded-2xl text-xl shadow-2xl"
                 >
                   SURRENDER
-                </button>
+                </motion.button>
               )}
             </div>
           )}
+
           {/* New Round Button */}
           {gameState === 'gameOver' && (
-            <div className="mt-10 text-center fade-in-up">
-              <button
+            <div className="mt-10 text-center fade-in-up-premium">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={newRound}
-                className="btn-premium glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
+                className="btn-premium-casino px-16 py-6 rounded-2xl text-3xl shadow-2xl pulse-glow-premium"
               >
                 NEW ROUND
-              </button>
+              </motion.button>
             </div>
+          )}
+
+          {/* confetti on blackjack win (visual flourish) */}
+          {message && message.toUpperCase().includes('BLACKJACK') && gameState === 'gameOver' && (
+            <Confetti />
           )}
         </div>
       </div>
+
       {/* Statistics Modal */}
       {showStats && (
         <Modal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
@@ -840,6 +953,7 @@ function BlackjackGame({ onBack }) {
           </div>
         </Modal>
       )}
+
       {/* Settings Modal */}
       {showSettings && (
         <Modal onClose={() => setShowSettings(false)} title="GAME SETTINGS">
@@ -911,6 +1025,7 @@ function BlackjackGame({ onBack }) {
           </div>
         </Modal>
       )}
+
       {/* House Rules Footer */}
       <div className="max-w-7xl mx-auto mt-8 fade-in-up">
         <details className="glass-strong rounded-xl p-5">
