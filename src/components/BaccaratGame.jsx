@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react';
 import { BaccaratRules } from '../utils/baccaratRules';
-import { BaccaratAnalytics } from '../utils/baccaratAnalytics';  // ✅ CHECK THIS
-import BaccaratRoadmaps from './BaccaratRoadmaps';  // ✅ CHECK THIS
-import BaccaratStats from './BaccaratStats';  // ✅ CHECK THIS
+import { BaccaratAnalytics } from '../utils/baccaratAnalytics';
+import BaccaratRoadmaps from './BaccaratRoadmaps';
+import BaccaratStats from './BaccaratStats';
 
 function BaccaratGame({ onBack }) {
-  const [deck, setDeck] = useState(null);
+  // Deck management
+  const [deck, setDeck] = useState([]);
+  
+  // Game state
   const [playerHand, setPlayerHand] = useState([]);
   const [bankerHand, setBankerHand] = useState([]);
   const [balance, setBalance] = useState(10000);
-  const [gameState, setGameState] = useState('betting'); // betting, dealing, reveal, gameOver
+  const [gameState, setGameState] = useState('betting');
   const [message, setMessage] = useState('Place your bets');
+  
+  // Analytics
   const [analytics] = useState(new BaccaratAnalytics());
-const [commissionOwed, setCommissionOwed] = useState(0);
+  const [commissionOwed, setCommissionOwed] = useState(0);
   
   // Bets
   const [playerBet, setPlayerBet] = useState(0);
@@ -43,41 +48,69 @@ const [commissionOwed, setCommissionOwed] = useState(0);
   const [showStats, setShowStats] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
-  // Initialize deck
+  // Initialize deck on mount
   useEffect(() => {
-    const dm = new Deck(8, 0.85); // 8-deck shoe, 85% penetration
-    setDeck(dm);
+    createDeck();
   }, []);
+
+  // Create and shuffle 8-deck shoe
+  const createDeck = () => {
+    const newDeck = [];
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    
+    // Create 8 decks
+    for (let i = 0; i < 8; i++) {
+      for (let suit of suits) {
+        for (let value of values) {
+          newDeck.push({ 
+            suit, 
+            value, 
+            id: `${value}${suit}-${i}-${Math.random()}` 
+          });
+        }
+      }
+    }
+    
+    setDeck(shuffleDeck(newDeck));
+  };
+
+  // Fisher-Yates shuffle
+  const shuffleDeck = (cards) => {
+    const shuffled = [...cards];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   // Place bet
   const placeBet = (betType, amount) => {
     if (balance < amount || gameState !== 'betting') return;
 
+    const currentTotal = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
+    
+    if (currentTotal + amount > balance) {
+      setMessage('Insufficient balance!');
+      return;
+    }
+
     switch(betType) {
       case 'player':
-        if (playerBet + amount <= balance - bankerBet - tieBet - playerPairBet - bankerPairBet) {
-          setPlayerBet(playerBet + amount);
-        }
+        setPlayerBet(playerBet + amount);
         break;
       case 'banker':
-        if (bankerBet + amount <= balance - playerBet - tieBet - playerPairBet - bankerPairBet) {
-          setBankerBet(bankerBet + amount);
-        }
+        setBankerBet(bankerBet + amount);
         break;
       case 'tie':
-        if (tieBet + amount <= balance - playerBet - bankerBet - playerPairBet - bankerPairBet) {
-          setTieBet(tieBet + amount);
-        }
+        setTieBet(tieBet + amount);
         break;
       case 'playerPair':
-        if (playerPairBet + amount <= balance - playerBet - bankerBet - tieBet - bankerPairBet) {
-          setPlayerPairBet(playerPairBet + amount);
-        }
+        setPlayerPairBet(playerPairBet + amount);
         break;
       case 'bankerPair':
-        if (bankerPairBet + amount <= balance - playerBet - bankerBet - tieBet - playerPairBet) {
-          setBankerPairBet(bankerPairBet + amount);
-        }
+        setBankerPairBet(bankerPairBet + amount);
         break;
     }
   };
@@ -100,6 +133,14 @@ const [commissionOwed, setCommissionOwed] = useState(0);
       return;
     }
 
+    // Check if deck needs reshuffling
+    if (deck.length < 20) {
+      setMessage('Shuffling new shoe...');
+      createDeck();
+      setTimeout(() => deal(), 1000);
+      return;
+    }
+
     // Deduct bets from balance
     const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
     setBalance(balance - totalBet);
@@ -108,11 +149,12 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     setMessage('Dealing...');
 
     // Deal initial 4 cards (player, banker, player, banker)
-    const card1 = deck.dealCard();
-    const card2 = deck.dealCard();
-    const card3 = deck.dealCard();
-    const card4 = deck.dealCard();
+    const card1 = deck[0];
+    const card2 = deck[1];
+    const card3 = deck[2];
+    const card4 = deck[3];
 
+    setDeck(deck.slice(4));
     setPlayerHand([card1, card3]);
     setBankerHand([card2, card4]);
 
@@ -144,11 +186,14 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     setTimeout(() => {
       let finalPlayerHand = [...pHand];
       let finalBankerHand = [...bHand];
+      let deckCopy = [...deck];
 
       if (needsCard.player) {
-        const playerThird = deck.dealCard();
+        const playerThird = deckCopy[0];
+        deckCopy = deckCopy.slice(1);
         finalPlayerHand = [...pHand, playerThird];
         setPlayerHand(finalPlayerHand);
+        setDeck(deckCopy);
         setMessage('Player draws third card');
       }
 
@@ -157,9 +202,11 @@ const [commissionOwed, setCommissionOwed] = useState(0);
         const shouldBankerDraw = BaccaratRules.bankerDraws(bTotal, playerThirdCard);
 
         if (shouldBankerDraw) {
-          const bankerThird = deck.dealCard();
+          const bankerThird = deckCopy[0];
+          deckCopy = deckCopy.slice(1);
           finalBankerHand = [...bHand, bankerThird];
           setBankerHand(finalBankerHand);
+          setDeck(deckCopy);
           setMessage('Banker draws third card');
         }
 
@@ -170,7 +217,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     }, 500);
   };
 
-// Resolve hand and pay out
+  // Resolve hand and pay out
   const resolveHand = (finalPlayerHand, finalBankerHand) => {
     const pTotal = BaccaratRules.calculateHandValue(finalPlayerHand);
     const bTotal = BaccaratRules.calculateHandValue(finalBankerHand);
@@ -181,7 +228,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     const result = BaccaratRules.determineWinner(pTotal, bTotal);
     setWinner(result);
 
-    // ✨ ADD THIS: Track analytics
+    // Track analytics
     const isNatural = (pTotal === 8 || pTotal === 9 || bTotal === 8 || bTotal === 9) && 
                       finalPlayerHand.length === 2 && finalBankerHand.length === 2;
     analytics.addResult(result, pTotal, bTotal, isNatural);
@@ -200,11 +247,13 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     } else if (result === 'banker') {
       winnings += bankerBet * 2 * 0.95; // 1:1 minus 5% commission
       resultMsg = 'Banker wins!';
-      // ✨ ADD THIS: Track commission
+      
+      // Track commission
       if (bankerBet > 0) {
         const commission = Math.round(bankerBet * 0.05);
         setCommissionOwed(prev => prev + commission);
       }
+      
       setStats(prev => ({
         ...prev,
         bankerWins: prev.bankerWins + 1
@@ -275,15 +324,11 @@ const [commissionOwed, setCommissionOwed] = useState(0);
       profitLoss: 0
     });
     setRoadmap([]);
-    if (deck) {
-      deck.initialize();
-    }
+    setCommissionOwed(0);
+    analytics.clearHistory();
+    createDeck();
     newRound();
   };
-
-  if (!deck) {
-    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
-  }
 
   const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
 
@@ -367,7 +412,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
           )}
         </div>
       </div>
-      {/* ✨ ADD THIS ENTIRE SECTION */}
+
       {/* Analytics Dashboard */}
       <div className="max-w-7xl mx-auto mb-6 grid md:grid-cols-2 gap-6">
         {/* Roadmaps */}
@@ -398,7 +443,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
           </div>
         </div>
       )}
-      {/* ✨ END OF NEW SECTION */}
+
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
         <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
@@ -682,7 +727,7 @@ function Chip({ amount }) {
   );
 }
 
-// Modal Component (reusable)
+// Modal Component
 function Modal({ children, onClose, title }) {
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up">
