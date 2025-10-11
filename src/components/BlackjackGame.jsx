@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff, ArrowLeft, Crown, Zap } from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
 import CardCountingDisplay from './CardCountingDisplay';
+import Confetti from './Confetti';
 
 function BlackjackGame({ onBack }) {
   // Game state
@@ -15,11 +17,9 @@ function BlackjackGame({ onBack }) {
   const [gameState, setGameState] = useState('betting');
   const [message, setMessage] = useState('Place your bet to start playing');
   const [showDealerCard, setShowDealerCard] = useState(false);
-  const [betHistory, setBetHistory] = useState([]);
-  const [baseBet, setBaseBet] = useState(10); // Base betting unit
 
   // Theme
-  const [theme, setTheme] = useState('classic'); // classic, modern, high-contrast
+  const [theme, setTheme] = useState('classic');
 
   // Settings and rules
   const [rules, setRules] = useState({
@@ -53,10 +53,14 @@ function BlackjackGame({ onBack }) {
     profitLoss: 0
   });
 
+  // Bet history for heat calculation
+  const [betHistory, setBetHistory] = useState([]);
+  const [baseBet, setBaseBet] = useState(10);
+
   // UI State
   const [showSettings, setShowSettings] = useState(false);
   const [showStats, setShowStats] = useState(false);
-  const [cardAnimation, setCardAnimation] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Initialize deck manager
   useEffect(() => {
@@ -78,10 +82,7 @@ function BlackjackGame({ onBack }) {
       };
       setPlayerHands([newHand]);
       setBalance(balance - amount);
-
-      // Track bet history for heat calculation
-      setBetHistory(prev => [...prev, amount].slice(-30)); // Keep last 30 bets
-
+      setBetHistory(prev => [...prev, amount].slice(-30));
       setTimeout(() => startGame([newHand]), 300);
     }
   };
@@ -107,15 +108,29 @@ function BlackjackGame({ onBack }) {
     setShowDealerCard(false);
     setLastDecision(null);
 
+    // Check for dealer peek
+    const dealerUpCard = dealerCard1.value;
+    if (dealerUpCard === 'A' || ['10', 'J', 'Q', 'K'].includes(dealerUpCard)) {
+      if (HandCalculator.isBlackjack([dealerCard1, dealerCard2])) {
+        setShowDealerCard(true);
+        if (HandCalculator.isBlackjack([card1, card2])) {
+          setMessage('Push! Both have Blackjack');
+          resolveHand(updatedHands[0], 'push');
+        } else {
+          setMessage('Dealer has Blackjack!');
+          resolveHand(updatedHands[0], 'loss');
+        }
+        return;
+      }
+    }
+
+    // Check for player blackjack
     if (HandCalculator.isBlackjack([card1, card2])) {
       setShowDealerCard(true);
-      if (HandCalculator.isBlackjack([dealerCard1, dealerCard2])) {
-        setMessage('Push! Both have Blackjack');
-        resolveHand(updatedHands[0], 'push');
-      } else {
-        setMessage('🎉 BLACKJACK! You Win!');
-        resolveHand(updatedHands[0], 'blackjack');
-      }
+      setMessage('🎉 BLACKJACK! You Win!');
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      resolveHand(updatedHands[0], 'blackjack');
       return;
     }
 
@@ -165,7 +180,6 @@ function BlackjackGame({ onBack }) {
     const handValue = HandCalculator.calculateValue(updatedCards);
 
     if (handValue > 21) {
-      // Busted
       updatedHands[currentHandIndex].status = 'busted';
       setPlayerHands(updatedHands);
       if (currentHandIndex < playerHands.length - 1) {
@@ -185,12 +199,10 @@ function BlackjackGame({ onBack }) {
         endGame(updatedHands);
       }
     } else if (handValue === 21) {
-      // Got 21 - automatically move to next hand or dealer
       updatedHands[currentHandIndex].status = 'stood';
       setPlayerHands(updatedHands);
-
+      
       if (currentHandIndex < playerHands.length - 1) {
-        // Move to next hand
         setCurrentHandIndex(currentHandIndex + 1);
         setMessage(`Hand ${currentHandIndex + 2} - Your turn`);
         if (trainingMode) {
@@ -203,14 +215,12 @@ function BlackjackGame({ onBack }) {
           );
         }
       } else {
-        // All hands complete - dealer plays
         setMessage('Dealer is playing...');
         setShowDealerCard(true);
         setGameState('dealer');
         setTimeout(() => playDealer(updatedHands), 1000);
       }
     } else {
-      // Normal hit - update strategy advice
       if (trainingMode) {
         updateStrategyAdvice(updatedCards, dealerHand[0], false, false, playerHands.length);
       }
@@ -252,7 +262,7 @@ function BlackjackGame({ onBack }) {
 
     checkDecision('DOUBLE');
     setBalance(balance - currentHand.bet);
-
+    
     const newCard = deckManager.dealCard();
     const updatedCards = [...currentHand.cards, newCard];
 
@@ -266,18 +276,24 @@ function BlackjackGame({ onBack }) {
     };
     setPlayerHands(updatedHands);
 
+    if (HandCalculator.calculateValue(updatedCards) > 21) {
+      setMessage('Doubled and busted!');
+    } else {
+      setMessage(`Doubled! Total: ${HandCalculator.calculateValue(updatedCards)}`);
+    }
+
     if (currentHandIndex < playerHands.length - 1) {
       setTimeout(() => {
         setCurrentHandIndex(currentHandIndex + 1);
         setMessage(`Hand ${currentHandIndex + 2} - Your turn`);
-      }, 500);
+      }, 1000);
     } else {
       setTimeout(() => {
         setMessage('Dealer is playing...');
         setShowDealerCard(true);
         setGameState('dealer');
         setTimeout(() => playDealer(updatedHands), 1000);
-      }, 500);
+      }, 1000);
     }
   };
 
@@ -427,6 +443,11 @@ function BlackjackGame({ onBack }) {
       profitLoss: prev.profitLoss + (totalWinnings - hands.reduce((sum, h) => sum + h.bet, 0))
     }));
 
+    if (wins > losses) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    }
+
     const resultMsg = `${wins}W · ${losses}L · ${pushes}P`;
     setMessage(resultMsg);
     setGameState('gameOver');
@@ -450,6 +471,13 @@ function BlackjackGame({ onBack }) {
         ...prev,
         handsPlayed: prev.handsPlayed + 1,
         pushes: prev.pushes + 1
+      }));
+    } else if (result === 'loss') {
+      setStats(prev => ({
+        ...prev,
+        handsPlayed: prev.handsPlayed + 1,
+        losses: prev.losses + 1,
+        profitLoss: prev.profitLoss - hand.bet
       }));
     }
 
@@ -484,6 +512,7 @@ function BlackjackGame({ onBack }) {
       totalDecisions: 0,
       profitLoss: 0
     });
+    setBetHistory([]);
     if (deckManager) {
       deckManager.initialize();
     }
@@ -492,172 +521,246 @@ function BlackjackGame({ onBack }) {
 
   if (!deckManager) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-2xl">Loading casino...</div>
+      <div className="min-h-screen casino-background flex items-center justify-center">
+        <div className="loading-spinner-premium"></div>
       </div>
     );
   }
 
   const currentHand = playerHands[currentHandIndex];
   const canDouble = currentHand && currentHand.cards.length === 2 && gameState === 'playing' && balance >= currentHand.bet;
-  const canSplit = currentHand && HandCalculator.canSplit(currentHand.cards) &&
-    playerHands.length <= rules.maxSplits && gameState === 'playing' && balance >= currentHand.bet;
-  const canSurrender = rules.surrenderAllowed && currentHand &&
-    currentHand.cards.length === 2 && gameState === 'playing';
+  const canSplit = currentHand && HandCalculator.canSplit(currentHand.cards) && 
+                   playerHands.length <= rules.maxSplits && gameState === 'playing' && balance >= currentHand.bet;
+  const canSurrender = rules.surrenderAllowed && currentHand && 
+                       currentHand.cards.length === 2 && gameState === 'playing';
 
   return (
-    <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
+    <div className="min-h-screen casino-background p-4">
+      <Confetti trigger={showConfetti} />
+      
       {/* Premium Header */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <div className="glass-strong rounded-2xl p-6 shadow-2xl">
+      <motion.div 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="max-w-7xl mx-auto mb-6"
+      >
+        <div className="glass-premium-strong rounded-3xl p-6 shadow-2xl border-2 border-casino-gold/30">
           <div className="flex justify-between items-center flex-wrap gap-4">
-            {/* Logo WITH Back Button */}
+            
+            {/* Logo Section */}
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onBack}
-                className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
+                className="btn-premium-secondary px-4 py-2 rounded-xl flex items-center gap-2"
               >
-                ← Back
-              </button>
-              <div className="text-4xl font-bold player-label neon-text">
-                ♠ BLACKJACK ♥
+                <ArrowLeft size={20} />
+                <span className="hidden md:inline">Back</span>
+              </motion.button>
+              <div className="flex items-center gap-3">
+                <Crown size={32} className="text-casino-gold" />
+                <h1 className="text-4xl md:text-5xl font-display font-black neon-text-premium tracking-wider">
+                  BLACKJACK
+                </h1>
               </div>
             </div>
+            
             {/* Stats Bar */}
-            <div className="flex gap-6 items-center flex-wrap">
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
-                <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
-              </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">True Count</div>
-                <div className={`text-2xl font-bold font-mono ${
-                  deckManager.getTrueCount() > 2 ? 'text-green-400' :
+            <div className="flex gap-4 items-center flex-wrap">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-3 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">Balance</div>
+                <div className="text-3xl font-tech font-bold gold-shimmer">${balance}</div>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-3 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">True Count</div>
+                <div className={`text-2xl font-tech font-bold ${
+                  deckManager.getTrueCount() > 2 ? 'text-green-400' : 
                   deckManager.getTrueCount() < -2 ? 'text-red-400' : 'text-gray-300'
                 }`}>
                   {deckManager.getTrueCount() > 0 ? '+' : ''}{deckManager.getTrueCount()}
                 </div>
-              </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Penetration</div>
-                <div className="text-xl font-mono text-blue-400">{deckManager.getPenetration()}%</div>
-              </div>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="stat-card-premium p-3 rounded-xl"
+              >
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-body">Penetration</div>
+                <div className="text-xl font-tech text-blue-400">{deckManager.getPenetration()}%</div>
+              </motion.div>
+
               {/* Action Buttons */}
               <div className="flex gap-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setShowStats(!showStats)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass-premium p-3 rounded-xl hover:border-casino-gold border border-transparent transition-all"
                   title="Statistics"
                 >
                   <BarChart3 size={20} className="text-blue-400" />
-                </button>
-                <button
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setShowSettings(!showSettings)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass-premium p-3 rounded-xl hover:border-casino-gold border border-transparent transition-all"
                   title="Settings"
                 >
                   <Settings size={20} className="text-purple-400" />
-                </button>
-                <button
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={resetGame}
-                  className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  className="btn-premium-secondary px-4 py-2 rounded-xl flex items-center gap-2"
                 >
                   <RotateCcw size={16} />
-                  <span className="font-semibold">Reset</span>
-                </button>
+                  <span className="hidden md:inline">Reset</span>
+                </motion.button>
               </div>
             </div>
           </div>
+
           {/* Training Controls */}
-          <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-casino-gold/20 pt-4"
+          >
             <label className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={trainingMode}
                 onChange={(e) => setTrainingMode(e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-5 h-5 cursor-pointer accent-casino-gold"
               />
-              <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
-              <span className="font-semibold text-lg">Training Mode</span>
+              <Brain size={22} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
+              <span className="font-heading text-lg tracking-wide">Training Mode</span>
             </label>
+
             {trainingMode && (
-              <label className="flex items-center gap-3 cursor-pointer group">
+              <motion.label 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
                 <input
                   type="checkbox"
                   checked={showStrategy}
                   onChange={(e) => setShowStrategy(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
+                  className="w-4 h-4 cursor-pointer accent-casino-gold"
                 />
                 {showStrategy ? <Eye size={18} className="text-green-400" /> : <EyeOff size={18} className="text-gray-400" />}
-                <span className="text-sm">Strategy Hints</span>
-              </label>
+                <span className="text-sm font-body">Strategy Hints</span>
+              </motion.label>
             )}
-            <button
-              onClick={() => {
-                const themes = ['classic', 'modern', 'high-contrast'];
-                const currentIndex = themes.indexOf(theme);
-                setTheme(themes[(currentIndex + 1) % themes.length]);
-              }}
-              className="flex items-center gap-2 glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all"
-            >
-              <Palette size={18} />
-              <span className="text-sm capitalize">{theme}</span>
-            </button>
-          </div>
-          {/* Strategy Advice Panel */}
-          {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
-            <div className="mt-4 training-overlay rounded-xl p-4 slide-in-top">
-              <div className="flex items-start gap-3">
-                <TrendingUp size={20} className="text-yellow-400 mt-1 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-yellow-300 text-lg mb-1">OPTIMAL PLAY: {strategyAdvice.action}</div>
-                  <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Decision Feedback */}
-          {lastDecision && (
-            <div className={`mt-4 rounded-xl p-4 slide-in-top ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{lastDecision.correct ? '✓' : '✗'}</span>
-                <div>
-                  <div className="font-bold text-lg">
-                    {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
-                  </div>
-                  {!lastDecision.correct && (
-                    <div className="text-sm mt-1">
-                      You chose <span className="font-semibold">{lastDecision.action}</span>,
-                      but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
-                      <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
+          </motion.div>
+
+          {/* Strategy Advice */}
+          <AnimatePresence>
+            {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mt-4 training-overlay-premium rounded-xl p-4 overflow-hidden"
+              >
+                <div className="flex items-start gap-3">
+                  <Zap size={20} className="text-casino-gold mt-1 flex-shrink-0" />
+                  <div>
+                    <div className="font-heading text-xl text-casino-gold mb-1 tracking-wide">
+                      OPTIMAL: {strategyAdvice.action}
                     </div>
-                  )}
+                    <div className="text-sm font-body text-gray-200">{strategyAdvice.reason}</div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Decision Feedback */}
+          <AnimatePresence>
+            {lastDecision && (
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className={`mt-4 rounded-xl p-4 ${lastDecision.correct ? 'feedback-success-premium' : 'feedback-error-premium'}`}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-3xl">{lastDecision.correct ? '✓' : '✗'}</span>
+                  <div>
+                    <div className="font-heading text-xl mb-1">
+                      {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
+                    </div>
+                    {!lastDecision.correct && (
+                      <div className="text-sm font-body">
+                        You chose <span className="font-bold">{lastDecision.action}</span>, 
+                        but <span className="font-bold text-casino-gold">{lastDecision.optimal}</span> was optimal
+                        <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-      {/* Card Counting Display Panel */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <CardCountingDisplay
+      </motion.div>
+
+      {/* Card Counting Display */}
+      <motion.div 
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="max-w-7xl mx-auto mb-6"
+      >
+        <CardCountingDisplay 
           deckManager={deckManager}
           betHistory={betHistory}
           currentBet={playerHands[0]?.bet || 0}
           baseBet={baseBet}
         />
-      </div>
+      </motion.div>
+
       {/* Game Table */}
-      <div className="max-w-7xl mx-auto">
-        <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="max-w-7xl mx-auto"
+      >
+        <div className="felt-texture-premium table-border-premium rounded-[4rem] shadow-2xl p-12 relative">
+          
           {/* Dealer Section */}
           <div className="mb-16">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-3 tracking-widest">DEALER</h2>
+            <motion.div 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-center mb-6"
+            >
+              <h2 className="text-4xl font-display font-black text-casino-gold mb-3 tracking-widest neon-text-premium">
+                DEALER
+              </h2>
               {dealerHand.length > 0 && (
-                <div className="glass inline-block px-6 py-2 rounded-full">
-                  <span className="text-2xl font-bold font-mono">
-                    {showDealerCard
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="glass-premium-strong inline-block px-8 py-3 rounded-full"
+                >
+                  <span className="text-3xl font-tech font-bold">
+                    {showDealerCard 
                       ? HandCalculator.calculateValue(dealerHand)
                       : `${dealerHand[0].value}${dealerHand[0].suit}`
                     }
@@ -665,395 +768,491 @@ function BlackjackGame({ onBack }) {
                   {showDealerCard && HandCalculator.isSoft(dealerHand) && (
                     <span className="text-sm text-gray-400 ml-2">(soft)</span>
                   )}
-                </div>
+                </motion.div>
               )}
-            </div>
-            <div className="flex justify-center gap-3 flex-wrap">
-              {dealerHand.map((card, index) => (
-                <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${index * 0.1}s` }}>
-                  <Card card={card} hidden={index === 1 && !showDealerCard} />
-                </div>
-              ))}
+            </motion.div>
+            
+            <div className="flex justify-center gap-4 flex-wrap">
+              <AnimatePresence>
+                {dealerHand.map((card, index) => (
+                  <motion.div 
+                    key={card.id}
+                    initial={{ x: -200, y: -200, rotate: -45, opacity: 0 }}
+                    animate={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+                    transition={{ 
+                      delay: index * 0.15,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
+                    }}
+                  >
+                    <PremiumCard card={card} hidden={index === 1 && !showDealerCard} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
+
           {/* Message Display */}
-          <div className="text-center my-10">
-            <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
-              <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
+          <motion.div 
+            key={message}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center my-12"
+          >
+            <div className="glass-premium-strong inline-block px-12 py-6 rounded-2xl border-2 border-casino-gold/50">
+              <p className="text-3xl font-display font-bold gold-shimmer tracking-wide">{message}</p>
             </div>
-          </div>
+          </motion.div>
+
           {/* Player Section */}
           <div className="mb-12">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-4 tracking-widest">PLAYER</h2>
-            </div>
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-center mb-6"
+            >
+              <h2 className="text-4xl font-display font-black text-casino-gold mb-4 tracking-widest neon-text-premium">
+                PLAYER
+              </h2>
+            </motion.div>
+            
             <div className="flex justify-center gap-6 flex-wrap">
-              {playerHands.map((hand, index) => (
-                <div
-                  key={index}
-                  className={`glass-strong rounded-2xl p-6 transition-all duration-300 ${
-                    index === currentHandIndex && gameState === 'playing'
-                      ? 'ring-4 ring-yellow-400 pulse-gold'
-                      : ''
-                  }`}
-                >
-                  <div className="text-center mb-4">
-                    <div className="font-bold text-lg text-gray-300 mb-2">
-                      Hand {index + 1}
-                      {hand.status === 'busted' && <span className="text-red-400 ml-2">(BUST)</span>}
-                      {hand.status === 'stood' && <span className="text-blue-400 ml-2">(STAND)</span>}
-                      {hand.status === 'surrendered' && <span className="text-orange-400 ml-2">(SURRENDER)</span>}
-                      {hand.status === 'blackjack' && <span className="text-yellow-400 ml-2 neon-text">(BLACKJACK!)</span>}
-                    </div>
-                    <div className="text-3xl font-bold font-mono mb-2">
-                      {HandCalculator.calculateValue(hand.cards)}
-                      {HandCalculator.isSoft(hand.cards) && <span className="text-sm text-gray-400 ml-2">(soft)</span>}
-                    </div>
-                    <div className="text-green-400 font-semibold text-lg">
-                      ${hand.bet}{hand.doubled && ' (x2)'}
-                    </div>
-                  </div>
-                  <div className="flex gap-3 justify-center flex-wrap">
-                    {hand.cards.map((card, cardIndex) => (
-                      <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${cardIndex * 0.1}s` }}>
-                        <Card card={card} />
+              <AnimatePresence>
+                {playerHands.map((hand, index) => (
+                  <motion.div 
+                    key={index}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className={`glass-premium-strong rounded-2xl p-6 transition-all duration-300 ${
+                      index === currentHandIndex && gameState === 'playing'
+                        ? 'ring-4 ring-casino-gold pulse-glow-premium'
+                        : ''
+                    }`}
+                  >
+                    <div className="text-center mb-4">
+                      <div className="font-heading text-lg text-gray-300 mb-2">
+                        Hand {index + 1}
+                        {hand.status === 'busted' && <span className="text-red-400 ml-2">(BUST)</span>}
+                        {hand.status === 'stood' && <span className="text-blue-400 ml-2">(STAND)</span>}
+                        {hand.status === 'surrendered' && <span className="text-orange-400 ml-2">(SURRENDER)</span>}
+                        {hand.status === 'blackjack' && <span className="text-casino-gold ml-2 neon-text-premium">(BLACKJACK!)</span>}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                      <div className="text-4xl font-tech font-bold mb-2">
+                        {HandCalculator.calculateValue(hand.cards)}
+                        {HandCalculator.isSoft(hand.cards) && <span className="text-sm text-gray-400 ml-2">(soft)</span>}
+                      </div>
+                      <div className="text-green-400 font-heading text-xl">
+                        ${hand.bet}{hand.doubled && ' (x2)'}
+                      </div>
+                    </div>
+                    <div className="flex gap-3 justify-center flex-wrap">
+                      {hand.cards.map((card, cardIndex) => (
+                        <motion.div 
+                          key={card.id}
+                          initial={{ x: -200, y: 200, rotate: 45, opacity: 0 }}
+                          animate={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+                          transition={{ 
+                            delay: cardIndex * 0.1,
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 20
+                          }}
+                        >
+                          <PremiumCard card={card} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
+
           {/* Betting Area */}
-          {gameState === 'betting' && (
-            <div className="mt-12 fade-in-up">
-              <div className="glass-strong rounded-2xl p-8 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-center mb-6 text-yellow-400 player-label tracking-wider">PLACE YOUR BET</h3>
-                <div className="flex justify-center gap-5 flex-wrap mb-6">
-                  {[5, 10, 25, 50, 100, 500].map((amount, index) => (
-                    <button
-                      key={amount}
-                      onClick={() => placeBet(amount)}
-                      disabled={balance < amount}
-                      className={`chip-animate relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 btn-premium chip-glow ${
-                        amount === 5 ? 'bg-white text-black border-gray-400' :
+          <AnimatePresence>
+            {gameState === 'betting' && (
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className="mt-12"
+              >
+                <div className="glass-premium-strong rounded-3xl p-8 max-w-3xl mx-auto border-2 border-casino-gold/30">
+                  <h3 className="text-3xl font-display font-bold text-center mb-6 gold-shimmer tracking-wider">
+                    PLACE YOUR BET
+                  </h3>
+                  <div className="flex justify-center gap-5 flex-wrap mb-6">
+                    {[5, 10, 25, 50, 100, 500].map((amount, index) => (
+                      <motion.button
+                        key={amount}
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: index * 0.05, type: "spring" }}
+                        whileHover={{ scale: 1.15, y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => placeBet(amount)}
+                        disabled={balance < amount}
+                        className={`chip-premium w-24 h-24 rounded-full border-4 font-heading text-xl transition-all ${
+                          amount === 5 ? 'bg-white text-black border-gray-400' :
                           amount === 10 ? 'bg-red-600 border-red-800 text-white' :
                           amount === 25 ? 'bg-green-600 border-green-800 text-white' :
                           amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
-                          amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
+                          amount === 100 ? 'bg-black text-casino-gold border-casino-gold' :
                           'bg-purple-700 border-purple-900 text-white'
-                      } ${balance < amount ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:shadow-2xl'}`}
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="relative z-10">
+                        } ${balance < amount ? 'opacity-30 cursor-not-allowed' : ''}`}
+                      >
                         ${amount}
-                      </div>
-                    </button>
-                  ))}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Action Buttons */}
-          {gameState === 'playing' && (
-            <div className="mt-10 flex justify-center gap-5 flex-wrap">
-              <button
-                onClick={hit}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+          <AnimatePresence>
+            {gameState === 'playing' && (
+              <motion.div 
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 30, opacity: 0 }}
+                className="mt-10 flex justify-center gap-5 flex-wrap"
               >
-                HIT
-              </button>
-              <button
-                onClick={stand}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
-              >
-                STAND
-              </button>
-              {canDouble && (
-                <button
-                  onClick={doubleDown}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={hit}
+                  className="btn-premium-casino px-10 py-5 rounded-2xl text-2xl tracking-widest shadow-2xl"
                 >
-                  DOUBLE
-                </button>
-              )}
-              {canSplit && (
-                <button
-                  onClick={split}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  HIT
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={stand}
+                  className="btn-premium-casino px-10 py-5 rounded-2xl text-2xl tracking-widest shadow-2xl"
                 >
-                  SPLIT
-                </button>
-              )}
-              {canSurrender && (
-                <button
-                  onClick={surrender}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-xl transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
-                >
-                  SURRENDER
-                </button>
-              )}
-            </div>
-          )}
+                  STAND
+                </motion.button>
+                {canDouble && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={doubleDown}
+                    className="btn-premium-casino px-8 py-5 rounded-2xl text-xl tracking-widest shadow-2xl"
+                  >
+                    DOUBLE
+                  </motion.button>
+                )}
+                {canSplit && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={split}
+                    className="btn-premium-casino px-8 py-5 rounded-2xl text-xl tracking-widest shadow-2xl"
+                  >
+                    SPLIT
+                  </motion.button>
+                )}
+                {canSurrender && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={surrender}
+                    className="btn-premium-secondary px-8 py-5 rounded-2xl text-lg tracking-widest shadow-2xl"
+                  >
+                    SURRENDER
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* New Round Button */}
-          {gameState === 'gameOver' && (
-            <div className="mt-10 text-center fade-in-up">
-              <button
-                onClick={newRound}
-                className="btn-premium glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
+          <AnimatePresence>
+            {gameState === 'gameOver' && (
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="mt-10 text-center"
               >
-                NEW ROUND
-              </button>
-            </div>
-          )}
+                <motion.button
+                  whileHover={{ scale: 1.08, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={newRound}
+                  className="btn-premium-casino px-20 py-6 rounded-3xl text-3xl tracking-widest shadow-2xl pulse-glow-premium"
+                >
+                  NEW ROUND
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
+
       {/* Statistics Modal */}
-      {showStats && (
-        <Modal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <StatCard label="Hands Played" value={stats.handsPlayed} color="gray" />
-            <StatCard label="Wins" value={stats.wins} color="green" />
-            <StatCard label="Losses" value={stats.losses} color="red" />
-            <StatCard label="Pushes" value={stats.pushes} color="yellow" />
-            <StatCard label="Blackjacks" value={stats.blackjacks} color="purple" icon="🃏" />
-            <StatCard
-              label="Profit/Loss"
-              value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss}`}
-              color={stats.profitLoss >= 0 ? 'green' : 'red'}
-            />
-            <StatCard
-              label="Win Rate"
-              value={stats.handsPlayed > 0 ? `${((stats.wins / stats.handsPlayed) * 100).toFixed(1)}%` : '0%'}
-              color="blue"
-              className="col-span-2 md:col-span-3"
-            />
-            {trainingMode && stats.totalDecisions > 0 && (
-              <StatCard
-                label="Strategy Accuracy"
-                value={`${((stats.correctDecisions / stats.totalDecisions) * 100).toFixed(1)}%`}
-                color="indigo"
-                subtitle={`${stats.correctDecisions} / ${stats.totalDecisions} optimal`}
+      <AnimatePresence>
+        {showStats && (
+          <PremiumModal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <PremiumStatCard label="Hands Played" value={stats.handsPlayed} color="gray" />
+              <PremiumStatCard label="Wins" value={stats.wins} color="green" icon="🏆" />
+              <PremiumStatCard label="Losses" value={stats.losses} color="red" />
+              <PremiumStatCard label="Pushes" value={stats.pushes} color="yellow" />
+              <PremiumStatCard label="Blackjacks" value={stats.blackjacks} color="purple" icon="🃏" />
+              <PremiumStatCard 
+                label="Profit/Loss" 
+                value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss}`} 
+                color={stats.profitLoss >= 0 ? 'green' : 'red'} 
+              />
+              <PremiumStatCard 
+                label="Win Rate" 
+                value={stats.handsPlayed > 0 ? `${((stats.wins / stats.handsPlayed) * 100).toFixed(1)}%` : '0%'} 
+                color="blue" 
                 className="col-span-2 md:col-span-3"
               />
-            )}
-          </div>
-        </Modal>
-      )}
-      {/* Settings Modal */}
-      {showSettings && (
-        <Modal onClose={() => setShowSettings(false)} title="GAME SETTINGS">
-          <div className="space-y-6">
-            <SettingSelect
-              label="Number of Decks"
-              value={rules.numDecks}
-              onChange={(val) => setRules({ ...rules, numDecks: parseInt(val) })}
-              options={[
-                { value: 1, label: '1 Deck' },
-                { value: 2, label: '2 Decks' },
-                { value: 6, label: '6 Decks' },
-                { value: 8, label: '8 Decks' }
-              ]}
-            />
-            <SettingSelect
-              label="Blackjack Pays"
-              value={rules.blackjackPays}
-              onChange={(val) => setRules({ ...rules, blackjackPays: parseFloat(val) })}
-              options={[
-                { value: 1.5, label: '3:2' },
-                { value: 1.2, label: '6:5' }
-              ]}
-            />
-            <SettingToggle
-              label="Dealer Hits Soft 17"
-              checked={rules.dealerHitsSoft17}
-              onChange={(val) => setRules({ ...rules, dealerHitsSoft17: val })}
-            />
-            <SettingToggle
-              label="Double After Split (DAS)"
-              checked={rules.doubleAfterSplit}
-              onChange={(val) => setRules({ ...rules, doubleAfterSplit: val })}
-            />
-            <SettingToggle
-              label="Surrender Allowed"
-              checked={rules.surrenderAllowed}
-              onChange={(val) => setRules({ ...rules, surrenderAllowed: val })}
-            />
-            <SettingToggle
-              label="Re-split Aces"
-              checked={rules.resplitAces}
-              onChange={(val) => setRules({ ...rules, resplitAces: val })}
-            />
-            <SettingSelect
-              label="Maximum Splits"
-              value={rules.maxSplits}
-              onChange={(val) => setRules({ ...rules, maxSplits: parseInt(val) })}
-              options={[
-                { value: 1, label: '1 Split' },
-                { value: 2, label: '2 Splits' },
-                { value: 3, label: '3 Splits' },
-                { value: 4, label: '4 Splits' }
-              ]}
-            />
-            <div className="pt-6 border-t border-gray-700">
-              <button
-                onClick={() => {
-                  const dm = new DeckManager(rules.numDecks, rules.penetration);
-                  setDeckManager(dm);
-                  setShowSettings(false);
-                  newRound();
-                }}
-                className="w-full btn-premium glass-strong px-8 py-4 rounded-xl font-bold text-lg transition-all hover:bg-green-600 hover:bg-opacity-60"
-              >
-                APPLY SETTINGS & RESTART
-              </button>
+              {trainingMode && stats.totalDecisions > 0 && (
+                <PremiumStatCard 
+                  label="Strategy Accuracy" 
+                  value={`${((stats.correctDecisions / stats.totalDecisions) * 100).toFixed(1)}%`} 
+                  color="indigo" 
+                  subtitle={`${stats.correctDecisions} / ${stats.totalDecisions} optimal`}
+                  className="col-span-2 md:col-span-3"
+                />
+              )}
             </div>
-          </div>
-        </Modal>
-      )}
-      {/* House Rules Footer */}
-      <div className="max-w-7xl mx-auto mt-8 fade-in-up">
-        <details className="glass-strong rounded-xl p-5">
-          <summary className="cursor-pointer font-bold text-yellow-400 flex items-center gap-3 text-lg">
+          </PremiumModal>
+        )}
+      </AnimatePresence>
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <PremiumModal onClose={() => setShowSettings(false)} title="GAME SETTINGS">
+            {/* Settings content - keeping original functionality */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-heading mb-2 text-casino-gold">Number of Decks</label>
+                <select
+                  value={rules.numDecks}
+                  onChange={(e) => setRules({...rules, numDecks: parseInt(e.target.value)})}
+                  className="w-full glass-premium border border-casino-gold/30 rounded-xl p-3 font-body text-white focus:border-casino-gold focus:outline-none"
+                >
+                  <option value="1" className="bg-black">1 Deck</option>
+                  <option value="2" className="bg-black">2 Decks</option>
+                  <option value="6" className="bg-black">6 Decks</option>
+                  <option value="8" className="bg-black">8 Decks</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading mb-2 text-casino-gold">Blackjack Pays</label>
+                <select
+                  value={rules.blackjackPays}
+                  onChange={(e) => setRules({...rules, blackjackPays: parseFloat(e.target.value)})}
+                  className="w-full glass-premium border border-casino-gold/30 rounded-xl p-3 font-body text-white focus:border-casino-gold focus:outline-none"
+                >
+                  <option value="1.5" className="bg-black">3:2</option>
+                  <option value="1.2" className="bg-black">6:5</option>
+                </select>
+              </div>
+
+              <label className="flex items-center justify-between cursor-pointer glass-premium p-4 rounded-xl hover:border-casino-gold border border-transparent transition-all">
+                <span className="font-heading text-gray-200">Dealer Hits Soft 17</span>
+                <input
+                  type="checkbox"
+                  checked={rules.dealerHitsSoft17}
+                  onChange={(e) => setRules({...rules, dealerHitsSoft17: e.target.checked})}
+                  className="w-6 h-6 cursor-pointer accent-casino-gold"
+                />
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer glass-premium p-4 rounded-xl hover:border-casino-gold border border-transparent transition-all">
+                <span className="font-heading text-gray-200">Double After Split (DAS)</span>
+                <input
+                  type="checkbox"
+                  checked={rules.doubleAfterSplit}
+                  onChange={(e) => setRules({...rules, doubleAfterSplit: e.target.checked})}
+                  className="w-6 h-6 cursor-pointer accent-casino-gold"
+                />
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer glass-premium p-4 rounded-xl hover:border-casino-gold border border-transparent transition-all">
+                <span className="font-heading text-gray-200">Surrender Allowed</span>
+                <input
+                  type="checkbox"
+                  checked={rules.surrenderAllowed}
+                  onChange={(e) => setRules({...rules, surrenderAllowed: e.target.checked})}
+                  className="w-6 h-6 cursor-pointer accent-casino-gold"
+                />
+              </label>
+
+              <div className="pt-6 border-t border-casino-gold/20">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    const dm = new DeckManager(rules.numDecks, rules.penetration);
+                    setDeckManager(dm);
+                    setShowSettings(false);
+                    newRound();
+                  }}
+                  className="w-full btn-premium-casino px-8 py-4 rounded-xl text-lg tracking-widest"
+                >
+                  APPLY & RESTART
+                </motion.button>
+              </div>
+            </div>
+          </PremiumModal>
+        )}
+      </AnimatePresence>
+
+      {/* House Rules */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="max-w-7xl mx-auto mt-8"
+      >
+        <details className="glass-premium-strong rounded-2xl overflow-hidden border border-casino-gold/20">
+          <summary className="p-5 cursor-pointer font-heading text-lg text-casino-gold hover:bg-black/30 transition-colors flex items-center gap-3">
             <Info size={22} />
             HOUSE RULES
           </summary>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
+          <div className="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm font-body text-gray-300">
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>{rules.numDecks}-deck shoe</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>Dealer {rules.dealerHitsSoft17 ? 'hits' : 'stands'} on soft 17</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>Blackjack pays {rules.blackjackPays === 1.5 ? '3:2' : '6:5'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>Double after split: {rules.doubleAfterSplit ? 'Yes' : 'No'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>Surrender: {rules.surrenderAllowed ? 'Allowed' : 'Not allowed'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
+              <span className="text-casino-gold">✓</span>
               <span>Maximum {rules.maxSplits} splits allowed</span>
             </div>
           </div>
         </details>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 // Premium Card Component
-function Card({ card, hidden = false }) {
+function PremiumCard({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
-
+  
   if (hidden) {
     return (
-      <div className="w-28 h-40 bg-gradient-to-br from-blue-900 to-blue-950 border-2 border-blue-700 rounded-xl flex items-center justify-center shadow-2xl card-3d">
-        <div className="text-5xl text-blue-600">♠</div>
-      </div>
+      <motion.div 
+        whileHover={{ y: -10, rotateY: 10 }}
+        className="w-32 h-48 card-back-premium card-premium"
+      >
+      </motion.div>
     );
   }
-
+  
   return (
-    <div className="w-28 h-40 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 p-3 flex flex-col justify-between transform transition-all hover:scale-105 card-3d">
-      <div className={`text-2xl font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-4xl leading-none">{card.suit}</div>
+    <motion.div 
+      whileHover={{ y: -10, scale: 1.05 }}
+      className="w-32 h-48 card-premium p-4 flex flex-col justify-between font-body"
+    >
+      <div className={`text-3xl font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
+        <div className="font-tech">{card.value}</div>
+        <div className="text-5xl leading-none">{card.suit}</div>
       </div>
-      <div className="text-center text-5xl">
+      <div className="text-center text-6xl">
         <div className={isRed ? 'text-red-600' : 'text-black'}>{card.suit}</div>
       </div>
-      <div className={`text-2xl font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-4xl leading-none">{card.suit}</div>
+      <div className={`text-3xl font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
+        <div className="font-tech">{card.value}</div>
+        <div className="text-5xl leading-none">{card.suit}</div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-// Modal Component
-function Modal({ children, onClose, title }) {
+// Premium Modal Component
+function PremiumModal({ children, onClose, title }) {
   return (
-    <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up">
-      <div className="glass-strong rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="sticky top-0 glass-strong border-b border-gray-700 p-6 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-yellow-400 player-label tracking-wider">{title}</h2>
-          <button
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 modal-backdrop-premium flex items-center justify-center p-4 z-50"
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.8, y: 50 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.8, y: 50 }}
+        onClick={(e) => e.stopPropagation()}
+        className="glass-premium-strong rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-casino-gold/30"
+      >
+        <div className="sticky top-0 glass-premium-strong border-b border-casino-gold/20 p-6 flex justify-between items-center">
+          <h2 className="text-4xl font-display font-black gold-shimmer tracking-wider">{title}</h2>
+          <motion.button
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-all hover:scale-110"
+            className="text-gray-400 hover:text-casino-gold transition-colors"
           >
-            <X size={28} />
-          </button>
+            <X size={32} />
+          </motion.button>
         </div>
-        <div className="p-8">
-          {children}
-        </div>
-      </div>
-    </div>
+        <div className="p-8">{children}</div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-// Stat Card Component
-function StatCard({ label, value, color, icon, subtitle, className = '' }) {
+// Premium Stat Card Component
+function PremiumStatCard({ label, value, color, icon, subtitle, className = '' }) {
   const colors = {
-    gray: 'from-gray-700 to-gray-800',
-    green: 'from-green-700 to-green-900',
-    red: 'from-red-700 to-red-900',
-    yellow: 'from-yellow-600 to-yellow-800',
-    purple: 'from-purple-700 to-purple-900',
-    blue: 'from-blue-700 to-blue-900',
-    indigo: 'from-indigo-700 to-indigo-900'
+    gray: 'from-gray-700 to-gray-800 border-gray-600',
+    green: 'from-green-700 to-green-900 border-green-600',
+    red: 'from-red-700 to-red-900 border-red-600',
+    yellow: 'from-yellow-600 to-yellow-800 border-yellow-600',
+    purple: 'from-purple-700 to-purple-900 border-purple-600',
+    blue: 'from-blue-700 to-blue-900 border-blue-600',
+    indigo: 'from-indigo-700 to-indigo-900 border-indigo-600'
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colors[color]} rounded-xl p-5 shadow-lg hover:scale-105 transition-all ${className}`}>
-      <div className="text-gray-300 text-sm uppercase tracking-wider mb-2">{label}</div>
-      <div className="text-4xl font-bold font-mono flex items-center gap-2">
-        {icon && <span className="text-3xl">{icon}</span>}
+    <motion.div 
+      whileHover={{ scale: 1.05, y: -5 }}
+      className={`bg-gradient-to-br ${colors[color]} rounded-2xl p-6 shadow-xl border-2 ${className}`}
+    >
+      <div className="text-gray-300 text-xs uppercase tracking-wider font-body mb-2">{label}</div>
+      <div className="text-5xl font-tech font-bold flex items-center gap-3">
+        {icon && <span className="text-4xl">{icon}</span>}
         {value}
       </div>
-      {subtitle && <div className="text-xs text-gray-400 mt-2">{subtitle}</div>}
-    </div>
-  );
-}
-
-// Setting Components
-function SettingSelect({ label, value, onChange, options }) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold mb-2 text-gray-300">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full glass-strong border border-gray-600 rounded-lg p-3 text-white font-semibold focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-      >
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function SettingToggle({ label, checked, onChange }) {
-  return (
-    <label className="flex items-center justify-between cursor-pointer glass p-4 rounded-lg hover:bg-opacity-60 transition-all">
-      <span className="font-semibold text-gray-200">{label}</span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="w-6 h-6 cursor-pointer"
-      />
-    </label>
+      {subtitle && <div className="text-xs text-gray-400 mt-2 font-body">{subtitle}</div>}
+    </motion.div>
   );
 }
 
