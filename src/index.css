@@ -14,7 +14,7 @@
   }
   body {
     font-family: 'Montserrat', 'Bebas Neue', 'Cinzel', sans-serif;
-    background: #121212;
+    background: #19181f;
     min-height: 100vh;
     color: #fff;
     overflow-x: hidden;
@@ -29,10 +29,10 @@
    DEPTH / SHADOW SYSTEM
 ============================================ */
 :root {
-  --shadow-sm: 2px 2px 6px rgba(0,0,0,0.24), -1px -1px 3px rgba(255,255,255,0.08);
-  --shadow-md: 5px 5px 18px rgba(0,0,0,0.32), -2px -2px 8px rgba(255,255,255,0.08);
-  --shadow-lg: 12px 12px 38px rgba(0,0,0,0.54), -4px -4px 18px rgba(255,255,255,0.10);
-  --shadow-xl: 24px 24px 75px rgba(0,0,0,0.66), -8px -8px 36px rgba(255,255,255,0.10);
+  --shadow-sm: 0 2px 6px rgba(0,0,0,0.22), 0 -1px 2px rgba(255,255,255,0.06);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.32), 0 -2px 8px rgba(255,255,255,0.07);
+  --shadow-lg: 0 12px 38px rgba(0,0,0,0.54), 0 -4px 18px rgba(255,255,255,0.08);
+  --shadow-xl: 0 24px 75px rgba(0,0,0,0.72), 0 -8px 36px rgba(255,255,255,0.09);
 
   --blur-bg: blur(18px) saturate(180%);
   --gold: #d4af37;
@@ -51,10 +51,11 @@
   position: relative;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 20% 30%, #d4af371c 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 70%, #8b000019 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, #4b008217 0%, transparent 60%),
-    linear-gradient(135deg, #181818 0%, #232323 100%);
+    /* Deep royal gradient */
+    linear-gradient(120deg, #19181f 0%, #211f2a 80%, #19181f 100%),
+    /* Soft vignette */
+    radial-gradient(ellipse at 70% 80%, #d4af3720 0%, transparent 100%),
+    radial-gradient(ellipse at 20% 20%, #b8941e14 0%, transparent 100%);
   overflow: hidden;
 }
 
@@ -65,18 +66,18 @@
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3C/filter%3E%3Crect width='800' height='800' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2'/%3E%3C/filter%3E%3Crect width='800' height='800' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   opacity: 0.04;
 }
 
 .bg-premium::after {
-  /* Blur shimmer layer */
+  /* Soft gold shimmer layer */
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 2;
-  background: linear-gradient(45deg, transparent 60%, #d4af3725 80%, transparent 100%);
+  background: linear-gradient(45deg, transparent 50%, #d4af3733 80%, transparent 100%);
   filter: var(--blur-bg);
 }
 
@@ -86,15 +87,15 @@
 .card-glass-premium {
   position: relative;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
-    rgba(24,24,24,0.76);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(26px) saturate(180%);
-  border-radius: 18px;
-  border: 1px solid;
-  border-image: linear-gradient(135deg, rgba(255,255,255,0.20), var(--gold-dark)) 1;
+    linear-gradient(128deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%),
+    rgba(24,24,24,0.78);
+  box-shadow: var(--shadow-lg), 0 2px 16px #d4af3722;
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 20px;
+  border: 1.5px solid;
+  border-image: linear-gradient(135deg, rgba(255,255,255,0.16), var(--gold-dark)) 1;
   overflow: hidden;
-  transition: box-shadow 0.3s, transform 0.3s;
+  transition: box-shadow 0.28s, transform 0.28s;
 }
 
 .card-glass-premium::before {
@@ -103,14 +104,14 @@
   position: absolute;
   top: 0; left: 0; right: 0; height: 44%;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.13) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
 
 .card-glass-premium:hover {
   box-shadow: var(--shadow-xl), 0 0 45px var(--gold-light);
-  transform: translateY(-9px) scale(1.04);
+  transform: translateY(-8px) scale(1.04);
 }
 
 /* ============================================
@@ -120,7 +121,7 @@
   position: relative;
   padding: 0.85em 2.2em;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-family: 'Bebas Neue', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
@@ -138,7 +139,7 @@
   position: absolute;
   top: 0; left: 0; right: 0; height: 44%;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.38) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.32) 0%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -163,7 +164,7 @@
   background: linear-gradient(135deg, var(--gold) 44%, var(--gold-dark) 100%);
   color: #fff;
   width: 68px; height: 68px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg), 0 0 18px var(--gold-light);
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
   overflow: hidden;
@@ -175,7 +176,7 @@
   position: absolute;
   top: 18%; left: 18%; width: 46%; height: 46%;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fff8 0%, transparent 85%);
+  background: radial-gradient(circle at 30% 30%, #fff7 0%, transparent 85%);
   pointer-events: none;
   z-index: 1;
 }
@@ -186,7 +187,7 @@
   position: absolute;
   top: 50%; left: 50%; width: 76%; height: 76%;
   border-radius: 50%;
-  border: 3px dashed #fff7;
+  border: 3px dashed #fff5;
   transform: translate(-50%, -50%);
   opacity: 0.6;
   pointer-events: none;
@@ -195,7 +196,7 @@
 
 .chip-premium:hover {
   box-shadow: var(--shadow-xl), 0 0 30px var(--gold);
-  transform: translateY(-7px) scale(1.13);
+  transform: translateY(-7px) scale(1.12);
 }
 
 /* ============================================
@@ -204,8 +205,8 @@
 .table-premium {
   position: relative;
   border: 14px solid transparent;
-  border-radius: 28px;
-  box-shadow: 0 0 50px rgba(0,0,0,0.7), 0 0 80px var(--gold-light), 0 0 0 2px #0008 inset;
+  border-radius: 32px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.7), 0 0 80px var(--gold-light), 0 0 0 2px #0006 inset;
   overflow: hidden;
 }
 
@@ -225,8 +226,9 @@
 .felt-premium {
   background: linear-gradient(135deg, var(--felt-green) 0%, var(--felt-dark) 50%, var(--felt-green) 100%);
   position: relative;
-  border-radius: 24px;
+  border-radius: 32px;
   overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.33);
 }
 
 .felt-premium::before {
@@ -238,7 +240,7 @@
   background:
     radial-gradient(ellipse at 30% 40%, #fff2 0%, transparent 40%),
     radial-gradient(ellipse at 70% 60%, #0004 0%, transparent 40%),
-    linear-gradient(135deg, transparent 0%, #0003 100%);
+    linear-gradient(135deg, transparent 0%, #0002 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -260,18 +262,18 @@
    MODAL OVERLAY
 ============================================ */
 .modal-backdrop-premium {
-  backdrop-filter: blur(20px);
-  background: radial-gradient(ellipse at center, #181818cc 0%, #232323ee 100%);
+  backdrop-filter: blur(24px);
+  background: radial-gradient(ellipse at center, #18181fcc 0%, #23232aee 100%);
   animation: fadeIn 0.25s ease;
 }
 
 .modal-content-premium {
   background:
-    linear-gradient(135deg, var(--gold-light) 8%, var(--gold-dark) 80%),
-    rgba(24,24,24,0.96);
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(32px) saturate(180%);
-  border-radius: 22px;
+    linear-gradient(135deg, var(--gold-light) 12%, var(--gold-dark) 88%),
+    rgba(24,24,24,0.97);
+  box-shadow: var(--shadow-xl), 0 0 32px var(--gold-light);
+  backdrop-filter: blur(36px) saturate(180%);
+  border-radius: 26px;
   border: 2px solid var(--gold);
   position: relative;
   overflow: hidden;
@@ -298,8 +300,8 @@
 
 @media (max-width: 768px) {
   :root {
-    --shadow-md: 3px 3px 10px rgba(0,0,0,0.28), -1px -1px 5px rgba(255,255,255,0.06);
-    --shadow-lg: 6px 6px 19px rgba(0,0,0,0.36), -2px -2px 9px rgba(255,255,255,0.07);
-    --shadow-xl: 12px 12px 38px rgba(0,0,0,0.46), -4px -4px 18px rgba(255,255,255,0.09);
+    --shadow-md: 0 3px 10px rgba(0,0,0,0.24), 0 -1px 4px rgba(255,255,255,0.05);
+    --shadow-lg: 0 6px 19px rgba(0,0,0,0.33), 0 -2px 9px rgba(255,255,255,0.06);
+    --shadow-xl: 0 12px 38px rgba(0,0,0,0.46), 0 -4px 18px rgba(255,255,255,0.07);
   }
 }
