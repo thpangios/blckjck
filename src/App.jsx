@@ -145,7 +145,7 @@ function App() {
     return null;
   };
 
-  const hit = () => {
+const hit = () => {
     checkDecision('HIT');
     const currentHand = playerHands[currentHandIndex];
     const newCard = deckManager.dealCard();
@@ -158,6 +158,7 @@ function App() {
     const handValue = HandCalculator.calculateValue(updatedCards);
 
     if (handValue > 21) {
+      // Busted
       updatedHands[currentHandIndex].status = 'busted';
       setPlayerHands(updatedHands);
       if (currentHandIndex < playerHands.length - 1) {
@@ -177,10 +178,32 @@ function App() {
         endGame(updatedHands);
       }
     } else if (handValue === 21) {
-      // AUTO-STAND on 21 - this is standard blackjack rules
-      setMessage('21! Auto-standing...');
-      setTimeout(() => stand(), 800);
+      // Got 21 - automatically move to next hand or dealer
+      updatedHands[currentHandIndex].status = 'stood';
+      setPlayerHands(updatedHands);
+      
+      if (currentHandIndex < playerHands.length - 1) {
+        // Move to next hand
+        setCurrentHandIndex(currentHandIndex + 1);
+        setMessage(`Hand ${currentHandIndex + 2} - Your turn`);
+        if (trainingMode) {
+          updateStrategyAdvice(
+            updatedHands[currentHandIndex + 1].cards,
+            dealerHand[0],
+            updatedHands[currentHandIndex + 1].cards.length === 2,
+            HandCalculator.canSplit(updatedHands[currentHandIndex + 1].cards) && playerHands.length < rules.maxSplits,
+            playerHands.length
+          );
+        }
+      } else {
+        // All hands complete - dealer plays
+        setMessage('Dealer is playing...');
+        setShowDealerCard(true);
+        setGameState('dealer');
+        setTimeout(() => playDealer(updatedHands), 1000);
+      }
     } else {
+      // Normal hit - update strategy advice
       if (trainingMode) {
         updateStrategyAdvice(updatedCards, dealerHand[0], false, false, playerHands.length);
       }
