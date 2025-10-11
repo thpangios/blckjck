@@ -6,8 +6,6 @@ import { BasicStrategy } from '../utils/basicStrategy';
 
 function BlackjackGame({ onBack }) {  // ✅ Then the function
 
-
-function App() {
   // Game state
   const [deckManager, setDeckManager] = useState(null);
   const [playerHands, setPlayerHands] = useState([]);
