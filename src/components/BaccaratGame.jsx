@@ -1,24 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react';
+import { DeckManager } from '../utils/deckManager';
 import { BaccaratRules } from '../utils/baccaratRules';
-import { BaccaratAnalytics } from '../utils/baccaratAnalytics';
-import BaccaratRoadmaps from './BaccaratRoadmaps';
-import BaccaratStats from './BaccaratStats';
+import BaccaratRoadmapDisplay from './BaccaratRoadmapDisplay';
 
 function BaccaratGame({ onBack }) {
-  // Deck management
-  const [deck, setDeck] = useState([]);
-  
-  // Game state
+  const [deckManager, setDeckManager] = useState(null);
   const [playerHand, setPlayerHand] = useState([]);
   const [bankerHand, setBankerHand] = useState([]);
   const [balance, setBalance] = useState(10000);
-  const [gameState, setGameState] = useState('betting');
+  const [gameState, setGameState] = useState('betting'); // betting, dealing, reveal, gameOver
   const [message, setMessage] = useState('Place your bets');
-  
-  // Analytics
-  const [analytics] = useState(new BaccaratAnalytics());
-  const [commissionOwed, setCommissionOwed] = useState(0);
   
   // Bets
   const [playerBet, setPlayerBet] = useState(0);
@@ -41,76 +33,53 @@ function BaccaratGame({ onBack }) {
     profitLoss: 0
   });
 
-  // Roadmap (last 20 results)
+  // Roadmap (all results history)
   const [roadmap, setRoadmap] = useState([]);
+  
+  // Commission tracking
+  const [pendingCommission, setPendingCommission] = useState(0);
 
   // UI State
   const [showStats, setShowStats] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
-  // Initialize deck on mount
+  // Initialize deck
   useEffect(() => {
-    createDeck();
+    const dm = new DeckManager(8, 0.85); // 8-deck shoe, 85% penetration
+    setDeckManager(dm);
   }, []);
-
-  // Create and shuffle 8-deck shoe
-  const createDeck = () => {
-    const newDeck = [];
-    const suits = ['♠', '♥', '♦', '♣'];
-    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    
-    // Create 8 decks
-    for (let i = 0; i < 8; i++) {
-      for (let suit of suits) {
-        for (let value of values) {
-          newDeck.push({ 
-            suit, 
-            value, 
-            id: `${value}${suit}-${i}-${Math.random()}` 
-          });
-        }
-      }
-    }
-    
-    setDeck(shuffleDeck(newDeck));
-  };
-
-  // Fisher-Yates shuffle
-  const shuffleDeck = (cards) => {
-    const shuffled = [...cards];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
 
   // Place bet
   const placeBet = (betType, amount) => {
     if (balance < amount || gameState !== 'betting') return;
 
     const currentTotal = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
-    
-    if (currentTotal + amount > balance) {
-      setMessage('Insufficient balance!');
-      return;
-    }
 
     switch(betType) {
       case 'player':
-        setPlayerBet(playerBet + amount);
+        if (currentTotal - playerBet + amount <= balance) {
+          setPlayerBet(playerBet + amount);
+        }
         break;
       case 'banker':
-        setBankerBet(bankerBet + amount);
+        if (currentTotal - bankerBet + amount <= balance) {
+          setBankerBet(bankerBet + amount);
+        }
         break;
       case 'tie':
-        setTieBet(tieBet + amount);
+        if (currentTotal - tieBet + amount <= balance) {
+          setTieBet(tieBet + amount);
+        }
         break;
       case 'playerPair':
-        setPlayerPairBet(playerPairBet + amount);
+        if (currentTotal - playerPairBet + amount <= balance) {
+          setPlayerPairBet(playerPairBet + amount);
+        }
         break;
       case 'bankerPair':
-        setBankerPairBet(bankerPairBet + amount);
+        if (currentTotal - bankerPairBet + amount <= balance) {
+          setBankerPairBet(bankerPairBet + amount);
+        }
         break;
     }
   };
@@ -128,33 +97,30 @@ function BaccaratGame({ onBack }) {
 
   // Deal cards
   const deal = () => {
-    if (playerBet === 0 && bankerBet === 0 && tieBet === 0) {
+    const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
+    
+    if (totalBet === 0) {
       setMessage('Place at least one bet!');
       return;
     }
 
-    // Check if deck needs reshuffling
-    if (deck.length < 20) {
-      setMessage('Shuffling new shoe...');
-      createDeck();
-      setTimeout(() => deal(), 1000);
+    if (balance < totalBet) {
+      setMessage('Insufficient balance!');
       return;
     }
 
     // Deduct bets from balance
-    const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
     setBalance(balance - totalBet);
 
     setGameState('dealing');
     setMessage('Dealing...');
 
     // Deal initial 4 cards (player, banker, player, banker)
-    const card1 = deck[0];
-    const card2 = deck[1];
-    const card3 = deck[2];
-    const card4 = deck[3];
+    const card1 = deckManager.dealCard();
+    const card2 = deckManager.dealCard();
+    const card3 = deckManager.dealCard();
+    const card4 = deckManager.dealCard();
 
-    setDeck(deck.slice(4));
     setPlayerHand([card1, card3]);
     setBankerHand([card2, card4]);
 
@@ -186,14 +152,12 @@ function BaccaratGame({ onBack }) {
     setTimeout(() => {
       let finalPlayerHand = [...pHand];
       let finalBankerHand = [...bHand];
-      let deckCopy = [...deck];
 
       if (needsCard.player) {
-        const playerThird = deckCopy[0];
-        deckCopy = deckCopy.slice(1);
+        const playerThird = deckManager.dealCard();
         finalPlayerHand = [...pHand, playerThird];
         setPlayerHand(finalPlayerHand);
-        setDeck(deckCopy);
+        setPlayerTotal(BaccaratRules.calculateHandValue(finalPlayerHand));
         setMessage('Player draws third card');
       }
 
@@ -202,11 +166,10 @@ function BaccaratGame({ onBack }) {
         const shouldBankerDraw = BaccaratRules.bankerDraws(bTotal, playerThirdCard);
 
         if (shouldBankerDraw) {
-          const bankerThird = deckCopy[0];
-          deckCopy = deckCopy.slice(1);
+          const bankerThird = deckManager.dealCard();
           finalBankerHand = [...bHand, bankerThird];
           setBankerHand(finalBankerHand);
-          setDeck(deckCopy);
+          setBankerTotal(BaccaratRules.calculateHandValue(finalBankerHand));
           setMessage('Banker draws third card');
         }
 
@@ -228,10 +191,8 @@ function BaccaratGame({ onBack }) {
     const result = BaccaratRules.determineWinner(pTotal, bTotal);
     setWinner(result);
 
-    // Track analytics
-    const isNatural = (pTotal === 8 || pTotal === 9 || bTotal === 8 || bTotal === 9) && 
-                      finalPlayerHand.length === 2 && finalBankerHand.length === 2;
-    analytics.addResult(result, pTotal, bTotal, isNatural);
+    // Add to roadmap
+    setRoadmap(prev => [...prev, result]);
 
     let winnings = 0;
     let resultMsg = '';
@@ -245,15 +206,11 @@ function BaccaratGame({ onBack }) {
         playerWins: prev.playerWins + 1
       }));
     } else if (result === 'banker') {
-      winnings += bankerBet * 2 * 0.95; // 1:1 minus 5% commission
+      const bankerPayout = bankerBet * 2 * 0.95; // 1:1 minus 5% commission
+      const commission = bankerBet * 2 * 0.05;
+      winnings += bankerPayout;
+      setPendingCommission(prev => prev + commission);
       resultMsg = 'Banker wins!';
-      
-      // Track commission
-      if (bankerBet > 0) {
-        const commission = Math.round(bankerBet * 0.05);
-        setCommissionOwed(prev => prev + commission);
-      }
-      
       setStats(prev => ({
         ...prev,
         bankerWins: prev.bankerWins + 1
@@ -290,9 +247,6 @@ function BaccaratGame({ onBack }) {
       profitLoss: prev.profitLoss + profit
     }));
 
-    // Add to roadmap
-    setRoadmap(prev => [...prev, result].slice(-20));
-
     setMessage(resultMsg);
     setGameState('gameOver');
   };
@@ -324,11 +278,16 @@ function BaccaratGame({ onBack }) {
       profitLoss: 0
     });
     setRoadmap([]);
-    setCommissionOwed(0);
-    analytics.clearHistory();
-    createDeck();
+    setPendingCommission(0);
+    if (deckManager) {
+      deckManager.initialize();
+    }
     newRound();
   };
+
+  if (!deckManager) {
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+  }
 
   const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
 
@@ -389,60 +348,13 @@ function BaccaratGame({ onBack }) {
               </div>
             </div>
           </div>
-
-          {/* Roadmap */}
-          {roadmap.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-700">
-              <div className="text-xs text-gray-400 mb-2 uppercase tracking-wider">Last 20 Results</div>
-              <div className="flex gap-2 flex-wrap">
-                {roadmap.map((result, index) => (
-                  <div
-                    key={index}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                      result === 'player' ? 'bg-blue-600' :
-                      result === 'banker' ? 'bg-red-600' :
-                      'bg-green-600'
-                    }`}
-                  >
-                    {result === 'player' ? 'P' : result === 'banker' ? 'B' : 'T'}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Analytics Dashboard */}
-      <div className="max-w-7xl mx-auto mb-6 grid md:grid-cols-2 gap-6">
-        {/* Roadmaps */}
-        <div className="fade-in-up">
-          <BaccaratRoadmaps analytics={analytics} />
-        </div>
-
-        {/* Statistics */}
-        <div className="fade-in-up">
-          <BaccaratStats analytics={analytics} />
-        </div>
+      {/* Roadmap Display */}
+      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
+        <BaccaratRoadmapDisplay results={roadmap} pendingCommission={pendingCommission} />
       </div>
-
-      {/* Commission Tracker */}
-      {commissionOwed > 0 && (
-        <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-          <div className="bg-orange-900 bg-opacity-30 border border-orange-500 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">💰</div>
-              <div>
-                <div className="font-bold text-orange-400">Commission Owed</div>
-                <div className="text-sm text-gray-300">5% on Banker wins</div>
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-orange-400 font-mono">
-              ${commissionOwed}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
@@ -604,10 +516,29 @@ function BaccaratGame({ onBack }) {
             <StatCard label="Ties" value={stats.ties} color="green" />
             <StatCard 
               label="Profit/Loss" 
-              value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss}`} 
+              value={`$${stats.profitLoss > 0 ? '+' : ''}${stats.profitLoss.toFixed(2)}`} 
               color={stats.profitLoss >= 0 ? 'green' : 'red'} 
               className="col-span-2"
             />
+            {stats.handsPlayed > 0 && (
+              <>
+                <StatCard 
+                  label="Banker %" 
+                  value={`${((stats.bankerWins / stats.handsPlayed) * 100).toFixed(1)}%`} 
+                  color="red" 
+                />
+                <StatCard 
+                  label="Player %" 
+                  value={`${((stats.playerWins / stats.handsPlayed) * 100).toFixed(1)}%`} 
+                  color="blue" 
+                />
+                <StatCard 
+                  label="Tie %" 
+                  value={`${((stats.ties / stats.handsPlayed) * 100).toFixed(1)}%`} 
+                  color="green" 
+                />
+              </>
+            )}
           </div>
         </Modal>
       )}
@@ -626,6 +557,7 @@ function BaccaratGame({ onBack }) {
                 <li>Aces = 1 point</li>
                 <li>2-9 = Face value</li>
                 <li>10, J, Q, K = 0 points</li>
+                <li>Total is the last digit (e.g., 15 = 5)</li>
               </ul>
             </div>
             <div>
@@ -643,6 +575,15 @@ function BaccaratGame({ onBack }) {
                 <li>Player draws on 0-5, stands on 6-7</li>
                 <li>Banker follows complex rules based on player's third card</li>
                 <li>Naturals (8 or 9) = no more cards drawn</li>
+                <li>All drawing is automatic - no player decisions</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-yellow-400 mb-2">House Edge</h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Banker: 1.06% (best bet)</li>
+                <li>Player: 1.24%</li>
+                <li>Tie: 14.36% (avoid!)</li>
               </ul>
             </div>
           </div>
@@ -684,7 +625,7 @@ function BettingSpot({ title, subtitle, amount, color, onBet, small = false }) {
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colors[color]} rounded-2xl p-6 text-center ${small ? '' : 'min-h-[200px]'} flex flex-col justify-between`}>
+    <div className={`bg-gradient-to-br ${colors[color]} rounded-2xl p-6 text-center ${small ? '' : 'min-h-[200px]'} flex flex-col justify-between transition-all hover:scale-105`}>
       <div>
         <h3 className="text-2xl font-bold player-label mb-2">{title}</h3>
         <p className="text-sm text-gray-300">{subtitle}</p>
@@ -727,7 +668,7 @@ function Chip({ amount }) {
   );
 }
 
-// Modal Component
+// Modal Component (reusable)
 function Modal({ children, onClose, title }) {
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up">
