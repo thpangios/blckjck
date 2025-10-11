@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { BaccaratRules } from '../utils/baccaratRules';
+import { BaccaratAnalytics } from '../utils/baccaratAnalytics';
+import BaccaratRoadmaps from './BaccaratRoadmaps';
+import BaccaratStats from './BaccaratStats';
 
 function BaccaratGame({ onBack }) {
   const [deckManager, setDeckManager] = useState(null);
@@ -10,6 +13,8 @@ function BaccaratGame({ onBack }) {
   const [balance, setBalance] = useState(10000);
   const [gameState, setGameState] = useState('betting'); // betting, dealing, reveal, gameOver
   const [message, setMessage] = useState('Place your bets');
+  const [analytics] = useState(new BaccaratAnalytics());
+const [commissionOwed, setCommissionOwed] = useState(0);
   
   // Bets
   const [playerBet, setPlayerBet] = useState(0);
@@ -166,7 +171,7 @@ function BaccaratGame({ onBack }) {
     }, 500);
   };
 
-  // Resolve hand and pay out
+// Resolve hand and pay out
   const resolveHand = (finalPlayerHand, finalBankerHand) => {
     const pTotal = BaccaratRules.calculateHandValue(finalPlayerHand);
     const bTotal = BaccaratRules.calculateHandValue(finalBankerHand);
@@ -176,6 +181,11 @@ function BaccaratGame({ onBack }) {
 
     const result = BaccaratRules.determineWinner(pTotal, bTotal);
     setWinner(result);
+
+    // ✨ ADD THIS: Track analytics
+    const isNatural = (pTotal === 8 || pTotal === 9 || bTotal === 8 || bTotal === 9) && 
+                      finalPlayerHand.length === 2 && finalBankerHand.length === 2;
+    analytics.addResult(result, pTotal, bTotal, isNatural);
 
     let winnings = 0;
     let resultMsg = '';
@@ -191,6 +201,11 @@ function BaccaratGame({ onBack }) {
     } else if (result === 'banker') {
       winnings += bankerBet * 2 * 0.95; // 1:1 minus 5% commission
       resultMsg = 'Banker wins!';
+      // ✨ ADD THIS: Track commission
+      if (bankerBet > 0) {
+        const commission = Math.round(bankerBet * 0.05);
+        setCommissionOwed(prev => prev + commission);
+      }
       setStats(prev => ({
         ...prev,
         bankerWins: prev.bankerWins + 1
@@ -353,7 +368,38 @@ function BaccaratGame({ onBack }) {
           )}
         </div>
       </div>
+      {/* ✨ ADD THIS ENTIRE SECTION */}
+      {/* Analytics Dashboard */}
+      <div className="max-w-7xl mx-auto mb-6 grid md:grid-cols-2 gap-6">
+        {/* Roadmaps */}
+        <div className="fade-in-up">
+          <BaccaratRoadmaps analytics={analytics} />
+        </div>
 
+        {/* Statistics */}
+        <div className="fade-in-up">
+          <BaccaratStats analytics={analytics} />
+        </div>
+      </div>
+
+      {/* Commission Tracker */}
+      {commissionOwed > 0 && (
+        <div className="max-w-7xl mx-auto mb-6 fade-in-up">
+          <div className="bg-orange-900 bg-opacity-30 border border-orange-500 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">💰</div>
+              <div>
+                <div className="font-bold text-orange-400">Commission Owed</div>
+                <div className="text-sm text-gray-300">5% on Banker wins</div>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-orange-400 font-mono">
+              ${commissionOwed}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ✨ END OF NEW SECTION */}
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
         <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
