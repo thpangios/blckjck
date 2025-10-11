@@ -6,7 +6,7 @@ import BaccaratRoadmaps from './BaccaratRoadmaps';  // ✅ CHECK THIS
 import BaccaratStats from './BaccaratStats';  // ✅ CHECK THIS
 
 function BaccaratGame({ onBack }) {
-  const [deckManager, setDeckManager] = useState(null);
+  const [deck, setDeck] = useState(null);
   const [playerHand, setPlayerHand] = useState([]);
   const [bankerHand, setBankerHand] = useState([]);
   const [balance, setBalance] = useState(10000);
@@ -45,8 +45,8 @@ const [commissionOwed, setCommissionOwed] = useState(0);
 
   // Initialize deck
   useEffect(() => {
-    const dm = new DeckManager(8, 0.85); // 8-deck shoe, 85% penetration
-    setDeckManager(dm);
+    const dm = new Deck(8, 0.85); // 8-deck shoe, 85% penetration
+    setDeck(dm);
   }, []);
 
   // Place bet
@@ -108,10 +108,10 @@ const [commissionOwed, setCommissionOwed] = useState(0);
     setMessage('Dealing...');
 
     // Deal initial 4 cards (player, banker, player, banker)
-    const card1 = deckManager.dealCard();
-    const card2 = deckManager.dealCard();
-    const card3 = deckManager.dealCard();
-    const card4 = deckManager.dealCard();
+    const card1 = deck.dealCard();
+    const card2 = deck.dealCard();
+    const card3 = deck.dealCard();
+    const card4 = deck.dealCard();
 
     setPlayerHand([card1, card3]);
     setBankerHand([card2, card4]);
@@ -146,7 +146,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
       let finalBankerHand = [...bHand];
 
       if (needsCard.player) {
-        const playerThird = deckManager.dealCard();
+        const playerThird = deck.dealCard();
         finalPlayerHand = [...pHand, playerThird];
         setPlayerHand(finalPlayerHand);
         setMessage('Player draws third card');
@@ -157,7 +157,7 @@ const [commissionOwed, setCommissionOwed] = useState(0);
         const shouldBankerDraw = BaccaratRules.bankerDraws(bTotal, playerThirdCard);
 
         if (shouldBankerDraw) {
-          const bankerThird = deckManager.dealCard();
+          const bankerThird = deck.dealCard();
           finalBankerHand = [...bHand, bankerThird];
           setBankerHand(finalBankerHand);
           setMessage('Banker draws third card');
@@ -275,13 +275,13 @@ const [commissionOwed, setCommissionOwed] = useState(0);
       profitLoss: 0
     });
     setRoadmap([]);
-    if (deckManager) {
-      deckManager.initialize();
+    if (deck) {
+      deck.initialize();
     }
     newRound();
   };
 
-  if (!deckManager) {
+  if (!deck) {
     return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
   }
 
