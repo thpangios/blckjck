@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react';
-import { DeckManager } from '../utils/deckManager';
 import { BaccaratRules } from '../utils/baccaratRules';
-import { BaccaratAnalytics } from '../utils/baccaratAnalytics';
-import BaccaratRoadmaps from './BaccaratRoadmaps';
-import BaccaratStats from './BaccaratStats';
+import { BaccaratAnalytics } from '../utils/baccaratAnalytics';  // ✅ CHECK THIS
+import BaccaratRoadmaps from './BaccaratRoadmaps';  // ✅ CHECK THIS
+import BaccaratStats from './BaccaratStats';  // ✅ CHECK THIS
 
 function BaccaratGame({ onBack }) {
   const [deckManager, setDeckManager] = useState(null);
