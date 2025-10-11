@@ -1,9 +1,11 @@
-function BlackjackGame({ onBack }) {
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';  // ✅ CORRECT - imports first
 import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
-import { DeckManager } from './utils/deckManager';
-import { HandCalculator } from './utils/handCalculator';
-import { BasicStrategy } from './utils/basicStrategy';
+import { DeckManager } from '../utils/deckManager';
+import { HandCalculator } from '../utils/handCalculator';
+import { BasicStrategy } from '../utils/basicStrategy';
+
+function BlackjackGame({ onBack }) {  // ✅ Then the function
+
 
 function App() {
   // Game state
