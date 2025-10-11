@@ -3,11 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Professional Blackjack Casino</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Royal Casino - Premium Gaming</title>
+    
+    <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'display': ['Cinzel', 'serif'],
+              'heading': ['Bebas Neue', 'sans-serif'],
+              'body': ['Montserrat', 'sans-serif'],
+              'elegant': ['Playfair Display', 'serif'],
+              'tech': ['Orbitron', 'monospace'],
+            },
+            colors: {
+              'casino-gold': '#D4AF37',
+              'casino-gold-dark': '#B8941E',
+              'casino-red': '#8B0000',
+              'casino-green': '#0A4D2E',
+              'royal-purple': '#4B0082',
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
