@@ -373,7 +373,7 @@ export class PaiGowPokerStrategy {
     return best || cards.slice(0, 5);
   }
 
-  static findstatic findBestStraightFlush(cards) {
+  static findBestStraightFlush(cards) {
     const combos = PaiGowPokerRules.getCombinations(cards, 5);
     let best = null;
     let bestRank = -1;
