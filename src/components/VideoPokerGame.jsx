@@ -601,17 +601,21 @@ function VideoPokerGame({ onBack }) {
           </div>
         </Modal>
       )}
-        {/* AI Strategy Coach */}
+       {/* AI Strategy Coach */}
       <AICoach 
         game="videopoker"
         gameState={{
-          cards,
-          heldCards,
+          hand,
+          held,
           variant,
           bet,
           balance,
           optimalHold,
-          gameState
+          gameState,
+          trainingMode,
+          lastDecision,
+          winningHand,
+          payout
         }}
         visible={true}
       />
