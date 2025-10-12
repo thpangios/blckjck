@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader, Sparkles } from 'lucide-react';
 import { sendToAICoach } from '../utils/aiCoachService';
+import { useAuth } from '../contexts/AuthContext';
+import { v4 as uuidv4 } from 'uuid';
 
 function AICoach({ game, gameState, visible = true }) {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [sessionId] = useState(() => uuidv4()); // Generate unique session ID
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -45,9 +49,10 @@ function AICoach({ game, gameState, visible = true }) {
         message: messageText,
         game,
         gameState,
-        chatHistory: messages
+        chatHistory: messages,
+        sessionId, // Pass session ID
+        userId: user?.id // Pass user ID
       });
-
       const aiMessage = {
         role: 'assistant',
         content: response.answer,
