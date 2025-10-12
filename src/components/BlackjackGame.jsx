@@ -948,19 +948,22 @@ function BlackjackGame({ onBack }) {
           </div>
         </details>
       </div>
-    {/* AI Strategy Coach */}
+
+      {/* AI Strategy Coach */}
       <AICoach 
         game="blackjack"
-        gameState={buildGameContext('blackjack', {
+        gameState={{
           playerHands,
           dealerHand,
           deckManager,
-          recommendedAction: strategyAdvice?.action,
-          basicStrategyAction: strategyAdvice?.action
-        })}
+          gameState,
+          balance,
+          trainingMode
+        }}
         visible={true}
       />
-    </div>  {/* ← Main game container closing */}
+
+    </div>  {/* Main game container closing */}
   );
 }
 
