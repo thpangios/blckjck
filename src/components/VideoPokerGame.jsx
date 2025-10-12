@@ -705,7 +705,6 @@ function PokerCard({ card, held = false, onClick, disabled = false }) {
   );
 }
 
-
 // Reusable Components
 function Modal({ children, onClose, title }) {
   return (
