@@ -603,17 +603,16 @@ function VideoPokerGame({ onBack }) {
   );
 }
 
-// RoyalEdge Playing Card Component - Video Poker (Fixed)
-// RoyalEdge Playing Card Component - Video Poker (Fixed)
+// RoyalEdge Playing Card Component – Fixed for VideoPokerGame
 function PokerCard({ card, held, onClick, disabled }) {
-  const isRed = card.suit === '♥' || card.suit === '♦';
+  const isRed = card.suit === "♥" || card.suit === "♦";
 
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={`relative ${
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       }`}
     >
       {/* HELD badge */}
@@ -625,11 +624,11 @@ function PokerCard({ card, held, onClick, disabled }) {
 
       <div
         className={`card-face w-28 h-40 rounded-xl relative overflow-hidden border ${
-          held ? 'border-yellow-400 ring-4 ring-yellow-400' : 'border-neutral-300'
+          held ? "border-yellow-400 ring-4 ring-yellow-400" : "border-neutral-300"
         } bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
           transform-gpu transition-transform duration-200 ${
             !disabled &&
-            'hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]'
+            "hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
           }`}
       >
         {/* Visual overlays */}
@@ -637,19 +636,19 @@ function PokerCard({ card, held, onClick, disabled }) {
         <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40 pointer-events-none z-0" />
         <div
           className={`absolute inset-[3px] rounded-lg border pointer-events-none z-0 ${
-            held ? 'border-yellow-400/60' : 'border-yellow-400/30'
+            held ? "border-yellow-400/60" : "border-yellow-400/30"
           }`}
         />
 
-        {/* Content */}
+        {/* Card content */}
         <div className="relative z-10 flex flex-col justify-between h-full px-2 pt-3 pb-4">
           {/* Top corner */}
           <div
             className={`text-[1.05rem] font-semibold font-[Inter] leading-tight tracking-tight ${
-              isRed ? 'text-red-600' : 'text-gray-800'
+              isRed ? "text-red-600" : "text-gray-800"
             }`}
           >
-            <div className="leading-[1.1]">{card.rank}</div>
+            <div className="leading-[1.1]">{card.value}</div>
             <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
           </div>
 
@@ -657,20 +656,20 @@ function PokerCard({ card, held, onClick, disabled }) {
           <div className="flex-1 flex items-center justify-center">
             <div
               className={`text-5xl drop-shadow-sm ${
-                isRed ? 'text-red-600' : 'text-gray-800'
+                isRed ? "text-red-600" : "text-gray-800"
               }`}
             >
               {card.suit}
             </div>
           </div>
 
-          {/* Bottom corner (mirrored, fully visible) */}
+          {/* Bottom corner (mirrored) */}
           <div
             className={`text-[1.05rem] font-semibold font-[Inter] text-right rotate-180 ${
-              isRed ? 'text-red-600' : 'text-gray-800'
+              isRed ? "text-red-600" : "text-gray-800"
             }`}
           >
-            <div className="leading-[1.1]">{card.rank}</div>
+            <div className="leading-[1.1]">{card.value}</div>
             <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
           </div>
         </div>
