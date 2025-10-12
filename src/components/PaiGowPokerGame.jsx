@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft, Brain, Shuffle, AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
 import { PaiGowPokerRules } from '../utils/paiGowPokerRules';
 import { PaiGowPokerStrategy } from '../utils/paiGowPokerStrategy';
+import AICoach from './AICoach';
+import { buildGameContext } from '../utils/aiCoachService';
 
 function PaiGowPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
@@ -844,7 +846,30 @@ function PaiGowPokerGame({ onBack }) {
           </div>
         </Modal>
       )}
+{/* Rules Modal */}
+      {showRules && (
+        <Modal onClose={() => setShowRules(false)} title="PAI GOW POKER RULES">
+          {/* ... rules content ... */}
+        </Modal>
+      )}
 
+      {/* AI Strategy Coach */}
+      <AICoach 
+        game="paigowpoker"
+        gameState={{
+          playerCards,
+          playerHigh5,
+          playerLow2,
+          dealerHigh5,
+          dealerLow2,
+          houseWaySet,
+          bet,
+          balance,
+          gameState,
+          trainingMode
+        }}
+        visible={true}
+      />
     </div>
   );
 }
