@@ -1,5 +1,5 @@
 // AI Coach Service - Webhook Handler
-const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'YOUR_N8N_WEBHOOK_URL_HERE';
+const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-railway-production-cc19.up.railway.app/webhook/ai-coach';
 
 export async function sendToAICoach({ message, game, gameState, chatHistory = [] }) {
   try {
