@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import GameSelector from './components/GameSelector';
 import BlackjackGame from './components/BlackjackGame';
@@ -9,7 +10,8 @@ import PaiGowPokerGame from './components/PaiGowPokerGame';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [selectedGame, setSelectedGame] = React.useState(null);
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [showLanding, setShowLanding] = useState(true);
 
   // Show loading while checking auth
   if (loading) {
@@ -26,6 +28,11 @@ function AppContent() {
         </div>
       </div>
     );
+  }
+
+  // Show landing page if not logged in and landing hasn't been dismissed
+  if (!user && showLanding) {
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
   }
 
   // Show auth page if not logged in
