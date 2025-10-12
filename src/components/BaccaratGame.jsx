@@ -3,6 +3,8 @@ import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react
 import { DeckManager } from '../utils/deckManager';
 import { BaccaratRules } from '../utils/baccaratRules';
 import BaccaratRoadmapDisplay from './BaccaratRoadmapDisplay';
+import AICoach from './AICoach';
+import { buildGameContext } from '../utils/aiCoachService';
 
 function BaccaratGame({ onBack }) {
   const [deckManager, setDeckManager] = useState(null);
@@ -589,6 +591,23 @@ function BaccaratGame({ onBack }) {
           </div>
         </Modal>
       )}
+            {/* AI Strategy Coach */}
+      <AICoach 
+        game="baccarat"
+        gameState={{
+          playerHand,
+          bankerHand,
+          playerTotal,
+          bankerTotal,
+          roadmap,
+          playerBet,
+          bankerBet,
+          tieBet,
+          gameState,
+          balance
+        }}
+        visible={true}
+      />
     </div>
   );
 }
