@@ -848,7 +848,6 @@ function PaiGowPokerGame({ onBack }) {
     </div>
   );
 }
-
 // RoyalEdge Playing Card Component - Pai Gow Poker
 function PaiGowCard({ card, small = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
@@ -921,23 +920,6 @@ function PaiGowCard({ card, small = false }) {
           <div>{card.rank}</div>
           <div className={`${suitTopSize} leading-none mt-[2px]`}>{card.suit}</div>
         </div>
-      </div>
-    </div>
-  );
-}
-  
-  return (
-    <div className={`${sizeClasses} bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 flex flex-col justify-between transform transition-all card-3d`}>
-      <div className={`${textSize} font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.rank}</div>
-        <div className={`${suitSize} leading-none`}>{card.suit}</div>
-      </div>
-      <div className={`text-center ${suitSize}`}>
-        <div className={isRed ? 'text-red-600' : 'text-black'}>{card.suit}</div>
-      </div>
-      <div className={`${textSize} font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.rank}</div>
-        <div className={`${suitSize} leading-none`}>{card.suit}</div>
       </div>
     </div>
   );
