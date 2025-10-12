@@ -870,3 +870,35 @@ textarea:focus-visible {
 @media (prefers-color-scheme: light) {
   /* Optional: Add light mode overrides if needed */
 }
+/* ============================================
+   PRECISE CARD OVERFLOW FIX
+   ============================================ */
+
+/* All card containers must clip overflow */
+.card-3d,
+.bg-white,
+.bg-gradient-to-br.from-white,
+[class*="rounded-xl"][class*="shadow"] {
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Reduce padding slightly to fit rotated text */
+.bg-gradient-to-br.from-white.to-gray-100 {
+  padding: 0.5rem 0.4rem !important;
+}
+
+/* Tighten line height for card symbols */
+.font-mono {
+  line-height: 0.85 !important;
+}
+
+/* Fix rotated bottom elements */
+.rotate-180 .font-mono,
+.rotate-180 .text-2xl,
+.rotate-180 .text-3xl,
+.rotate-180 .text-4xl {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0.8 !important;
+}
