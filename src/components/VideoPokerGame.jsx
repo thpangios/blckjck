@@ -603,24 +603,74 @@ function VideoPokerGame({ onBack }) {
   );
 }
 
-// Poker Card Component
-function PokerCard({ card }) {
+// RoyalEdge Playing Card Component - Video Poker
+function PokerCard({ card, held, onClick, disabled }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
   
   return (
-    <div className="w-32 h-48 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 p-4 flex flex-col justify-between transform transition-all card-3d">
-      <div className={`text-3xl font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-5xl leading-none">{card.suit}</div>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`relative ${
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+      }`}
+    >
+      {/* HELD badge */}
+      {held && (
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
+          HELD
+        </div>
+      )}
+      
+      <div
+        className={`card-face w-28 h-40 rounded-xl relative overflow-hidden border ${
+          held ? 'border-yellow-400 ring-4 ring-yellow-400' : 'border-neutral-300'
+        } bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
+          transform-gpu transition-transform duration-200 ${
+            !disabled && 'hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]'
+          }`}
+      >
+        {/* Subtle highlight gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
+        {/* Light sheen bar */}
+        <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
+        {/* Inner gold edge for premium look */}
+        <div className={`absolute inset-[3px] rounded-lg border ${
+          held ? 'border-yellow-400/60' : 'border-yellow-400/30'
+        }`} />
+        {/* Content Layer */}
+        <div className="relative flex flex-col justify-between h-full p-2 pb-3">
+          {/* Top corner */}
+          <div
+            className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight ${
+              isRed ? 'text-red-600' : 'text-gray-800'
+            }`}
+          >
+            <div>{card.rank}</div>
+            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+          </div>
+          {/* Center emblem */}
+          <div className="flex-1 flex items-center justify-center">
+            <div
+              className={`text-5xl drop-shadow-sm ${
+                isRed ? 'text-red-600' : 'text-gray-800'
+              }`}
+            >
+              {card.suit}
+            </div>
+          </div>
+          {/* Bottom corner (mirrored and visible) */}
+          <div
+            className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${
+              isRed ? 'text-red-600' : 'text-gray-800'
+            }`}
+          >
+            <div>{card.rank}</div>
+            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+          </div>
+        </div>
       </div>
-      <div className="text-center text-6xl">
-        <div className={isRed ? 'text-red-600' : 'text-black'}>{card.suit}</div>
-      </div>
-      <div className={`text-3xl font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono">{card.value}</div>
-        <div className="text-5xl leading-none">{card.suit}</div>
-      </div>
-    </div>
+    </button>
   );
 }
 
