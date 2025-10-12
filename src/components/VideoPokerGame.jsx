@@ -603,75 +603,88 @@ function VideoPokerGame({ onBack }) {
   );
 }
 
-// RoyalEdge Playing Card Component
-function Card({ card, hidden = false }) {
-  const isRed = card.suit === '♥' || card.suit === '♦';
+// RoyalEdge Playing Card Component – Video Poker (Unified Blackjack Style)
+function PokerCard({ card, held = false, onClick, disabled = false }) {
+  const isRed = card.suit === "♥" || card.suit === "♦";
 
-  if (hidden) {
-    // 🂠 Card Back — elegant lattice & subtle depth
-    return (
-      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-slate-700 shadow-[0_6px_12px_rgba(0,0,0,0.5)] transform-gpu">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black" />
-        {/* Intricate gold lattice pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,215,0,0.12)_1px,transparent_0)] bg-[length:9px_9px] opacity-80" />
-        {/* Gloss reflection */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 mix-blend-overlay" />
-        {/* Inner glow */}
-        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/10 shadow-inner" />
-      </div>
-    );
-  }
-
-  // 🂡 Card Face — precision, hierarchy, and polish
   return (
-    <div
-      className="card-face w-28 h-40 rounded-xl relative overflow-hidden border border-neutral-300 bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
-        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`relative ${
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      }`}
     >
-      {/* Subtle highlight gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
-      {/* Light sheen bar */}
-      <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
-      {/* Inner gold edge for premium look */}
-      <div className="absolute inset-[3px] rounded-lg border border-yellow-400/30" />
-
-      {/* Content Layer */}
-      <div className="relative flex flex-col justify-between h-full p-2 pb-3">
-        {/* Top corner */}
-        <div
-          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight ${
-            isRed ? 'text-red-600' : 'text-gray-800'
-          }`}
-        >
-          <div>{card.value}</div>
-          <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+      {/* HELD badge */}
+      {held && (
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold z-20 shadow-lg animate-pulse">
+          HELD
         </div>
+      )}
 
-        {/* Center emblem */}
-        <div className="flex-1 flex items-center justify-center">
+      {/* 🂡 Card Face — Blackjack-style precision & polish */}
+      <div
+        className={`card-face w-28 h-40 rounded-xl relative overflow-hidden border ${
+          held ? "border-yellow-400 ring-4 ring-yellow-400" : "border-neutral-300"
+        } bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
+          transform-gpu transition-transform duration-200 ${
+            !disabled &&
+            "hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
+          }`}
+      >
+        {/* Subtle highlight gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
+
+        {/* Light sheen bar */}
+        <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
+
+        {/* Inner gold edge for premium look */}
+        <div
+          className={`absolute inset-[3px] rounded-lg border ${
+            held ? "border-yellow-400/60" : "border-yellow-400/30"
+          }`}
+        />
+
+        {/* Card content */}
+        <div className="relative flex flex-col justify-between h-full px-2 pt-3 pb-4 z-10">
+          {/* Top corner */}
           <div
-            className={`text-5xl drop-shadow-sm ${
-              isRed ? 'text-red-600' : 'text-gray-800'
+            className={`text-[1.05rem] font-semibold font-[Inter] leading-tight tracking-tight ${
+              isRed ? "text-red-600" : "text-gray-800"
             }`}
           >
-            {card.suit}
+            <div className="leading-[1.1]">{card.value}</div>
+            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+          </div>
+
+          {/* Center emblem */}
+          <div className="flex-1 flex items-center justify-center">
+            <div
+              className={`text-5xl ${
+                isRed
+                  ? "text-red-600 drop-shadow-[0_1px_2px_rgba(255,0,0,0.25)]"
+                  : "text-gray-800 drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+              }`}
+            >
+              {card.suit}
+            </div>
+          </div>
+
+          {/* Bottom corner (mirrored, visible, clean spacing) */}
+          <div
+            className={`absolute bottom-2 right-2 text-[1.05rem] font-semibold font-[Inter] text-right rotate-180 ${
+              isRed ? "text-red-600" : "text-gray-800"
+            }`}
+          >
+            <div className="leading-[1.1]">{card.value}</div>
+            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
           </div>
         </div>
-
-        {/* Bottom corner (mirrored) */}
-        <div
-          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${
-            isRed ? 'text-red-600' : 'text-gray-800'
-          }`}
-        >
-          <div>{card.value}</div>
-          <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
-        </div>
       </div>
-    </div>
+    </button>
   );
 }
+
 
 // Reusable Components
 function Modal({ children, onClose, title }) {
