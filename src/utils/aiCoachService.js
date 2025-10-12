@@ -29,10 +29,31 @@ export async function sendToAICoach({ message, game, gameState, chatHistory = []
     
     console.log('AI Coach response:', data);
 
+    // Handle different response formats from n8n
+    let answerText = '';
+    
+    // Check if response is an array (n8n format)
+    if (Array.isArray(data) && data.length > 0) {
+      answerText = data[0].output || data[0].answer || data[0].message || '';
+    } 
+    // Check if response is an object
+    else if (data.output) {
+      answerText = data.output;
+    } 
+    else if (data.answer) {
+      answerText = data.answer;
+    } 
+    else if (data.message) {
+      answerText = data.message;
+    }
+    else {
+      answerText = 'I received your question but couldn\'t generate a response.';
+    }
+
     return {
-      answer: data.answer || data.message || 'I received your question but couldn\'t generate a response.',
-      confidence: data.confidence || 'medium',
-      timestamp: data.timestamp || new Date().toISOString()
+      answer: answerText,
+      confidence: data.confidence || data[0]?.confidence || 'medium',
+      timestamp: data.timestamp || data[0]?.timestamp || new Date().toISOString()
     };
   } catch (error) {
     console.error('AI Coach service error:', error);
