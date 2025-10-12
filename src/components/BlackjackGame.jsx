@@ -950,50 +950,54 @@ function BlackjackGame({ onBack }) {
   );
 }
 
-// Velvet Royale Card Component
+// RoyalEdge Playing Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
 
   if (hidden) {
-    // 🂠 Card Back — mysterious, elegant, and alive
+    // 🂠 Card Back — elegant lattice & subtle depth
     return (
-      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-yellow-600 shadow-[0_6px_12px_rgba(0,0,0,0.5)] transform-gpu">
-        {/* Deep velvet base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
+      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-slate-700 shadow-[0_6px_12px_rgba(0,0,0,0.5)] transform-gpu">
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black" />
 
-        {/* Golden lattice pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,215,0,0.18)_1px,transparent_0)] bg-[length:10px_10px] opacity-70" />
+        {/* Intricate gold lattice pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,215,0,0.12)_1px,transparent_0)] bg-[length:9px_9px] opacity-80" />
 
-        {/* Gentle gold shimmer overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/5 via-transparent to-yellow-200/10 mix-blend-overlay" />
+        {/* Gloss reflection */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 mix-blend-overlay" />
 
-        {/* Edge glow for luxury touch */}
-        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-400/20 shadow-inner" />
+        {/* Inner glow */}
+        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/10 shadow-inner" />
       </div>
     );
   }
 
-  // 🂡 Card Face — clarity, prestige, and instant recognition
+  // 🂡 Card Face — precision, hierarchy, and polish
   return (
     <div
-      className="card-face w-28 h-40 rounded-xl bg-gradient-to-br from-neutral-50 to-neutral-100 border border-yellow-400 shadow-[0_8px_12px_rgba(0,0,0,0.3)] relative overflow-hidden transform-gpu 
-        transition-transform duration-200 hover:-translate-y-1 hover:rotate-[1deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.4)]"
+      className="card-face w-28 h-40 rounded-xl relative overflow-hidden border border-neutral-300 bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
+        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
     >
-      {/* Subtle reflective sheen */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
+      {/* Subtle highlight gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
 
-      {/* Decorative highlight strip */}
-      <div className="absolute left-0 top-0 w-[65%] h-full bg-gradient-to-r from-white/15 to-transparent opacity-40" />
+      {/* Light sheen bar */}
+      <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
 
-      {/* Gold inner border */}
-      <div className="absolute inset-[3px] rounded-lg border border-yellow-300/60" />
+      {/* Inner gold edge for premium look */}
+      <div className="absolute inset-[3px] rounded-lg border border-yellow-400/30" />
 
-      {/* Card content */}
-      <div className="relative h-full flex flex-col justify-between p-2 pb-3">
+      {/* Content Layer */}
+      <div className="relative flex flex-col justify-between h-full p-2 pb-3">
         {/* Top corner */}
-        <div className={`text-xl font-extrabold font-mono ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
+        <div
+          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight ${
+            isRed ? 'text-red-600' : 'text-gray-800'
+          }`}
+        >
           <div>{card.value}</div>
-          <div className="text-2xl -mt-[1px]">{card.suit}</div>
+          <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
         </div>
 
         {/* Center emblem */}
@@ -1007,14 +1011,14 @@ function Card({ card, hidden = false }) {
           </div>
         </div>
 
-        {/* Bottom corner (mirrored) */}
+        {/* Bottom corner (mirrored and visible) */}
         <div
-          className={`text-xl font-extrabold font-mono text-right rotate-180 ${
+          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${
             isRed ? 'text-red-600' : 'text-gray-800'
           }`}
         >
           <div>{card.value}</div>
-          <div className="text-2xl -mt-[1px]">{card.suit}</div>
+          <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
         </div>
       </div>
     </div>
