@@ -611,48 +611,51 @@ function PokerCard({ card, held, onClick, disabled }) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative ${
+      className={`relative select-none ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
       }`}
     >
       {/* HELD badge */}
       {held && (
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold z-20 shadow-lg">
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold z-20 shadow-lg">
           HELD
         </div>
       )}
 
+      {/* Card container */}
       <div
-        className={`card-face w-28 h-40 rounded-xl relative overflow-hidden border ${
-          held ? 'border-yellow-400 ring-4 ring-yellow-400' : 'border-neutral-300'
-        } bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
-          transform-gpu transition-transform duration-200 ${
+        className={`relative w-28 h-40 rounded-xl border overflow-hidden
+          bg-gradient-to-br from-neutral-50 to-neutral-100
+          shadow-[0_8px_16px_rgba(0,0,0,0.3)]
+          transition-transform duration-200 ease-out
+          ${held ? 'border-yellow-400 ring-4 ring-yellow-400' : 'border-neutral-300'}
+          ${
             !disabled &&
-            'hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]'
+            'hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_20px_rgba(0,0,0,0.45)]'
           }`}
       >
-        {/* Visual overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none z-0" />
-        <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40 pointer-events-none z-0" />
+        {/* Decorative overlay layers */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 w-[60%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40 pointer-events-none z-0" />
         <div
           className={`absolute inset-[3px] rounded-lg border pointer-events-none z-0 ${
-            held ? 'border-yellow-400/60' : 'border-yellow-400/30'
+            held ? 'border-yellow-400/60' : 'border-black/10'
           }`}
         />
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-between h-full px-2 pt-3 pb-4">
+        {/* Card face content */}
+        <div className="relative z-10 flex flex-col justify-between h-full p-2">
           {/* Top corner */}
           <div
-            className={`text-[1.05rem] font-semibold font-[Inter] leading-tight tracking-tight ${
+            className={`text-[1.05rem] font-semibold leading-tight tracking-tight text-left ${
               isRed ? 'text-red-600' : 'text-gray-800'
             }`}
           >
-            <div className="leading-[1.1]">{card.rank}</div>
-            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+            <div>{card.rank}</div>
+            <div className="text-2xl mt-0.5">{card.suit}</div>
           </div>
 
-          {/* Center emblem */}
+          {/* Center symbol */}
           <div className="flex-1 flex items-center justify-center">
             <div
               className={`text-5xl drop-shadow-sm ${
@@ -663,20 +666,22 @@ function PokerCard({ card, held, onClick, disabled }) {
             </div>
           </div>
 
-          {/* Bottom corner (mirrored, fully visible) */}
+          {/* Bottom corner (mirrored but not clipped) */}
           <div
-            className={`text-[1.05rem] font-semibold font-[Inter] text-right rotate-180 ${
+            className={`absolute bottom-2 right-2 text-[1.05rem] font-semibold leading-tight tracking-tight text-right ${
               isRed ? 'text-red-600' : 'text-gray-800'
             }`}
+            style={{ transform: 'rotate(180deg)' }}
           >
-            <div className="leading-[1.1]">{card.rank}</div>
-            <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
+            <div>{card.rank}</div>
+            <div className="text-2xl mt-0.5">{card.suit}</div>
           </div>
         </div>
       </div>
     </button>
   );
 }
+
 
 
 // Reusable Components
