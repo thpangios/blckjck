@@ -849,25 +849,82 @@ function PaiGowPokerGame({ onBack }) {
   );
 }
 
-// Pai Gow Card Component
+// RoyalEdge Playing Card Component - Pai Gow Poker
 function PaiGowCard({ card, small = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
   const isJoker = card.rank === 'JOKER';
   
-  const sizeClasses = small ? 'w-20 h-28 p-2' : 'w-24 h-36 p-3';
-  const textSize = small ? 'text-xl' : 'text-2xl';
-  const suitSize = small ? 'text-3xl' : 'text-4xl';
+  const sizeClasses = small ? 'w-20 h-28' : 'w-28 h-40';
+  const textSize = small ? 'text-base' : 'text-lg';
+  const suitTopSize = small ? 'text-xl' : 'text-2xl';
+  const centerSize = small ? 'text-4xl' : 'text-5xl';
+  const padding = small ? 'p-1.5 pb-2' : 'p-2 pb-3';
   
   if (isJoker) {
     return (
-      <div className={`${sizeClasses} bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl shadow-2xl border-2 border-yellow-400 flex items-center justify-center transform transition-all card-3d`}>
-        <div className="text-center">
-          <div className="text-5xl mb-1">🃏</div>
-          <div className="text-xs font-bold text-yellow-300">JOKER</div>
+      <div className={`${sizeClasses} rounded-xl relative overflow-hidden border border-purple-400 bg-gradient-to-br from-purple-600 to-purple-800 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
+        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]`}
+      >
+        {/* Magical gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-yellow-300/20 via-transparent to-transparent pointer-events-none" />
+        {/* Inner gold edge */}
+        <div className="absolute inset-[3px] rounded-lg border border-yellow-400/50" />
+        {/* Content */}
+        <div className="relative flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="text-5xl mb-1">🃏</div>
+            <div className="text-xs font-bold text-yellow-300 tracking-wider">JOKER</div>
+          </div>
         </div>
       </div>
     );
   }
+  
+  return (
+    <div
+      className={`card-face ${sizeClasses} rounded-xl relative overflow-hidden border border-neutral-300 bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
+        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]`}
+    >
+      {/* Subtle highlight gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
+      {/* Light sheen bar */}
+      <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
+      {/* Inner gold edge for premium look */}
+      <div className="absolute inset-[3px] rounded-lg border border-yellow-400/30" />
+      {/* Content Layer */}
+      <div className={`relative flex flex-col justify-between h-full ${padding}`}>
+        {/* Top corner */}
+        <div
+          className={`${textSize} font-semibold font-[Inter] leading-tight tracking-tight ${
+            isRed ? 'text-red-600' : 'text-gray-800'
+          }`}
+        >
+          <div>{card.rank}</div>
+          <div className={`${suitTopSize} leading-none mt-[2px]`}>{card.suit}</div>
+        </div>
+        {/* Center emblem */}
+        <div className="flex-1 flex items-center justify-center">
+          <div
+            className={`${centerSize} drop-shadow-sm ${
+              isRed ? 'text-red-600' : 'text-gray-800'
+            }`}
+          >
+            {card.suit}
+          </div>
+        </div>
+        {/* Bottom corner (mirrored and visible) */}
+        <div
+          className={`${textSize} font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${
+            isRed ? 'text-red-600' : 'text-gray-800'
+          }`}
+        >
+          <div>{card.rank}</div>
+          <div className={`${suitTopSize} leading-none mt-[2px]`}>{card.suit}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
   
   return (
     <div className={`${sizeClasses} bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 flex flex-col justify-between transform transition-all card-3d`}>
