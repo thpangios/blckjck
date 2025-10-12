@@ -950,34 +950,45 @@ function BlackjackGame({ onBack }) {
   );
 }
 
-// Premium Card Component
+// Velvet Royale Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
 
   if (hidden) {
+    // 🂠 Card Back — mysterious, elegant, and alive
     return (
-      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border-[1px] border-blue-800 shadow-2xl transform-gpu">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-blue-900" />
-        {/* Pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:10px_10px]" />
-        {/* Gloss */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 mix-blend-overlay" />
+      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-yellow-600 shadow-[0_6px_12px_rgba(0,0,0,0.5)] transform-gpu">
+        {/* Deep velvet base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
+
+        {/* Golden lattice pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,215,0,0.18)_1px,transparent_0)] bg-[length:10px_10px] opacity-70" />
+
+        {/* Gentle gold shimmer overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/5 via-transparent to-yellow-200/10 mix-blend-overlay" />
+
+        {/* Edge glow for luxury touch */}
+        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-400/20 shadow-inner" />
       </div>
     );
   }
 
+  // 🂡 Card Face — clarity, prestige, and instant recognition
   return (
     <div
-      className="card-face w-28 h-40 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-300 shadow-[0_8px_12px_rgba(0,0,0,0.15)] relative overflow-hidden 
-        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[1deg] hover:shadow-[0_12px_16px_rgba(0,0,0,0.25)]"
+      className="card-face w-28 h-40 rounded-xl bg-gradient-to-br from-neutral-50 to-neutral-100 border border-yellow-400 shadow-[0_8px_12px_rgba(0,0,0,0.3)] relative overflow-hidden transform-gpu 
+        transition-transform duration-200 hover:-translate-y-1 hover:rotate-[1deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.4)]"
     >
-      {/* Shine Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
+      {/* Subtle reflective sheen */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
 
-      {/* Highlight strip */}
-      <div className="absolute w-[60%] h-full left-0 top-0 bg-gradient-to-r from-white/10 to-transparent opacity-40" />
+      {/* Decorative highlight strip */}
+      <div className="absolute left-0 top-0 w-[65%] h-full bg-gradient-to-r from-white/15 to-transparent opacity-40" />
 
-      {/* Inner content */}
+      {/* Gold inner border */}
+      <div className="absolute inset-[3px] rounded-lg border border-yellow-300/60" />
+
+      {/* Card content */}
       <div className="relative h-full flex flex-col justify-between p-2 pb-3">
         {/* Top corner */}
         <div className={`text-xl font-extrabold font-mono ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
@@ -985,15 +996,23 @@ function Card({ card, hidden = false }) {
           <div className="text-2xl -mt-[1px]">{card.suit}</div>
         </div>
 
-        {/* Center */}
+        {/* Center emblem */}
         <div className="flex-1 flex items-center justify-center">
-          <div className={`text-5xl ${isRed ? 'text-red-600' : 'text-gray-800'} drop-shadow-sm`}>
+          <div
+            className={`text-5xl drop-shadow-sm ${
+              isRed ? 'text-red-600' : 'text-gray-800'
+            }`}
+          >
             {card.suit}
           </div>
         </div>
 
-        {/* Bottom corner rotated */}
-        <div className={`text-xl font-extrabold font-mono text-right rotate-180 ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
+        {/* Bottom corner (mirrored) */}
+        <div
+          className={`text-xl font-extrabold font-mono text-right rotate-180 ${
+            isRed ? 'text-red-600' : 'text-gray-800'
+          }`}
+        >
           <div>{card.value}</div>
           <div className="text-2xl -mt-[1px]">{card.suit}</div>
         </div>
@@ -1001,6 +1020,7 @@ function Card({ card, hidden = false }) {
     </div>
   );
 }
+
 // Modal Component
 function Modal({ children, onClose, title }) {
   return (
