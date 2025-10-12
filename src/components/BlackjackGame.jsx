@@ -956,38 +956,46 @@ function Card({ card, hidden = false }) {
 
   if (hidden) {
     return (
-      <div className="w-28 h-40 bg-gradient-to-br from-blue-900 to-blue-950 border-2 border-blue-700 rounded-xl flex items-center justify-center shadow-2xl card-3d relative overflow-hidden">
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-white to-transparent" />
-        <div className="text-5xl text-blue-600 relative z-10">♠</div>
+      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border-[1px] border-blue-800 shadow-2xl transform-gpu">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-blue-900" />
+        {/* Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:10px_10px]" />
+        {/* Gloss */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 mix-blend-overlay" />
       </div>
     );
   }
 
   return (
-    <div className="w-28 h-40 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-card border-2 border-gray-300 relative overflow-hidden transform transition-all hover:scale-105 hover:shadow-card-hover card-3d">
-      {/* Subtle shine effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
-      
-      {/* Card content with proper padding */}
-      <div className="relative h-full flex flex-col p-2">
+    <div
+      className="card-face w-28 h-40 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-300 shadow-[0_8px_12px_rgba(0,0,0,0.15)] relative overflow-hidden 
+        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[1deg] hover:shadow-[0_12px_16px_rgba(0,0,0,0.25)]"
+    >
+      {/* Shine Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
+
+      {/* Highlight strip */}
+      <div className="absolute w-[60%] h-full left-0 top-0 bg-gradient-to-r from-white/10 to-transparent opacity-40" />
+
+      {/* Inner content */}
+      <div className="relative h-full flex flex-col justify-between p-2 pb-3">
         {/* Top corner */}
-        <div className={`text-xl font-bold leading-none ${isRed ? 'text-red-600' : 'text-black'}`}>
-          <div className="font-mono mb-0.5">{card.value}</div>
-          <div className="text-3xl">{card.suit}</div>
+        <div className={`text-xl font-extrabold font-mono ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
+          <div>{card.value}</div>
+          <div className="text-2xl -mt-[1px]">{card.suit}</div>
         </div>
-        
-        {/* Center suit */}
+
+        {/* Center */}
         <div className="flex-1 flex items-center justify-center">
-          <div className={`text-5xl ${isRed ? 'text-red-600' : 'text-black'} opacity-90`}>
+          <div className={`text-5xl ${isRed ? 'text-red-600' : 'text-gray-800'} drop-shadow-sm`}>
             {card.suit}
           </div>
         </div>
-        
-        {/* Bottom corner (rotated) */}
-        <div className={`text-xl font-bold leading-none text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-          <div className="font-mono mb-0.5">{card.value}</div>
-          <div className="text-3xl">{card.suit}</div>
+
+        {/* Bottom corner rotated */}
+        <div className={`text-xl font-extrabold font-mono text-right rotate-180 ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
+          <div>{card.value}</div>
+          <div className="text-2xl -mt-[1px]">{card.suit}</div>
         </div>
       </div>
     </div>
