@@ -596,16 +596,16 @@ body {
    LABELS & TYPOGRAPHY
    ============================================ */
 .player-label {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #FFD700;
+  color: #FFFFFF;
   text-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 215, 0, 0.3);
+    0 0 10px rgba(255, 215, 0, 0.6),
+    0 0 20px rgba(255, 215, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.6);
 }
-
 /* ============================================
    STAT CARDS (Enhanced)
    ============================================ */
