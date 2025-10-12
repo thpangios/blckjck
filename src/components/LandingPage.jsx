@@ -1,9 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   TrendingUp, Shield, Brain, BarChart3, Zap, Target, 
   CheckCircle, ArrowRight, Star, Users, Award, Lock,
   Sparkles, ChevronDown, Play
 } from 'lucide-react';
+
+// Custom hook for scroll-triggered animations
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsInView(true);
+        // Once animated, stop observing
+        if (ref.current) {
+          observer.unobserve(ref.current);
+        }
+      }
+    }, {
+      threshold: 0.1,
+      ...options
+    });
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  return [ref, isInView];
+}
 
 function LandingPage({ onGetStarted }) {
   const [scrolled, setScrolled] = useState(false);
@@ -96,265 +129,22 @@ function LandingPage({ onGetStarted }) {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="glass-strong rounded-3xl p-12 md:p-20 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-red-900/20 to-transparent" />
-            
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                The Casino Always Wins...
-                <span className="text-red-400"> Unless You Know The Math</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 mb-8 max-w-3xl">
-                Most players lose because they don't understand optimal strategy. 
-                Even small mistakes cost thousands over time. The house edge compounds against you.
-              </p>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                <ProblemCard
-                  icon="📉"
-                  title="Poor Strategy"
-                  description="Playing on gut feeling instead of mathematics costs 2-5% edge"
-                />
-                <ProblemCard
-                  icon="🎲"
-                  title="No Training"
-                  description="Casino experience is expensive. Mistakes cost real money."
-                />
-                <ProblemCard
-                  icon="❓"
-                  title="Confusing Rules"
-                  description="Complex strategies without clear explanations lead to errors."
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProblemSection />
 
       {/* Solution Section with Chart */}
-      <section className="py-20 bg-gradient-to-b from-transparent via-green-900/10 to-transparent">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Train Smart. Play Better. <span className="text-green-400">Win More.</span>
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Our AI-powered platform reduces the house edge to near zero through perfect strategy execution.
-            </p>
-          </div>
-
-          {/* House Edge Comparison Chart */}
-          <div className="glass-strong rounded-3xl p-8 md:p-12 mb-12">
-            <h3 className="text-2xl font-bold mb-8 text-center">House Edge: Average Player vs. Casino Royale Trained</h3>
-            
-            <div className="space-y-6">
-              <ComparisonBar
-                game="Blackjack"
-                averagePlayer={2.0}
-                trained={0.5}
-                optimal={0.5}
-              />
-              <ComparisonBar
-                game="Video Poker"
-                averagePlayer={3.5}
-                trained={0.46}
-                optimal={0.46}
-              />
-              <ComparisonBar
-                game="Baccarat"
-                averagePlayer={1.24}
-                trained={1.06}
-                optimal={1.06}
-              />
-              <ComparisonBar
-                game="Pai Gow"
-                averagePlayer={2.5}
-                trained={1.46}
-                optimal={1.46}
-              />
-            </div>
-
-            <div className="flex justify-center gap-8 mt-8 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>Average Player</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>Casino Royale Trained</span>
-              </div>
-            </div>
-
-            <p className="text-center text-gray-400 mt-6 text-sm">
-              * Lower house edge = Better odds for you. Our training reduces your disadvantage by up to 75%.
-            </p>
-          </div>
-
-          {/* ROI Calculator */}
-          <ROICalculator />
-        </div>
-      </section>
+      <SolutionSection />
 
       {/* Features Section */}
-      <section id="features" className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Professional-Grade Training Tools
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Everything you need to master casino games, backed by mathematics and AI.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<Brain size={32} className="text-purple-400" />}
-              title="AI Strategy Coach"
-              description="Real-time explanations for every decision. Ask questions and get instant, contextual answers powered by advanced AI."
-              badge="NEW"
-            />
-            
-            <FeatureCard
-              icon={<BarChart3 size={32} className="text-blue-400" />}
-              title="Card Counting System"
-              description="Learn Hi-Lo counting with true count calculation, penetration tracking, and optimal bet sizing recommendations."
-            />
-            
-            <FeatureCard
-              icon={<Target size={32} className="text-green-400" />}
-              title="Optimal Strategy Engine"
-              description="Perfect play recommendations for every situation. Never make a costly mistake again with our real-time guidance."
-            />
-            
-            <FeatureCard
-              icon={<TrendingUp size={32} className="text-yellow-400" />}
-              title="Advanced Analytics"
-              description="Track your progress, identify weaknesses, and watch your win rate improve with detailed statistics and insights."
-            />
-            
-            <FeatureCard
-              icon={<Shield size={32} className="text-red-400" />}
-              title="Risk-Free Training"
-              description="Practice with virtual currency. Master strategies without risking real money. Build confidence before playing live."
-            />
-            
-            <FeatureCard
-              icon={<Zap size={32} className="text-orange-400" />}
-              title="4 Casino Games"
-              description="Blackjack, Baccarat, Video Poker, and Pai Gow Poker. Each with authentic rules and professional training modes."
-            />
-          </div>
-        </div>
-      </section>
+      <FeaturesSection />
 
       {/* Game Showcase */}
-      <section className="py-20 bg-gradient-to-b from-transparent via-gray-800/20 to-transparent">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
-            Master Every Game
-          </h2>
+      <GameShowcaseSection />
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <GameCard
-              title="♠ Blackjack"
-              description="Card counting, true count tracking, basic strategy, and bankroll management"
-              stats={["99.5% RTP", "Hi-Lo System", "Real-time Count"]}
-            />
-            
-            <GameCard
-              title="🎰 Video Poker"
-              description="Optimal hold strategy, EV calculations, and variant-specific training"
-              stats={["99.54% RTP", "3 Variants", "Perfect Strategy"]}
-            />
-            
-            <GameCard
-              title="🎴 Baccarat"
-              description="Pattern recognition, roadmaps, and trend analysis with 5 tracking systems"
-              stats={["98.94% RTP", "5 Roadmaps", "Pattern AI"]}
-            />
-            
-            <GameCard
-              title="🀄 Pai Gow Poker"
-              description="House way algorithm, optimal hand setting, and fortune bonus strategy"
-              stats={["98.54% RTP", "Hand Setting AI", "Low Variance"]}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="glass-strong rounded-3xl p-12 text-center">
-            <div className="flex justify-center gap-2 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={32} className="text-yellow-400 fill-yellow-400" />
-              ))}
-            </div>
-            
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              "This Changed My Game Completely"
-            </h3>
-            
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-6">
-              "I went from losing $200 per session to breaking even, then profiting. 
-              The AI coach explains the math behind every decision. It's like having a 
-              professional dealer trainer in your pocket."
-            </p>
-            
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center font-bold text-black">
-                MK
-              </div>
-              <div className="text-left">
-                <div className="font-bold">Mike K.</div>
-                <div className="text-sm text-gray-400">Blackjack Player, Las Vegas</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-            <TrustBadge icon={<Shield />} text="Secure & Private" />
-            <TrustBadge icon={<Users />} text="1000+ Players" />
-            <TrustBadge icon={<Award />} text="Pro-Grade Tools" />
-            <TrustBadge icon={<Lock />} text="Risk-Free Training" />
-          </div>
-        </div>
-      </section>
+      {/* Trust Badges */}
+      <TrustSection />
 
       {/* Final CTA */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/20 via-orange-600/20 to-red-600/20" />
-        
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Ready to Beat the House?
-          </h2>
-          
-          <p className="text-xl text-gray-300 mb-8">
-            Join Casino Royale today and start training like a professional. 
-            Free to start, no credit card required.
-          </p>
-
-          <button
-            onClick={onGetStarted}
-            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-5 rounded-xl font-bold text-xl hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-2xl inline-flex items-center gap-3"
-          >
-            <Play size={24} />
-            Start Training Now
-            <ArrowRight size={24} />
-          </button>
-
-          <p className="text-sm text-gray-400 mt-6">
-            ✓ No credit card required  ✓ Start in 30 seconds  ✓ Risk-free training
-          </p>
-        </div>
-      </section>
+      <CTASection onGetStarted={onGetStarted} />
 
       {/* Footer */}
       <footer className="border-t border-gray-800 py-12">
@@ -379,6 +169,296 @@ function LandingPage({ onGetStarted }) {
   );
 }
 
+// Animated Sections
+
+function ProblemSection() {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section ref={ref} className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className={`glass-strong rounded-3xl p-12 md:p-20 relative overflow-hidden transition-all duration-1000 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-red-900/20 to-transparent" />
+          
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              The Casino Always Wins...
+              <span className="text-red-400"> Unless You Know The Math</span>
+            </h2>
+            
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl">
+              Most players lose because they don't understand optimal strategy. 
+              Even small mistakes cost thousands over time. The house edge compounds against you.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <ProblemCard
+                icon="📉"
+                title="Poor Strategy"
+                description="Playing on gut feeling instead of mathematics costs 2-5% edge"
+              />
+              <ProblemCard
+                icon="🎲"
+                title="No Training"
+                description="Casino experience is expensive. Mistakes cost real money."
+              />
+              <ProblemCard
+                icon="❓"
+                title="Confusing Rules"
+                description="Complex strategies without clear explanations lead to errors."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SolutionSection() {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section ref={ref} className="py-20 bg-gradient-to-b from-transparent via-green-900/10 to-transparent">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className={`text-center mb-16 transition-all duration-1000 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Train Smart. Play Better. <span className="text-green-400">Win More.</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Our AI-powered platform reduces the house edge to near zero through perfect strategy execution.
+          </p>
+        </div>
+
+        {/* House Edge Comparison Chart */}
+        <div className={`glass-strong rounded-3xl p-8 md:p-12 mb-12 transition-all duration-1000 delay-200 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <h3 className="text-2xl font-bold mb-8 text-center">House Edge: Average Player vs. Casino Royale Trained</h3>
+          
+          <div className="space-y-6">
+            <ComparisonBar
+              game="Blackjack"
+              averagePlayer={2.0}
+              trained={0.5}
+              optimal={0.5}
+              animate={isInView}
+            />
+            <ComparisonBar
+              game="Video Poker"
+              averagePlayer={3.5}
+              trained={0.46}
+              optimal={0.46}
+              animate={isInView}
+            />
+            <ComparisonBar
+              game="Baccarat"
+              averagePlayer={1.24}
+              trained={1.06}
+              optimal={1.06}
+              animate={isInView}
+            />
+            <ComparisonBar
+              game="Pai Gow"
+              averagePlayer={2.5}
+              trained={1.46}
+              optimal={1.46}
+              animate={isInView}
+            />
+          </div>
+
+          <div className="flex justify-center gap-8 mt-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-500 rounded"></div>
+              <span>Average Player</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-500 rounded"></div>
+              <span>Casino Royale Trained</span>
+            </div>
+          </div>
+
+          <p className="text-center text-gray-400 mt-6 text-sm">
+            * Lower house edge = Better odds for you. Our training reduces your disadvantage by up to 75%.
+          </p>
+        </div>
+
+        {/* ROI Calculator */}
+        <div className={`transition-all duration-1000 delay-400 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <ROICalculator />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturesSection() {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section id="features" ref={ref} className="py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className={`text-center mb-16 transition-all duration-1000 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Professional-Grade Training Tools
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Everything you need to master casino games, backed by mathematics and AI.
+          </p>
+        </div>
+
+        <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-1000 delay-200 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <FeatureCard
+            icon={<Brain size={32} className="text-purple-400" />}
+            title="AI Strategy Coach"
+            description="Real-time explanations for every decision. Ask questions and get instant, contextual answers powered by advanced AI."
+            badge="NEW"
+          />
+          
+          <FeatureCard
+            icon={<BarChart3 size={32} className="text-blue-400" />}
+            title="Card Counting System"
+            description="Learn Hi-Lo counting with true count calculation, penetration tracking, and optimal bet sizing recommendations."
+          />
+          
+          <FeatureCard
+            icon={<Target size={32} className="text-green-400" />}
+            title="Optimal Strategy Engine"
+            description="Perfect play recommendations for every situation. Never make a costly mistake again with our real-time guidance."
+          />
+          
+          <FeatureCard
+            icon={<TrendingUp size={32} className="text-yellow-400" />}
+            title="Advanced Analytics"
+            description="Track your progress, identify weaknesses, and watch your win rate improve with detailed statistics and insights."
+          />
+          
+          <FeatureCard
+            icon={<Shield size={32} className="text-red-400" />}
+            title="Risk-Free Training"
+            description="Practice with virtual currency. Master strategies without risking real money. Build confidence before playing live."
+          />
+          
+          <FeatureCard
+            icon={<Zap size={32} className="text-orange-400" />}
+            title="4 Casino Games"
+            description="Blackjack, Baccarat, Video Poker, and Pai Gow Poker. Each with authentic rules and professional training modes."
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GameShowcaseSection() {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section ref={ref} className="py-20 bg-gradient-to-b from-transparent via-gray-800/20 to-transparent">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className={`text-4xl md:text-5xl font-bold mb-16 text-center transition-all duration-1000 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          Master Every Game
+        </h2>
+
+        <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-200 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <GameCard
+            title="♠ Blackjack"
+            description="Card counting, true count tracking, basic strategy, and bankroll management"
+            stats={["99.5% RTP", "Hi-Lo System", "Real-time Count"]}
+          />
+          
+          <GameCard
+            title="🎰 Video Poker"
+            description="Optimal hold strategy, EV calculations, and variant-specific training"
+            stats={["99.54% RTP", "3 Variants", "Perfect Strategy"]}
+          />
+          
+          <GameCard
+            title="🎴 Baccarat"
+            description="Pattern recognition, roadmaps, and trend analysis with 5 tracking systems"
+            stats={["98.94% RTP", "5 Roadmaps", "Pattern AI"]}
+          />
+          
+          <GameCard
+            title="🀄 Pai Gow Poker"
+            description="House way algorithm, optimal hand setting, and fortune bonus strategy"
+            stats={["98.54% RTP", "Hand Setting AI", "Low Variance"]}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustSection() {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section ref={ref} className="py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto transition-all duration-1000 ${
+          isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+        }`}>
+          <TrustBadge icon={<Shield />} text="Secure & Private" />
+          <TrustBadge icon={<Users />} text="1000+ Players" />
+          <TrustBadge icon={<Award />} text="Pro-Grade Tools" />
+          <TrustBadge icon={<Lock />} text="Risk-Free Training" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTASection({ onGetStarted }) {
+  const [ref, isInView] = useInView();
+
+  return (
+    <section ref={ref} className="py-20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/20 via-orange-600/20 to-red-600/20" />
+      
+      <div className={`max-w-4xl mx-auto px-6 text-center relative z-10 transition-all duration-1000 ${
+        isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+      }`}>
+        <h2 className="text-4xl md:text-6xl font-bold mb-6">
+          Ready to Beat the House?
+        </h2>
+        
+        <p className="text-xl text-gray-300 mb-8">
+          Join Casino Royale today and start training like a professional. 
+          Free to start, no credit card required.
+        </p>
+
+        <button
+          onClick={onGetStarted}
+          className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-5 rounded-xl font-bold text-xl hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-2xl inline-flex items-center gap-3"
+        >
+          <Play size={24} />
+          Start Training Now
+          <ArrowRight size={24} />
+        </button>
+
+        <p className="text-sm text-gray-400 mt-6">
+          ✓ No credit card required  ✓ Start in 30 seconds  ✓ Risk-free training
+        </p>
+      </div>
+    </section>
+  );
+}
+
 // Helper Components
 
 function StatCard({ number, label }) {
@@ -400,7 +480,7 @@ function ProblemCard({ icon, title, description }) {
   );
 }
 
-function ComparisonBar({ game, averagePlayer, trained, optimal }) {
+function ComparisonBar({ game, averagePlayer, trained, optimal, animate }) {
   const maxValue = 5;
   const avgWidth = (averagePlayer / maxValue) * 100;
   const trainedWidth = (trained / maxValue) * 100;
@@ -415,16 +495,16 @@ function ComparisonBar({ game, averagePlayer, trained, optimal }) {
       <div className="relative h-12 bg-gray-800 rounded-xl overflow-hidden">
         <div
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-end pr-3 transition-all duration-1000"
-          style={{ width: `${avgWidth}%` }}
+          style={{ width: animate ? `${avgWidth}%` : '0%' }}
         >
-          <span className="text-xs font-bold text-white">{averagePlayer}%</span>
+          {animate && <span className="text-xs font-bold text-white">{averagePlayer}%</span>}
         </div>
         
         <div
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-600 to-green-500 flex items-center justify-end pr-3 transition-all duration-1000 delay-300"
-          style={{ width: `${trainedWidth}%` }}
+          style={{ width: animate ? `${trainedWidth}%` : '0%' }}
         >
-          <span className="text-xs font-bold text-white">{trained}%</span>
+          {animate && <span className="text-xs font-bold text-white">{trained}%</span>}
         </div>
       </div>
     </div>
