@@ -14,6 +14,35 @@
   --neon-glow: rgba(255, 215, 0, 0.3);
   --shadow-heavy: 0 10px 40px rgba(0, 0, 0, 0.5);
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  /* NEW: Muted Dark Mode (2025 Trend - softer than pure black) */
+  --dark-bg: #0A0A0A;
+  --dark-surface: #121212;
+  --dark-card: #1A1A1A;
+  --dark-hover: #242424;
+  
+  /* NEW: Spacing System (8pt grid for consistency) */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4rem;      /* 64px */
+  
+  /* NEW: Enhanced Elevation System (Apple-style depth) */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --elevation-2: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --elevation-3: 0 4px 8px rgba(0, 0, 0, 0.35);
+  --elevation-4: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --elevation-5: 0 16px 32px rgba(0, 0, 0, 0.45);
+  --elevation-6: 0 24px 48px rgba(0, 0, 0, 0.5);
+  
+  /* NEW: Transition Timing (smooth, natural feel) */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -28,6 +57,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   color: #ffffff;
+  /* NEW: Improved font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
@@ -134,6 +167,69 @@ body {
   }
 }
 
+/* NEW: Additional Professional Animations */
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes chipToss {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg) scale(1);
+  }
+}
+
+/* NEW: Progressive Blur (2025 Trend) */
+@keyframes fadeInWithBlur {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
 .card-deal {
   animation: dealCard 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -158,24 +254,80 @@ body {
   animation: slideInFromTop 0.4s ease-out;
 }
 
-/* Glass Morphism Effect */
+/* NEW: Additional Animation Classes */
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.bounce-subtle {
+  animation: bounceSubtle 1s ease-in-out infinite;
+}
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.chip-toss {
+  animation: chipToss 0.6s ease-out;
+}
+
+.fade-blur {
+  animation: fadeInWithBlur 0.5s ease-out;
+}
+
+/* Glass Morphism Effect - ENHANCED */
 .glass {
   background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  /* NEW: Smooth transitions */
+  transition: all var(--transition-base);
+}
+
+.glass:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* NEW: Micro-interaction - subtle lift */
+  transform: translateY(-2px);
+  box-shadow: var(--elevation-4);
 }
 
 .glass-strong {
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.15);
+  /* NEW: Premium shadow */
+  box-shadow: var(--elevation-5);
 }
 
-/* Premium Button Styles */
+/* NEW: Additional Glass Variants */
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-gold {
+  background: rgba(255, 215, 0, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* Premium Button Styles - ENHANCED */
 .btn-premium {
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
+  /* NEW: Better default shadow */
+  box-shadow: var(--elevation-2);
 }
 
 .btn-premium::before {
@@ -191,32 +343,116 @@ body {
   transition: width 0.6s, height 0.6s;
 }
 
+.btn-premium:hover {
+  /* NEW: Enhanced hover state */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--elevation-5);
+}
+
 .btn-premium:hover::before {
   width: 300px;
   height: 300px;
 }
 
 .btn-premium:active {
-  transform: scale(0.95);
+  transform: scale(0.98) translateY(0);
+  /* NEW: Active state feedback */
+  box-shadow: var(--elevation-1);
 }
 
-/* Card Shadow and 3D Effect */
+/* NEW: Button loading state */
+.btn-premium.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-premium.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Card Shadow and 3D Effect - ENHANCED */
 .card-3d {
   transform-style: preserve-3d;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-base);
+  /* NEW: Default elevation */
+  box-shadow: var(--elevation-2);
 }
 
 .card-3d:hover {
   transform: translateY(-5px) rotateX(5deg);
+  /* NEW: Enhanced shadow on hover */
+  box-shadow: var(--elevation-5);
 }
 
-/* Chip Glow Effect */
+/* NEW: Card variants */
+.card-subtle {
+  transition: all var(--transition-base);
+}
+
+.card-subtle:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--elevation-3);
+}
+
+/* Chip Glow Effect - ENHANCED */
 .chip-glow {
   box-shadow: 
     0 0 10px rgba(255, 215, 0, 0.4),
     0 0 20px rgba(255, 215, 0, 0.2),
     inset 0 2px 4px rgba(255, 255, 255, 0.3),
     inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+  transition: all var(--transition-base);
+}
+
+.chip-glow:hover {
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    0 0 30px rgba(255, 215, 0, 0.3),
+    0 0 45px rgba(255, 215, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+  /* NEW: Subtle lift on hover */
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* NEW: Loading States (Skeleton Screens) */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* NEW: Focus States (Accessibility) */
+*:focus-visible {
+  outline: 2px solid var(--chip-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--chip-gold);
+  outline-offset: 4px;
 }
 
 /* Responsive Typography */
@@ -224,33 +460,44 @@ body {
   body {
     font-size: 14px;
   }
+  
+  /* NEW: Reduced motion on mobile for performance */
+  .card-3d:hover {
+    transform: translateY(-3px);
+  }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - ENHANCED */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--chip-gold);
-  border-radius: 4px;
+  background: linear-gradient(180deg, var(--chip-gold) 0%, var(--chip-gold-dark) 100%);
+  border-radius: 5px;
+  /* NEW: Subtle border */
+  border: 2px solid rgba(0, 0, 0, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--chip-gold-dark);
+  background: linear-gradient(180deg, var(--chip-gold-dark) 0%, var(--chip-gold) 100%);
 }
 
-/* Neon Text Effect */
+/* Neon Text Effect - ENHANCED */
 .neon-text {
   text-shadow: 
     0 0 5px var(--chip-gold),
     0 0 10px var(--chip-gold),
     0 0 20px var(--chip-gold),
     0 0 40px var(--chip-gold);
+  /* NEW: Subtle animation */
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /* Table Border Decoration */
@@ -261,21 +508,41 @@ body {
     0 0 30px rgba(0, 0, 0, 0.8);
 }
 
-/* Training Mode Overlay */
+/* Training Mode Overlay - ENHANCED */
 .training-overlay {
   background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
   border-left: 4px solid var(--chip-gold);
+  /* NEW: Backdrop blur for depth */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* Success/Error Feedback */
+/* Success/Error Feedback - ENHANCED */
 .feedback-success {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.3) 100%);
   border-left: 4px solid #10b981;
+  /* NEW: Entrance animation */
+  animation: slideInFromTop 0.4s ease-out;
 }
 
 .feedback-error {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.3) 100%);
   border-left: 4px solid #ef4444;
+  /* NEW: Wiggle animation for attention */
+  animation: slideInFromTop 0.4s ease-out, wiggle 0.5s ease-in-out 0.4s;
+}
+
+/* NEW: Warning/Info Variants */
+.feedback-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.3) 100%);
+  border-left: 4px solid #f59e0b;
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+.feedback-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%);
+  border-left: 4px solid #3b82f6;
+  animation: slideInFromTop 0.4s ease-out;
 }
 
 /* Dealer/Player Labels */
@@ -286,23 +553,78 @@ body {
   text-transform: uppercase;
 }
 
-/* Stat Card Styling */
+/* Stat Card Styling - ENHANCED */
 .stat-card {
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.8) 100%);
   border: 1px solid rgba(255, 215, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
+  /* NEW: Default shadow */
+  box-shadow: var(--elevation-2);
 }
 
 .stat-card:hover {
   border-color: var(--chip-gold);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: var(--elevation-4);
+  /* NEW: Subtle glow */
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%);
 }
 
-/* Modal Backdrop */
+/* Modal Backdrop - ENHANCED */
 .modal-backdrop {
-  backdrop-filter: blur(8px);
-  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.85);
+  /* NEW: Smooth entrance */
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* NEW: Interactive Hover Effects */
+.hover-lift {
+  transition: all var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--elevation-4);
+}
+
+.hover-glow {
+  transition: all var(--transition-base);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.hover-scale {
+  transition: transform var(--transition-base);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* NEW: Gradient Text Effect */
+.gradient-text {
+  background: linear-gradient(135deg, var(--chip-gold) 0%, #ffa500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* NEW: Utility Classes */
+.text-balance {
+  text-wrap: balance;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Theme Variations */
@@ -319,4 +641,39 @@ body {
 .theme-high-contrast {
   --table-green: #000000;
   --accent: #facc15;
+}
+
+/* NEW: Reduced Motion (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* NEW: Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+}
+
+/* NEW: High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .glass,
+  .glass-strong {
+    border: 2px solid currentColor;
+  }
+  
+  button {
+    border: 2px solid currentColor;
+  }
 }
