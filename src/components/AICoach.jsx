@@ -168,18 +168,22 @@ function AICoach({ game, gameState, visible = true }) {
               </div>
             ))}
 
-            {/* Loading Indicator */}
+          {/* Loading Indicator - Card Suits Animation */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-800 rounded-2xl px-4 py-3 border border-gray-700">
-                  <div className="flex items-center gap-2">
-                    <Loader size={16} className="animate-spin text-purple-400" />
-                    <span className="text-sm text-gray-400">Thinking...</span>
+                <div className="bg-gray-800 rounded-2xl px-6 py-4 border border-gray-700">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>♠</span>
+                      <span className="text-2xl animate-bounce text-red-500" style={{ animationDelay: '0.1s' }}>♥</span>
+                      <span className="text-2xl animate-bounce text-red-500" style={{ animationDelay: '0.2s' }}>♦</span>
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0.3s' }}>♣</span>
+                    </div>
+                    <span className="text-sm text-gray-400 text-center animate-pulse">AI is thinking...</span>
                   </div>
                 </div>
               </div>
             )}
-
             {/* Error Message */}
             {error && (
               <div className="bg-red-900/30 border border-red-500 rounded-lg px-4 py-3 text-sm text-red-300">
