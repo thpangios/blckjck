@@ -913,7 +913,7 @@ function BlackjackGame({ onBack }) {
           </div>
         </Modal>
       )}
-      {/* House Rules Footer */}
+{/* House Rules Footer */}
       <div className="max-w-7xl mx-auto mt-8 fade-in-up">
         <details className="glass-strong rounded-xl p-5">
           <summary className="cursor-pointer font-bold text-yellow-400 flex items-center gap-3 text-lg">
@@ -963,9 +963,11 @@ function BlackjackGame({ onBack }) {
         visible={true}
       />
 
-    </div>  {/* Main game container closing */}
+    </div>
   );
 }
+
+export default BlackjackGame;
 
 // RoyalEdge Playing Card Component
 function Card({ card, hidden = false }) {
