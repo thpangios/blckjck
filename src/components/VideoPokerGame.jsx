@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft, Brain, TrendingUp, Zap, Calculator } from 'lucide-react';
 import { VideoPokerRules } from '../utils/videoPokerRules';
 import { VideoPokerStrategy } from '../utils/videoPokerStrategy';
+import AICoach from './AICoach';
+import { buildGameContext } from '../utils/aiCoachService';
 
 function VideoPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
@@ -599,6 +601,20 @@ function VideoPokerGame({ onBack }) {
           </div>
         </Modal>
       )}
+        {/* AI Strategy Coach */}
+      <AICoach 
+        game="videopoker"
+        gameState={{
+          cards,
+          heldCards,
+          variant,
+          bet,
+          balance,
+          optimalHold,
+          gameState
+        }}
+        visible={true}
+      />
     </div>
   );
 }
