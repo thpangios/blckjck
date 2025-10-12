@@ -1,9 +1,33 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { LogOut } from 'lucide-react';
 
 function GameSelector({ onSelectGame }) {
+  const { signOut, user } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black flex items-center justify-center p-4">
       <div className="max-w-7xl w-full">
+        
+        {/* User Info & Logout */}
+        <div className="absolute top-4 right-4 flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-white font-semibold">{user?.email}</p>
+            <p className="text-gray-400 text-sm">Welcome back!</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="glass p-3 rounded-lg hover:bg-red-600 hover:bg-opacity-40 transition-all flex items-center gap-2"
+          >
+            <LogOut size={20} />
+            <span className="hidden md:inline">Logout</span>
+          </button>
+        </div>
+
         {/* Casino Logo */}
         <div className="text-center mb-12 fade-in-up">
           <h1 className="text-6xl md:text-7xl font-bold player-label neon-text mb-4">
