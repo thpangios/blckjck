@@ -1,7 +1,32 @@
+import { supabase } from '../lib/supabase';
+
 // AI Coach Service - Webhook Handler
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-railway-production-cc19.up.railway.app/webhook/ai-coach';
 
-export async function sendToAICoach({ message, game, gameState, chatHistory = [] }) {
+// Helper: Save message to database
+async function saveMessageToDatabase(userId, sessionId, role, content, gameType, gameState, confidence = null) {
+  try {
+    const { error } = await supabase
+      .from('ai_chat_history')
+      .insert({
+        user_id: userId,
+        session_id: sessionId,
+        role,
+        content,
+        game_type: gameType,
+        game_state: gameState,
+        confidence
+      });
+
+    if (error) {
+      console.error('Error saving message:', error);
+    }
+  } catch (err) {
+    console.error('Failed to save message:', err);
+  }
+}
+
+export async function sendToAICoach({ message, game, gameState, chatHistory = [], sessionId, userId }) {
   try {
     const payload = {
       message,
@@ -12,6 +37,19 @@ export async function sendToAICoach({ message, game, gameState, chatHistory = []
     };
 
     console.log('Sending to AI Coach:', payload);
+
+    // Save user message to database
+    if (userId && sessionId) {
+      await saveMessageToDatabase(
+        userId,
+        sessionId,
+        'user',
+        message,
+        game,
+        gameState,
+        null
+      );
+    }
 
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
@@ -31,28 +69,46 @@ export async function sendToAICoach({ message, game, gameState, chatHistory = []
 
     // Handle different response formats from n8n
     let answerText = '';
+    let confidenceLevel = 'medium';
     
     // Check if response is an array (n8n format)
     if (Array.isArray(data) && data.length > 0) {
       answerText = data[0].output || data[0].answer || data[0].message || '';
+      confidenceLevel = data[0].confidence || 'medium';
     } 
     // Check if response is an object
     else if (data.output) {
       answerText = data.output;
+      confidenceLevel = data.confidence || 'medium';
     } 
     else if (data.answer) {
       answerText = data.answer;
+      confidenceLevel = data.confidence || 'medium';
     } 
     else if (data.message) {
       answerText = data.message;
+      confidenceLevel = data.confidence || 'medium';
     }
     else {
       answerText = 'I received your question but couldn\'t generate a response.';
     }
 
+    // Save AI response to database
+    if (userId && sessionId && answerText) {
+      await saveMessageToDatabase(
+        userId,
+        sessionId,
+        'assistant',
+        answerText,
+        game,
+        gameState,
+        confidenceLevel
+      );
+    }
+
     return {
       answer: answerText,
-      confidence: data.confidence || data[0]?.confidence || 'medium',
+      confidence: confidenceLevel,
       timestamp: data.timestamp || data[0]?.timestamp || new Date().toISOString()
     };
   } catch (error) {
