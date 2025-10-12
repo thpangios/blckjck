@@ -951,34 +951,48 @@ function BlackjackGame({ onBack }) {
 }
 
 // Premium Card Component
-function Card({ card, hidden }) {
+function Card({ card, hidden = false }) {
+  const isRed = card.suit === '♥' || card.suit === '♦';
+
   if (hidden) {
     return (
-      <div className="w-24 h-36 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl shadow-2xl border-2 border-gray-700 flex items-center justify-center">
-        <div className="text-6xl">🂠</div>
+      <div className="w-28 h-40 bg-gradient-to-br from-blue-900 to-blue-950 border-2 border-blue-700 rounded-xl flex items-center justify-center shadow-2xl card-3d relative overflow-hidden">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-white to-transparent" />
+        <div className="text-5xl text-blue-600 relative z-10">♠</div>
       </div>
     );
   }
 
-  const isRed = card.suit === '♥' || card.suit === '♦';
-  
   return (
-    <div className="w-24 h-36 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl border-2 border-gray-300 p-2 flex flex-col justify-between transform transition-all hover:scale-105 card-3d overflow-hidden">
-      <div className={`text-xl font-bold ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono leading-tight">{card.value}</div>
-        <div className="text-3xl leading-none">{card.suit}</div>
-      </div>
-      <div className="text-center text-4xl">
-        <div className={isRed ? 'text-red-600' : 'text-black'}>{card.suit}</div>
-      </div>
-      <div className={`text-xl font-bold text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
-        <div className="font-mono leading-tight">{card.value}</div>
-        <div className="text-3xl leading-none">{card.suit}</div>
+    <div className="w-28 h-40 bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-card border-2 border-gray-300 relative overflow-hidden transform transition-all hover:scale-105 hover:shadow-card-hover card-3d">
+      {/* Subtle shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
+      
+      {/* Card content with proper padding */}
+      <div className="relative h-full flex flex-col p-2">
+        {/* Top corner */}
+        <div className={`text-xl font-bold leading-none ${isRed ? 'text-red-600' : 'text-black'}`}>
+          <div className="font-mono mb-0.5">{card.value}</div>
+          <div className="text-3xl">{card.suit}</div>
+        </div>
+        
+        {/* Center suit */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className={`text-5xl ${isRed ? 'text-red-600' : 'text-black'} opacity-90`}>
+            {card.suit}
+          </div>
+        </div>
+        
+        {/* Bottom corner (rotated) */}
+        <div className={`text-xl font-bold leading-none text-right rotate-180 ${isRed ? 'text-red-600' : 'text-black'}`}>
+          <div className="font-mono mb-0.5">{card.value}</div>
+          <div className="text-3xl">{card.suit}</div>
+        </div>
       </div>
     </div>
   );
 }
-
 // Modal Component
 function Modal({ children, onClose, title }) {
   return (
