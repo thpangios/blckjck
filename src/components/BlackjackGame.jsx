@@ -4,6 +4,8 @@ import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
 import CardCountingDisplay from './CardCountingDisplay';
+import AICoach from './AICoach';
+import { buildGameContext } from '../utils/aiCoachService';
 
 function BlackjackGame({ onBack }) {
   // Game state
@@ -946,7 +948,19 @@ function BlackjackGame({ onBack }) {
           </div>
         </details>
       </div>
-    </div>
+    {/* AI Strategy Coach */}
+      <AICoach 
+        game="blackjack"
+        gameState={buildGameContext('blackjack', {
+          playerHands,
+          dealerHand,
+          deckManager,
+          recommendedAction: strategyAdvice?.action,
+          basicStrategyAction: strategyAdvice?.action
+        })}
+        visible={true}
+      />
+    </div>  {/* ← Main game container closing */}
   );
 }
 
