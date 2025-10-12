@@ -967,8 +967,6 @@ function BlackjackGame({ onBack }) {
   );
 }
 
-export default BlackjackGame;
-
 // RoyalEdge Playing Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
