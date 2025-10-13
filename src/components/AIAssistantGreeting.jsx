@@ -316,10 +316,7 @@ function AIAssistantGreeting() {
               >
                 <Send size={18} />
               </button>
-            </div>
-          </div>
-          
-          </div>
+   </div>
         </div>
       )}
     </>
