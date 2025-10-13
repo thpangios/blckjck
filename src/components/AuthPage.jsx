@@ -86,17 +86,17 @@ function AuthPage() {
 
       <div className="max-w-md w-full relative z-10">
         
-        {/* Logo/Title */}
-        <div className="text-center mb-8 fade-in-up">
-          <div className="flex items-center justify-center gap-4 mb-4">
-  <img 
-  src="/images/ace-edge-logo.png" 
-  alt="Ace Edge Logo" 
-  className="h-48 w-auto mx-auto mb-6"
-/>
+       {/* Logo/Title */}
+<div className="text-center mb-8 fade-in-up">
+  <div className="flex items-center justify-center gap-4 mb-4">
+    <img 
+      src="/images/ace-edge-logo.png" 
+      alt="Ace Edge Logo" 
+      className="h-56 w-auto mx-auto mt-6 mb-8"
+    />
+  </div>
+  <p className="text-gray-400">Master the art of casino strategy</p>
 </div>
-          <p className="text-gray-400">Master the art of casino strategy</p>
-        </div>
 
         {/* Auth Card */}
         <div className="glass-strong rounded-2xl p-8 shadow-2xl fade-in-up" style={{ animationDelay: '0.2s' }}>
