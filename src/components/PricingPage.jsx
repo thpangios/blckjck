@@ -89,11 +89,11 @@ function PricingPage({ onClose, onSelectPlan }) {
 
         {/* Header */}
         <div className="text-center p-8 pb-6 clear-both">
-          <div className="inline-flex items-center gap-3 -mb-40">
+          <div className="inline-flex items-center gap-3 -mb-140">
             <img 
               src="/images/ace-edge-logo.png" 
               alt="Ace Edge" 
-              className="h-32 w-auto"
+              className="h-52 w-auto"
             />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-rose-500 bg-clip-text text-transparent">
