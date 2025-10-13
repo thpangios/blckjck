@@ -103,9 +103,17 @@ function AICoach({ game, gameState, visible = true }) {
 </button>
 )}
 
-      {/* Chat Modal */}
-      {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-[450px] h-[650px] flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-purple-500/30 animate-scale-in">
+     {/* Chat Modal */}
+{isOpen && (
+  <>
+    {/* Backdrop for click-outside-to-close */}
+    <div 
+      className="fixed inset-0 z-49"
+      onClick={() => setIsOpen(false)}
+    />
+    
+    {/* Chat Window */}
+    <div className="fixed bottom-6 right-6 z-50 w-[450px] h-[650px] flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-purple-500/30 animate-scale-in">
           
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gradient-to-r from-purple-900/50 to-purple-800/50 rounded-t-2xl">
