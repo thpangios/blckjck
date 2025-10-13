@@ -87,15 +87,15 @@ function AuthPage() {
       <div className="max-w-md w-full relative z-10">
         
        {/* Logo/Title */}
-<div className="text-center mb-8 fade-in-up">
-  <div className="flex items-center justify-center gap-4 mb-4">
+<div className="text-center mb-2 fade-in-up">
+  <div className="flex items-center justify-center gap-4 mb-2">
     <img 
       src="/images/ace-edge-logo.png" 
       alt="Ace Edge Logo" 
-      className="h-96 w-auto mx-auto -mt-16 mb-8"
+      className="h-96 w-auto mx-auto mt-20"
     />
   </div>
-  <p className="text-gray-400">Master the art of casino strategy</p>
+  <p className="text-gray-400 text-lg">Master the art of casino strategy</p>
 </div>
 
         {/* Auth Card */}
