@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import AIAssistantGreeting from './AIAssistantGreeting';
 import { LogOut, Settings } from 'lucide-react';
