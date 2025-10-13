@@ -934,3 +934,109 @@ textarea:focus-visible {
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
+/* ============================================
+   MOBILE OPTIMIZATION & SCALING
+   ============================================ */
+
+/* Tablets and small laptops */
+@media (max-width: 1024px) {
+  html {
+    font-size: 15px; /* Slightly smaller fonts */
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Base font size smaller */
+  }
+  
+  body {
+    zoom: 0.9; /* Scale everything down by 10% */
+  }
+  
+  /* Make modal content more mobile-friendly */
+  .glass-strong,
+  .modal-backdrop > div {
+    max-width: 95vw !important; /* Use more screen width */
+    margin: 0 auto;
+  }
+  
+  /* Reduce padding in modals on mobile */
+  .glass-strong > div:last-child {
+    padding: 1rem !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px; /* Even smaller base font */
+  }
+  
+  body {
+    zoom: 0.85; /* Scale down by 15% */
+  }
+  
+  /* Make buttons more touch-friendly */
+  button {
+    min-height: 44px; /* Apple's recommended touch target size */
+  }
+  
+  /* Tighter spacing on small screens */
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .p-8 {
+    padding: 1.25rem !important;
+  }
+}
+
+/* Landscape mode on mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+  body {
+    zoom: 0.8; /* More aggressive scaling in landscape */
+  }
+  
+  /* Make full-screen modals scrollable in landscape */
+  .modal-backdrop > div {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* Prevent text from being too small */
+@media (max-width: 768px) {
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Disable hover effects on touch devices */
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  /* Add active state instead */
+  button:active,
+  .btn-premium:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+  
+  /* Larger tap targets */
+  a, button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
