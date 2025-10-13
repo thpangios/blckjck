@@ -6,6 +6,8 @@ import { BasicStrategy } from '../utils/basicStrategy';
 import CardCountingDisplay from './CardCountingDisplay';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 function BlackjackGame({ onBack }) {
   // Game state
@@ -13,12 +15,38 @@ function BlackjackGame({ onBack }) {
   const [playerHands, setPlayerHands] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [currentHandIndex, setCurrentHandIndex] = useState(0);
-  const [balance, setBalance] = useState(1000);
+  const { user } = useAuth();
+const [balance, setBalance] = useState(10000); // Default fallback
+const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting');
   const [message, setMessage] = useState('Place your bet to start playing');
   const [showDealerCard, setShowDealerCard] = useState(false);
   const [betHistory, setBetHistory] = useState([]);
   const [baseBet, setBaseBet] = useState(10); // Base betting unit
+
+  // Load user's starting bankroll preference
+useEffect(() => {
+  const loadStartingBankroll = async () => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('starting_bankroll')
+          .eq('id', user.id)
+          .single();
+
+        if (data && data.starting_bankroll) {
+          setBalance(data.starting_bankroll);
+          setInitialBankroll(data.starting_bankroll);
+        }
+      } catch (error) {
+        console.error('Error loading starting bankroll:', error);
+      }
+    }
+  };
+
+  loadStartingBankroll();
+}, [user]);
 
   // Theme
   const [theme, setTheme] = useState('classic'); // classic, modern, high-contrast
@@ -475,7 +503,7 @@ function BlackjackGame({ onBack }) {
   };
 
   const resetGame = () => {
-    setBalance(1000);
+  setBalance(initialBankroll); // Use saved preference instead of hardcoded value
     setStats({
       handsPlayed: 0,
       wins: 0,
