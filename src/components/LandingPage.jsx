@@ -646,4 +646,19 @@ function TrustBadge({ icon, text }) {
   );
 }
 
+{/* Pricing Modal */}
+      {showPricing && (
+        <PricingPage 
+          onClose={() => setShowPricing(false)}
+          onSelectPlan={(plan) => {
+            console.log('Selected plan:', plan);
+            setShowPricing(false);
+            onGetStarted(); // Redirect to signup
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default LandingPage;
