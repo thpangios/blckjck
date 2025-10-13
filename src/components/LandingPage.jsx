@@ -54,35 +54,40 @@ function LandingPage({ onGetStarted }) {
   return (
     <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white overflow-hidden">
       
-      {/* Floating Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'glass-dark py-4 shadow-2xl' : 'py-6'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-         <div className="flex items-center gap-3 mt-[-2px] ml-2">
-  <img 
-    src="/images/ace-edge-logo.png" 
-    alt="Ace Edge Logo" 
-    className="h-20 w-auto"
-  />
-  <span className="text-2xl font-bold player-label">ACE EDGE</span>
-</div>       
- <div className="flex items-center gap-4">
-  <button
-    onClick={() => setShowPricing(true)}
-    className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
-  >
-    Pricing
-  </button>
-  
-  <button
-    onClick={onGetStarted}
-    className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
-  >
-    Get Started <ArrowRight size={18} />
-  </button>
-</div>
-          </nav>
+{/* Floating Navigation */}
+<nav
+  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    scrolled ? 'glass-dark py-4 shadow-2xl' : 'py-6'
+  }`}
+>
+  <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+    <div className="flex items-center gap-3 -mt-[2px] ml-2">
+      <img
+        src="/images/ace-edge-logo.png"
+        alt="Ace Edge Logo"
+        className="h-20 w-auto"
+      />
+      <span className="text-2xl font-bold player-label">ACE EDGE</span>
+    </div>
+
+    <div className="flex items-center gap-4">
+      <button
+        onClick={() => setShowPricing(true)}
+        className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
+      >
+        Pricing
+      </button>
+
+      <button
+        onClick={onGetStarted}
+        className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
+      >
+        Get Started <ArrowRight size={18} />
+      </button>
+    </div>
+  </div>
+</nav>
+
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
