@@ -3,10 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 import ProfileSettings from './ProfileSettings';
 import AIAssistantGreeting from './AIAssistantGreeting';
 import { LogOut, Settings } from 'lucide-react';
+import PricingPage from './PricingPage';
 
 function GameSelector({ onSelectGame }) {
   const { signOut, user } = useAuth();
   const [showSettings, setShowSettings] = useState(false);
+  const [showPricing, setShowPricing] = useState(false); // ADD THIS
 
   const handleLogout = async () => {
     await signOut();
@@ -131,10 +133,25 @@ function GameSelector({ onSelectGame }) {
       </div>
 
       {/* Profile Settings Modal */}
-      <ProfileSettings 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
+     <ProfileSettings 
+  isOpen={showSettings} 
+  onClose={() => setShowSettings(false)}
+  onShowPricing={() => {
+    setShowSettings(false);
+    setShowPricing(true);
+  }}
+/>
+      {/* Pricing Page */}
+{showPricing && (
+  <PricingPage 
+    onClose={() => setShowPricing(false)}
+    onSelectPlan={(plan) => {
+      console.log('Selected plan:', plan);
+      // TODO: Handle Stripe checkout
+      setShowPricing(false);
+    }}
+  />
+)}
 
       {/* AI Assistant with Greeting */}
       <AIAssistantGreeting />
