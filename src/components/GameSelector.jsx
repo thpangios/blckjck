@@ -41,10 +41,6 @@ function GameSelector({ onSelectGame }) {
           </button>
         </div>
 
-        {/* Casino Logo */}
-          <p className="text-xl text-gray-300">Select Your Game</p>
-        </div>
-
         {/* Game Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           
