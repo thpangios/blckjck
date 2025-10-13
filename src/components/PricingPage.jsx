@@ -93,7 +93,7 @@ function PricingPage({ onClose, onSelectPlan }) {
             <img 
               src="/images/ace-edge-logo.png" 
               alt="Ace Edge" 
-              className="h-16 w-auto"
+              className="h-32 w-auto"
             />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-rose-500 bg-clip-text text-transparent">
