@@ -4,6 +4,8 @@ import { PaiGowPokerRules } from '../utils/paiGowPokerRules';
 import { PaiGowPokerStrategy } from '../utils/paiGowPokerStrategy';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 function PaiGowPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
@@ -18,7 +20,9 @@ function PaiGowPokerGame({ onBack }) {
   const [dealerHigh5, setDealerHigh5] = useState([]);
   const [dealerLow2, setDealerLow2] = useState([]);
   
-  const [balance, setBalance] = useState(10000);
+  const { user } = useAuth();
+const [balance, setBalance] = useState(10000); // Default fallback
+const [initialBankroll, setInitialBankroll] = useState(10000);
   const [bet, setBet] = useState(100);
   const [fortuneBet, setFortuneBet] = useState(0);
   const [pendingCommission, setPendingCommission] = useState(0);
@@ -326,7 +330,7 @@ function PaiGowPokerGame({ onBack }) {
   };
 
   const resetGame = () => {
-    setBalance(10000);
+  setBalance(initialBankroll); // Use saved preference instead of hardcoded value
     setBet(100);
     setFortuneBet(0);
     setPendingCommission(0);
