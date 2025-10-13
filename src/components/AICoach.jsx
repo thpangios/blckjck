@@ -135,10 +135,14 @@ function AICoach({ game, gameState, visible = true }) {
             
             {/* Welcome Message */}
             {messages.length === 0 && (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles size={32} className="text-yellow-300" />
-                </div>
+              <div className="flex gap-2 mb-4">
+  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-purple-500">
+    <img 
+      src="/images/ai-coach.png" 
+      alt="AI Coach" 
+      className="w-full h-full object-cover"
+    />
+  </div>
                 <h4 className="text-lg font-bold text-white mb-2">Ask Me Anything!</h4>
                 <p className="text-sm text-gray-400 mb-4">
                   I'm here to explain strategies, odds, and help you improve your game.
