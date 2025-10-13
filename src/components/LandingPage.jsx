@@ -68,6 +68,7 @@ function LandingPage({ onGetStarted }) {
   />
   <span className="text-2xl font-bold player-label">ACE EDGE</span>
 </div>       
+ <div className="flex items-center gap-4">
   <button
     onClick={() => setShowPricing(true)}
     className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
