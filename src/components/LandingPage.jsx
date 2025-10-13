@@ -61,7 +61,7 @@ function LandingPage({ onGetStarted }) {
 <img 
   src="/images/ace-edge-logo.png" 
   alt="Ace Edge Logo" 
-  className="h-14 w-auto"
+  className="h-16 w-auto"
 />
 <span className="text-2xl font-bold player-label">ACE EDGE</span>
           </div>
@@ -156,7 +156,7 @@ function LandingPage({ onGetStarted }) {
   <img 
     src="/images/ace-edge-logo.png" 
     alt="Ace Edge Logo" 
-    className="h-14 w-auto"
+    className="h-16 w-auto"
   />
   <span className="text-xl font-bold player-label">ACE EDGE</span>
 </div>
