@@ -37,9 +37,6 @@ function GameSelector({ onSelectGame }) {
     className="h-22 w-auto"
   />
 </div>
-<h1 className="text-4xl md:text-5xl font-bold player-label neon-text">
-♠ ACE EDGE ♥
-</h1>
           <p className="text-xl text-gray-300">Select Your Game</p>
         </div>
 
