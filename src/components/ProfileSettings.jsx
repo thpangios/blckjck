@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Toast from './Toast';
 import { Crown } from 'lucide-react';
 
-function ProfileSettings({ isOpen, onClose }) {
+function ProfileSettings({ isOpen, onClose, onShowPricing }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -124,16 +124,17 @@ function ProfileSettings({ isOpen, onClose }) {
         <p className="text-sm text-gray-400">Unlock unlimited training & AI coach</p>
       </div>
     </div>
-    <button
-      onClick={() => {
-        onClose();
-        // TODO: Show pricing page
-        window.dispatchEvent(new CustomEvent('showPricing'));
-      }}
-      className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-rose-700 transition-all whitespace-nowrap"
-    >
-      View Plans
-    </button>
+   <button
+  onClick={() => {
+    onClose();
+    if (onShowPricing) {
+      onShowPricing();
+    }
+  }}
+  className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-rose-700 transition-all whitespace-nowrap"
+>
+  View Plans
+</button>
   </div>
 </div>
               {/* Username */}
