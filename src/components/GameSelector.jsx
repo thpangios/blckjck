@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSettings from './ProfileSettings';
 import AIAssistantGreeting from './AIAssistantGreeting';
@@ -17,30 +17,35 @@ function GameSelector({ onSelectGame }) {
       <div className="max-w-7xl w-full">
         
         {/* User Info, Settings & Logout */}
-<div className="absolute top-4 right-4 flex items-center gap-3">
-  <div className="text-right hidden md:block">
-    <p className="text-white font-semibold">{user?.email}</p>
-    <p className="text-gray-400 text-sm">Welcome back!</p>
-  </div>
-  
-  <button
-    onClick={() => setShowSettings(true)}
-    className="glass p-3 rounded-lg hover:bg-yellow-600 hover:bg-opacity-40 transition-all flex items-center gap-2"
-    title="Profile Settings"
-  >
-    <Settings size={20} />
-    <span className="hidden md:inline">Settings</span>
-  </button>
-  
-  <button
-    onClick={handleLogout}
-    className="glass p-3 rounded-lg hover:bg-red-600 hover:bg-opacity-40 transition-all flex items-center gap-2"
-  >
-    <LogOut size={20} />
-    <span className="hidden md:inline">Logout</span>
-  </button>
-</div>
- {/* Game Cards */}
+        <div className="absolute top-4 right-4 flex items-center gap-3">
+          <div className="text-right hidden md:block">
+            <p className="text-white font-semibold">{user?.email}</p>
+            <p className="text-gray-400 text-sm">Welcome back!</p>
+          </div>
+          
+          <button
+            onClick={() => setShowSettings(true)}
+            className="glass p-3 rounded-lg hover:bg-yellow-600 hover:bg-opacity-40 transition-all flex items-center gap-2"
+            title="Profile Settings"
+          >
+            <Settings size={20} />
+            <span className="hidden md:inline">Settings</span>
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            className="glass p-3 rounded-lg hover:bg-red-600 hover:bg-opacity-40 transition-all flex items-center gap-2"
+          >
+            <LogOut size={20} />
+            <span className="hidden md:inline">Logout</span>
+          </button>
+        </div>
+
+        {/* Casino Logo */}
+          <p className="text-xl text-gray-300">Select Your Game</p>
+        </div>
+
+        {/* Game Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           
           {/* Blackjack Card */}
@@ -128,14 +133,15 @@ function GameSelector({ onSelectGame }) {
           <p className="mt-2">Built with real casino rules and mathematics</p>
         </div>
       </div>
-      {/* Profile Settings Modal */}
-<ProfileSettings 
-  isOpen={showSettings} 
-  onClose={() => setShowSettings(false)} 
-/>
 
-{/* AI Assistant with Greeting */}
-<AIAssistantGreeting />
+      {/* Profile Settings Modal */}
+      <ProfileSettings 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+      />
+
+      {/* AI Assistant with Greeting */}
+      <AIAssistantGreeting />
     </div>
   );
 }
