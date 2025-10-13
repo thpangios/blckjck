@@ -27,16 +27,6 @@ function GameSelector({ onSelectGame }) {
             <span className="hidden md:inline">Logout</span>
           </button>
         </div>
-
-        {/* Casino Logo */}
-        <div className="text-center mb-12 fade-in-up">
-          <div className="flex items-center justify-center gap-4 mb-4">
-  <img 
-    src="/images/ace-edge-logo.png" 
-    alt="Ace Edge Logo" 
-    className="h-18 w-auto"
-  />
-</div>
           <p className="text-xl text-gray-300">Select Your Game</p>
         </div>
 
