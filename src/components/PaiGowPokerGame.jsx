@@ -37,6 +37,30 @@ const [initialBankroll, setInitialBankroll] = useState(10000);
   const [houseWaySet, setHouseWaySet] = useState(null);
   const [optimalSet, setOptimalSet] = useState(null);
   const [isFoul, setIsFoul] = useState(false);
+
+// Load user's starting bankroll preference
+useEffect(() => {
+  const loadStartingBankroll = async () => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('starting_bankroll')
+          .eq('id', user.id)
+          .single();
+
+        if (data && data.starting_bankroll) {
+          setBalance(data.starting_bankroll);
+          setInitialBankroll(data.starting_bankroll);
+        }
+      } catch (error) {
+        console.error('Error loading starting bankroll:', error);
+      }
+    }
+  };
+
+  loadStartingBankroll();
+}, [user]);
   
   // Statistics
   const [stats, setStats] = useState({
