@@ -133,17 +133,17 @@ function AICoach({ game, gameState, visible = true }) {
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900/50">
             
-            {/* Welcome Message */}
-            {messages.length === 0 && (
-              <div className="flex gap-2 mb-4">
-  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-purple-500">
-    <img 
-      src="/images/ai-coach.png" 
-      alt="AI Coach" 
-      className="w-full h-full object-cover"
-    />
-  </div>
-                <h4 className="text-lg font-bold text-white mb-2">Ask Me Anything!</h4>
+           {/* Welcome Message */}
+{messages.length === 0 && (
+  <div className="text-center py-8">
+    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden border-2 border-purple-500">
+      <img 
+        src="/images/ai-coach.png" 
+        alt="AI Coach" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    <h4 className="text-lg font-bold text-white mb-2">Ask Me Anything!</h4>
                 <p className="text-sm text-gray-400 mb-4">
                   I'm here to explain strategies, odds, and help you improve your game.
                 </p>
@@ -164,25 +164,36 @@ function AICoach({ game, gameState, visible = true }) {
             )}
 
             {/* Messages */}
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white'
-                      : 'bg-gray-800 text-gray-100 border border-gray-700'
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <span className="text-xs opacity-60 mt-1 block">
-                    {new Date(message.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
-            ))}
+{messages.map((message, index) => (
+  <div
+    key={index}
+    className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+  >
+    {/* AI Avatar (only for assistant messages) */}
+    {message.role === 'assistant' && (
+      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-purple-500">
+        <img 
+          src="/images/ai-coach.png" 
+          alt="AI Coach" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+    )}
+    
+    <div
+      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+        message.role === 'user'
+          ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white'
+          : 'bg-gray-800 text-gray-100 border border-gray-700'
+      }`}
+    >
+      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+      <span className="text-xs opacity-60 mt-1 block">
+        {new Date(message.timestamp).toLocaleTimeString()}
+      </span>
+    </div>
+  </div>
+))}
 
           {/* Loading Indicator - Card Suits Animation */}
             {isLoading && (
