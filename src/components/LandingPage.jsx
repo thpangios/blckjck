@@ -61,7 +61,7 @@ function LandingPage({ onGetStarted }) {
             <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-glow-gold">
               <Sparkles size={24} className="text-black" />
             </div>
-            <span className="text-2xl font-bold player-label">CASINO ROYALE</span>
+            <span className="text-2xl font-bold player-label">Ace Edge</span>
           </div>
           
           <button
@@ -154,11 +154,11 @@ function LandingPage({ onGetStarted }) {
               <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
                 <Sparkles size={24} className="text-black" />
               </div>
-              <span className="text-xl font-bold player-label">CASINO ROYALE</span>
+              <span className="text-xl font-bold player-label">Ace Edge</span>
             </div>
             
             <p className="text-gray-400 text-sm text-center">
-              © 2025 Casino Royale. Professional casino training platform. 
+              © 2025 Ace Edge. Professional casino training platform. 
               <br className="md:hidden" />
               Train responsibly.
             </p>
@@ -238,7 +238,7 @@ function SolutionSection() {
         <div className={`glass-strong rounded-3xl p-8 md:p-12 mb-12 transition-all duration-1000 delay-200 ${
           isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
         }`}>
-          <h3 className="text-2xl font-bold mb-8 text-center">House Edge: Average Player vs. Casino Royale Trained</h3>
+          <h3 className="text-2xl font-bold mb-8 text-center">House Edge: Average Player vs. Ace Edge Trained</h3>
           
           <div className="space-y-6">
             <ComparisonBar
@@ -278,7 +278,7 @@ function SolutionSection() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-500 rounded"></div>
-              <span>Casino Royale Trained</span>
+              <span>Ace Edge Trained</span>
             </div>
           </div>
 
@@ -438,7 +438,7 @@ function CTASection({ onGetStarted }) {
         </h2>
         
         <p className="text-xl text-gray-300 mb-8">
-          Join Casino Royale today and start training like a professional. 
+          Join Ace Edge today and start training like a professional. 
           Free to start, no credit card required.
         </p>
 
@@ -564,7 +564,7 @@ function ROICalculator() {
         </div>
         
         <div className="glass rounded-2xl p-6">
-          <div className="text-sm text-gray-400 mb-2">With Casino Royale</div>
+          <div className="text-sm text-gray-400 mb-2">With Ace Edge</div>
           <div className="text-3xl font-bold text-orange-400">-${trainedLoss.toFixed(0)}</div>
           <div className="text-xs text-gray-500 mt-1">Expected Loss</div>
         </div>
@@ -577,7 +577,7 @@ function ROICalculator() {
       </div>
 
       <p className="text-center text-gray-400 text-sm mt-6">
-        💡 Training with Casino Royale pays for itself in just a few sessions
+        💡 Training with Ace Edge pays for itself in just a few sessions
       </p>
     </div>
   );
