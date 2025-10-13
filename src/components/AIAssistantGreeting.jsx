@@ -70,7 +70,7 @@ function AIAssistantGreeting() {
     setMessage('');
 
     // Add loading message
-    const loadingMsg = { role: 'assistant', content: '💭 Thinking...', isLoading: true };
+    const loadingMsg = { role: 'assistant', content: '', isLoading: true };
     setChatMessages(prev => [...prev, loadingMsg]);
 
     try {
@@ -237,11 +237,7 @@ function AIAssistantGreeting() {
               <div key={index} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
                   <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    {msg.isLoading ? (
-                      <div className="loading-spinner !w-4 !h-4 !border-2 !border-black !border-t-transparent"></div>
-                    ) : (
-                      <Sparkles size={14} className="text-black" />
-                    )}
+                    <Sparkles size={14} className="text-black" />
                   </div>
                 )}
                 <div className={`px-4 py-2 rounded-2xl max-w-[80%] ${
@@ -249,7 +245,19 @@ function AIAssistantGreeting() {
                     ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-tr-none' 
                     : 'glass rounded-tl-none text-white'
                 }`}>
-                  <p className="text-sm">{msg.content}</p>
+                  {msg.isLoading ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>♠</span>
+                        <span className="text-2xl animate-bounce text-red-500" style={{ animationDelay: '0.1s' }}>♥</span>
+                        <span className="text-2xl animate-bounce text-red-500" style={{ animationDelay: '0.2s' }}>♦</span>
+                        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.3s' }}>♣</span>
+                      </div>
+                      <span className="text-xs text-gray-400 text-center animate-pulse">AI is thinking...</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm">{msg.content}</p>
+                  )}
                 </div>
               </div>
             ))}
