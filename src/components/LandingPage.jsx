@@ -4,6 +4,8 @@ import {
   CheckCircle, ArrowRight, Star, Users, Award, Lock,
   Sparkles, ChevronDown, Play
 } from 'lucide-react';
+import PricingPage from './PricingPage';
+import { useState } from 'react';
 
 // Custom hook for scroll-triggered animations
 function useInView(options = {}) {
@@ -40,6 +42,7 @@ function useInView(options = {}) {
 
 function LandingPage({ onGetStarted }) {
   const [scrolled, setScrolled] = useState(false);
+  const [showPricing, setShowPricing] = useState(false); // ADD THIS
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,14 +68,20 @@ function LandingPage({ onGetStarted }) {
   />
   <span className="text-2xl font-bold player-label">ACE EDGE</span>
 </div>       
-        <button
-            onClick={onGetStarted}
-            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
-          >
-            Get Started <ArrowRight size={18} />
-          </button>
-        </div>
-      </nav>
+  <button
+    onClick={() => setShowPricing(true)}
+    className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
+  >
+    Pricing
+  </button>
+  
+  <button
+    onClick={onGetStarted}
+    className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
+  >
+    Get Started <ArrowRight size={18} />
+  </button>
+</div>
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
