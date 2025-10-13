@@ -149,10 +149,14 @@ function AIAssistantGreeting() {
       {/* Greeting Popup */}
       {showGreeting && !isOpen && (
         <div className="fixed bottom-24 right-6 z-40 animate-fade-in-up">
-          <div className="glass-strong rounded-2xl p-6 max-w-sm shadow-2xl border border-yellow-400/30">
+          <div className="glass-strong rounded-2xl p-6 max-w-sm shadow-2xl border border-rose-400/30">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                <Sparkles size={20} className="text-black" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/images/ai-coach.png" 
+                  alt="AI Coach" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1">
                 <p className="text-white font-semibold mb-2">
@@ -167,7 +171,7 @@ function AIAssistantGreeting() {
                       setShowGreeting(false);
                       setIsOpen(true);
                     }}
-                    className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-4 py-2 rounded-lg font-semibold text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all"
+                    className="flex-1 bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:from-yellow-600 hover:to-rose-700 transition-all"
                   >
                     Let's Chat! 💬
                   </button>
@@ -188,22 +192,44 @@ function AIAssistantGreeting() {
       {!isOpen && !showGreeting && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center group"
+          className="fixed bottom-6 right-6 z-40 w-16 h-16 bg-gradient-to-br from-yellow-500 to-rose-600 rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center group overflow-hidden"
         >
-          <MessageCircle size={28} className="text-black" />
+          <img 
+            src="/images/ai-coach.png" 
+            alt="AI Coach" 
+            className="w-full h-full object-cover rounded-full"
+          />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-40 w-96 h-[500px] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up">
+        <div className="fixed bottom-6 right-6 z-40 w-96 h-[500px] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden relative">
+          
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 opacity-10 pointer-events-none"
+            style={{
+              backgroundImage: 'url(/images/ai-coach.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(3px)'
+            }}
+          />
+
+          {/* Content (relative to show above background) */}
+          <div className="relative z-10 flex flex-col h-full">
           
           {/* Header */}
-          <div className="glass-dark p-4 rounded-t-2xl flex justify-between items-center border-b border-gray-700">
+          <div className="glass-dark p-4 rounded-t-2xl flex justify-between items-center border-b border-gray-700 bg-gradient-to-r from-yellow-600/20 to-rose-600/20">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                <Sparkles size={16} className="text-black" />
+              <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/images/ai-coach.png" 
+                  alt="AI Coach" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h3 className="font-bold text-white">AI Coach</h3>
@@ -222,8 +248,12 @@ function AIAssistantGreeting() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Welcome Message */}
             <div className="flex gap-2">
-              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                <Sparkles size={14} className="text-black" />
+              <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/images/ai-coach.png" 
+                  alt="AI Coach" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="glass px-4 py-2 rounded-2xl rounded-tl-none max-w-[80%]">
                 <p className="text-sm text-white">
@@ -236,13 +266,17 @@ function AIAssistantGreeting() {
             {chatMessages.map((msg, index) => (
               <div key={index} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    <Sparkles size={14} className="text-black" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/images/ai-coach.png" 
+                      alt="AI Coach" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 )}
                 <div className={`px-4 py-2 rounded-2xl max-w-[80%] ${
                   msg.role === 'user' 
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-tr-none' 
+                    ? 'bg-gradient-to-r from-yellow-500 to-rose-600 text-white rounded-tr-none' 
                     : 'glass rounded-tl-none text-white'
                 }`}>
                   {msg.isLoading ? (
@@ -262,6 +296,7 @@ function AIAssistantGreeting() {
               </div>
             ))}
           </div>
+          </div>
 
           {/* Input */}
           <div className="glass-dark p-4 rounded-b-2xl border-t border-gray-700">
@@ -272,16 +307,18 @@ function AIAssistantGreeting() {
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Ask me anything..."
-                className="flex-1 glass px-4 py-2 rounded-lg text-white text-sm focus:ring-2 focus:ring-yellow-400 outline-none"
+                className="flex-1 glass px-4 py-2 rounded-lg text-white text-sm focus:ring-2 focus:ring-rose-400 outline-none"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!message.trim()}
-                className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black p-2 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white p-2 rounded-lg hover:from-yellow-600 hover:to-rose-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={18} />
               </button>
             </div>
+          </div>
+          
           </div>
         </div>
       )}
