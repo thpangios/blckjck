@@ -30,9 +30,9 @@ function AIAssistantGreeting() {
   const loadUserProfile = async () => {
     try {
       const { data } = await supabase
-        .from('profiles')
+        .from('users')
         .select('username')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
       if (data?.username) {
