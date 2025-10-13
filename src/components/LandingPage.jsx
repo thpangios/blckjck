@@ -5,7 +5,6 @@ import {
   Sparkles, ChevronDown, Play
 } from 'lucide-react';
 import PricingPage from './PricingPage';
-import { useState } from 'react';
 
 // Custom hook for scroll-triggered animations
 function useInView(options = {}) {
