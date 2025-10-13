@@ -88,9 +88,16 @@ function AuthPage() {
         
         {/* Logo/Title */}
         <div className="text-center mb-8 fade-in-up">
-          <h1 className="text-5xl font-bold player-label neon-text mb-2">
-            ♠ CASINO ROYALE ♥
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+  <img 
+  src="/images/ace-edge-logo.png" 
+  alt="Ace Edge Logo" 
+  className="h-16 w-auto mx-auto mb-6"
+/>
+</div>
+<h1 className="text-4xl md:text-5xl font-bold player-label neon-text">
+ ♠ ACE EDGE ♥
+</h1>
           <p className="text-gray-400">Master the art of casino strategy</p>
         </div>
 
