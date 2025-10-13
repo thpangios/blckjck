@@ -260,6 +260,7 @@ function AICoach({ game, gameState, visible = true }) {
             </div>
           </div>
         </div>
+    </>
       )}
     </>
   );
