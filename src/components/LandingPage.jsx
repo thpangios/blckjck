@@ -61,7 +61,7 @@ function LandingPage({ onGetStarted }) {
 <img 
   src="/images/ace-edge-logo.png" 
   alt="Ace Edge Logo" 
-  className="h-10 w-auto"
+  className="h-18 w-auto"
 />
 <span className="text-2xl font-bold player-label">ACE EDGE</span>
           </div>
@@ -153,11 +153,13 @@ function LandingPage({ onGetStarted }) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
-                <Sparkles size={24} className="text-black" />
-              </div>
-              <span className="text-xl font-bold player-label">Ace Edge</span>
-            </div>
+  <img 
+    src="/images/ace-edge-logo.png" 
+    alt="Ace Edge Logo" 
+    className="h-18 w-auto"
+  />
+  <span className="text-xl font-bold player-label">ACE EDGE</span>
+</div>
             
             <p className="text-gray-400 text-sm text-center">
               © 2025 Ace Edge. Professional casino training platform. 
