@@ -24,7 +24,7 @@ function AppContent() {
             <span className="text-4xl animate-bounce text-red-500" style={{ animationDelay: '0.2s' }}>♦</span>
             <span className="text-4xl animate-bounce" style={{ animationDelay: '0.3s' }}>♣</span>
           </div>
-          <p className="text-white text-xl font-bold">Loading Casino Royale...</p>
+         <p className="text-white text-xl font-bold">Loading Ace Edge...</p>
         </div>
       </div>
     );
