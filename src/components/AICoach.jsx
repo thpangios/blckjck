@@ -196,9 +196,18 @@ function AICoach({ game, gameState, visible = true }) {
 ))}
 
           {/* Loading Indicator - Card Suits Animation */}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-800 rounded-2xl px-6 py-4 border border-gray-700">
+{isLoading && (
+  <div className="flex gap-2 justify-start">
+    {/* AI Avatar */}
+    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-purple-500">
+      <img 
+        src="/images/ai-coach.png" 
+        alt="AI Coach" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    <div className="bg-gray-800 rounded-2xl px-6 py-4 border border-gray-700">
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>♠</span>
