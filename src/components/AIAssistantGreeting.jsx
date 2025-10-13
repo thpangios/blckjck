@@ -205,18 +205,17 @@ function AIAssistantGreeting() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-40 w-96 h-[500px] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden relative">
+       <div className="fixed bottom-6 right-6 z-40 w-96 max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-3rem)] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden">
           
           {/* Background Image */}
-          <div 
-            className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{
-              backgroundImage: 'url(/images/ai-coach.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'blur(3px)'
-            }}
-          />
+<div 
+  className="absolute inset-0 opacity-20 pointer-events-none"
+  style={{
+    backgroundImage: 'url(/images/ai-coach.png)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  }}
+/>
 
           {/* Content (relative to show above background) */}
           <div className="relative z-10 flex flex-col h-full">
