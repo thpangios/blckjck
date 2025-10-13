@@ -1045,8 +1045,14 @@ function Card({ card, hidden = false }) {
 // Modal Component
 function Modal({ children, onClose, title }) {
   return (
-    <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up">
-      <div className="glass-strong rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div 
+      className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up"
+      onClick={onClose}
+    >
+      <div 
+        className="glass-strong rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sticky top-0 glass-strong border-b border-gray-700 p-6 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-yellow-400 player-label tracking-wider">{title}</h2>
           <button
