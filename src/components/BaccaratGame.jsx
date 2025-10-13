@@ -5,12 +5,16 @@ import { BaccaratRules } from '../utils/baccaratRules';
 import BaccaratRoadmapDisplay from './BaccaratRoadmapDisplay';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 function BaccaratGame({ onBack }) {
   const [deckManager, setDeckManager] = useState(null);
   const [playerHand, setPlayerHand] = useState([]);
   const [bankerHand, setBankerHand] = useState([]);
-  const [balance, setBalance] = useState(10000);
+  const { user } = useAuth();
+const [balance, setBalance] = useState(10000); // Default fallback
+const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting'); // betting, dealing, reveal, gameOver
   const [message, setMessage] = useState('Place your bets');
   
@@ -25,6 +29,30 @@ function BaccaratGame({ onBack }) {
   const [winner, setWinner] = useState(null);
   const [playerTotal, setPlayerTotal] = useState(0);
   const [bankerTotal, setBankerTotal] = useState(0);
+
+  // Load user's starting bankroll preference
+useEffect(() => {
+  const loadStartingBankroll = async () => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('starting_bankroll')
+          .eq('id', user.id)
+          .single();
+
+        if (data && data.starting_bankroll) {
+          setBalance(data.starting_bankroll);
+          setInitialBankroll(data.starting_bankroll);
+        }
+      } catch (error) {
+        console.error('Error loading starting bankroll:', error);
+      }
+    }
+  };
+
+  loadStartingBankroll();
+}, [user]);
 
   // Statistics
   const [stats, setStats] = useState({
@@ -271,7 +299,7 @@ function BaccaratGame({ onBack }) {
 
   // Reset game
   const resetGame = () => {
-    setBalance(10000);
+  setBalance(initialBankroll); // Use saved preference instead of hardcoded value
     setStats({
       handsPlayed: 0,
       playerWins: 0,
