@@ -66,31 +66,81 @@ function AIAssistantGreeting() {
 
     const userMsg = { role: 'user', content: message };
     setChatMessages([...chatMessages, userMsg]);
+    const userQuestion = message;
     setMessage('');
 
-    // Simple AI response (you can connect to your n8n webhook here)
-    setTimeout(() => {
-      const aiResponse = {
-        role: 'assistant',
-        content: getAIResponse(message)
-      };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+    // Add loading message
+    const loadingMsg = { role: 'assistant', content: '💭 Thinking...', isLoading: true };
+    setChatMessages(prev => [...prev, loadingMsg]);
+
+    try {
+      // Call n8n webhook
+      const response = await fetch('https://n8n-railway-production-cc19.up.railway.app/webhook/ai-coach', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userQuestion,
+          game: 'general',
+          gameState: null,
+          chatHistory: chatMessages.slice(-10), // Last 10 messages for context
+          timestamp: new Date().toISOString(),
+          context: 'game_selector'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      
+      // Handle different response formats from n8n
+      let answerText = '';
+      if (Array.isArray(data) && data.length > 0) {
+        answerText = data[0].output || data[0].answer || data[0].message || '';
+      } else if (data.output) {
+        answerText = data.output;
+      } else if (data.answer) {
+        answerText = data.answer;
+      } else if (data.message) {
+        answerText = data.message;
+      }
+
+      // Remove loading message and add real response
+      setChatMessages(prev => {
+        const filtered = prev.filter(msg => !msg.isLoading);
+        return [...filtered, { role: 'assistant', content: answerText || 'I received your question but had trouble generating a response. Please try again!' }];
+      });
+
+    } catch (error) {
+      console.error('AI Coach error:', error);
+      
+      // Remove loading and show error with fallback response
+      setChatMessages(prev => {
+        const filtered = prev.filter(msg => !msg.isLoading);
+        return [...filtered, { 
+          role: 'assistant', 
+          content: "I'm having trouble connecting right now. Let me give you a quick tip: " + getAIFallback(userQuestion)
+        }];
+      });
+    }
   };
 
-  const getAIResponse = (userMessage) => {
+  const getAIFallback = (userMessage) => {
     const lower = userMessage.toLowerCase();
     
     if (lower.includes('blackjack')) {
-      return "Blackjack is a great choice! 🃏 Remember: Basic strategy is your foundation. Would you like me to explain card counting?";
+      return "For Blackjack, master basic strategy first, then learn Hi-Lo card counting. The key is discipline! 🃏";
     } else if (lower.includes('baccarat')) {
-      return "Baccarat is elegant and strategic! 🎰 Focus on banker bets for the lowest house edge. Need help with pattern recognition?";
+      return "In Baccarat, always bet on Banker for the lowest house edge (1.06%). Avoid the Tie bet! 🎰";
     } else if (lower.includes('poker')) {
-      return "Poker requires skill and patience! 🎴 Let's work on optimal hand selection and strategy!";
+      return "Video Poker rewards perfect play. Study hand rankings and hold strategies for 99%+ RTP! 🎴";
     } else if (lower.includes('help') || lower.includes('start')) {
-      return "I'm here to help! 💪 Pick any game and I'll guide you through strategies, odds, and winning techniques. What interests you?";
+      return "Choose any game and I'll guide you through winning strategies! Each game has unique advantages. 💪";
     } else {
-      return "That's a great question! 🤔 I can help you with game strategies, odds calculations, and training tips. What would you like to know?";
+      return "I can help with game strategies, odds, and training tips. What game interests you most? 🎯";
     }
   };
 
@@ -187,7 +237,11 @@ function AIAssistantGreeting() {
               <div key={index} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
                   <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    <Sparkles size={14} className="text-black" />
+                    {msg.isLoading ? (
+                      <div className="loading-spinner !w-4 !h-4 !border-2 !border-black !border-t-transparent"></div>
+                    ) : (
+                      <Sparkles size={14} className="text-black" />
+                    )}
                   </div>
                 )}
                 <div className={`px-4 py-2 rounded-2xl max-w-[80%] ${
