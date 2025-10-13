@@ -89,14 +89,18 @@ function AICoach({ game, gameState, visible = true }) {
       {/* Floating Button */}
 {!isOpen && (
   <button
-    onClick={() => setIsOpen(true)}
-    className="fixed bottom-8 right-8 z-50 w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 group animate-bounce-subtle"
-    aria-label="Open AI Coach"
-  >
-    <Sparkles size={36} className="text-yellow-300 group-hover:rotate-12 transition-transform" />
-    {/* Pulse animation */}
-    <div className="absolute inset-0 rounded-full bg-purple-400 opacity-0 group-hover:opacity-30 animate-ping"></div>
-  </button>
+  onClick={() => setIsOpen(true)}
+  className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 group animate-bounce-subtle overflow-hidden border-2 border-purple-500"
+  aria-label="Open AI Coach"
+>
+  <img 
+    src="/images/ai-coach.png" 
+    alt="AI Coach" 
+    className="w-full h-full object-cover"
+  />
+  {/* Pulse animation */}
+  <div className="absolute inset-0 rounded-full bg-purple-400 opacity-0 group-hover:opacity-30 animate-ping"></div>
+</button>
 )}
 
       {/* Chat Modal */}
@@ -105,15 +109,19 @@ function AICoach({ game, gameState, visible = true }) {
           
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gradient-to-r from-purple-900/50 to-purple-800/50 rounded-t-2xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center">
-                <Sparkles size={20} className="text-yellow-300" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white">AI Strategy Coach</h3>
-                <p className="text-xs text-gray-400 capitalize">{game} Expert</p>
-              </div>
-            </div>
+       <div className="flex items-center gap-3">
+  <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-purple-500">
+    <img 
+      src="/images/ai-coach.png" 
+      alt="AI Coach" 
+      className="w-full h-full object-cover"
+    />
+  </div>
+  <div>
+    <h3 className="font-bold text-white">AI Strategy Coach</h3>
+    <p className="text-xs text-gray-400 capitalize">{game} Expert</p>
+  </div>
+</div>
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-gray-700 rounded-lg"
