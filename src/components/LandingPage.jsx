@@ -58,10 +58,12 @@ function LandingPage({ onGetStarted }) {
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-glow-gold">
-              <Sparkles size={24} className="text-black" />
-            </div>
-            <span className="text-2xl font-bold player-label">Ace Edge</span>
+<img 
+  src="/images/ace-edge-logo.png" 
+  alt="Ace Edge Logo" 
+  className="h-10 w-auto"
+/>
+<span className="text-2xl font-bold player-label">ACE EDGE</span>
           </div>
           
           <button
