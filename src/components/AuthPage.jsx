@@ -92,7 +92,7 @@ function AuthPage() {
     <img 
       src="/images/ace-edge-logo.png" 
       alt="Ace Edge Logo" 
-      className="h-96 w-auto mx-auto mt-20"
+      className="h-96 w-auto mx-auto -mt-16"
     />
   </div>
   <p className="text-gray-400 text-lg">Master the art of casino strategy</p>
