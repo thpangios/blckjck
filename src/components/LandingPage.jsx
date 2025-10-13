@@ -198,10 +198,6 @@ function LandingPage({ onGetStarted }) {
   );
 }
 
-export default LandingPage;
-    </div>
-  );
-}
 
 // Animated Sections
 
