@@ -846,12 +846,6 @@ function PaiGowPokerGame({ onBack }) {
           </div>
         </Modal>
       )}
-{/* Rules Modal */}
-      {showRules && (
-        <Modal onClose={() => setShowRules(false)} title="PAI GOW POKER RULES">
-          {/* ... rules content ... */}
-        </Modal>
-      )}
 
       {/* AI Strategy Coach */}
       <AICoach 
