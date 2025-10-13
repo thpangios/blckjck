@@ -203,9 +203,20 @@ function AIAssistantGreeting() {
         </button>
       )}
 
-      {/* Chat Window */}
-      {isOpen && (
-       <div className="fixed bottom-6 right-6 z-40 w-96 max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-3rem)] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden">
+    {/* Chat Window */}
+{isOpen && (
+  <>
+    {/* Backdrop for click-outside-to-close */}
+    <div 
+      className="fixed inset-0 z-39"
+      onClick={() => setIsOpen(false)}
+    />
+    
+    {/* Chat Window */}
+    <div className="fixed bottom-6 right-6 z-40 w-96 h-[500px] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden relative">
+      </div>
+  </>
+)}
           
           {/* Background Image */}
 <div 
