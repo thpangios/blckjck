@@ -43,7 +43,7 @@ function PricingPage({ onClose, onSelectPlan }) {
     },
     lifetime: {
       name: 'Lifetime Access',
-      price: billingCycle === 'lifetime' ? 149 : 299,
+      price: 149,
       originalPrice: 299,
       period: 'one-time payment',
       icon: '♥', // Heart card suit
