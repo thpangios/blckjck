@@ -61,7 +61,7 @@ function LandingPage({ onGetStarted }) {
   <img 
     src="/images/ace-edge-logo.png" 
     alt="Ace Edge Logo" 
-    className="h-20 w-auto"
+    className="h-22 w-auto"
   />
   <span className="text-2xl font-bold player-label">ACE EDGE</span>
 </div>       
