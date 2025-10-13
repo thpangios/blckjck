@@ -3,6 +3,7 @@ import { X, Save, User, Target, DollarSign, Gamepad2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import Toast from './Toast';
+import { Crown } from 'lucide-react';
 
 function ProfileSettings({ isOpen, onClose }) {
   const { user } = useAuth();
@@ -112,6 +113,29 @@ function ProfileSettings({ isOpen, onClose }) {
             </div>
           ) : (
             <>
+
+              {/* Upgrade to Ace Plan Banner */}
+<div className="bg-gradient-to-r from-yellow-600/20 to-rose-600/20 border border-yellow-400/30 rounded-xl p-4 mb-6">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <Crown size={24} className="text-yellow-400" />
+      <div>
+        <h3 className="font-bold text-yellow-400">Upgrade to Ace Plan</h3>
+        <p className="text-sm text-gray-400">Unlock unlimited training & AI coach</p>
+      </div>
+    </div>
+    <button
+      onClick={() => {
+        onClose();
+        // TODO: Show pricing page
+        window.dispatchEvent(new CustomEvent('showPricing'));
+      }}
+      className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-rose-700 transition-all whitespace-nowrap"
+    >
+      View Plans
+    </button>
+  </div>
+</div>
               {/* Username */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
