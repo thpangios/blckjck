@@ -89,7 +89,7 @@ function PricingPage({ onClose, onSelectPlan }) {
 
         {/* Header */}
         <div className="text-center p-8 pb-6 clear-both">
-          <div className="inline-flex items-center gap-3 mb-4">
+          <div className="inline-flex items-center gap-3 -mb-4">
             <img 
               src="/images/ace-edge-logo.png" 
               alt="Ace Edge" 
