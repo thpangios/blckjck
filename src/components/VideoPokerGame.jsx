@@ -4,12 +4,16 @@ import { VideoPokerRules } from '../utils/videoPokerRules';
 import { VideoPokerStrategy } from '../utils/videoPokerStrategy';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 function VideoPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
   const [hand, setHand] = useState([]);
   const [held, setHeld] = useState([false, false, false, false, false]);
-  const [balance, setBalance] = useState(10000);
+  const { user } = useAuth();
+const [balance, setBalance] = useState(10000); // Default fallback
+const [initialBankroll, setInitialBankroll] = useState(10000);
   const [bet, setBet] = useState(5); // Default to max bet
   const [gameState, setGameState] = useState('betting');
   const [winningHand, setWinningHand] = useState(null);
@@ -22,6 +26,30 @@ function VideoPokerGame({ onBack }) {
   const [showStrategy, setShowStrategy] = useState(true);
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [calculating, setCalculating] = useState(false);
+
+  // Load user's starting bankroll preference
+useEffect(() => {
+  const loadStartingBankroll = async () => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('starting_bankroll')
+          .eq('id', user.id)
+          .single();
+
+        if (data && data.starting_bankroll) {
+          setBalance(data.starting_bankroll);
+          setInitialBankroll(data.starting_bankroll);
+        }
+      } catch (error) {
+        console.error('Error loading starting bankroll:', error);
+      }
+    }
+  };
+
+  loadStartingBankroll();
+}, [user]);
 
   // Statistics
   const [stats, setStats] = useState({
@@ -197,8 +225,8 @@ function VideoPokerGame({ onBack }) {
     }
   };
 
-  const resetGame = () => {
-    setBalance(10000);
+const resetGame = () => {
+  setBalance(initialBankroll); // Use saved preference instead of hardcoded value
     setBet(5);
     setGameState('betting');
     setHand([]);
