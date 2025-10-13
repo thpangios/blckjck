@@ -183,6 +183,22 @@ function LandingPage({ onGetStarted }) {
           </div>
         </div>
       </footer>
+      {/* Pricing Modal */}
+      {showPricing && (
+        <PricingPage 
+          onClose={() => setShowPricing(false)}
+          onSelectPlan={(plan) => {
+            console.log('Selected plan:', plan);
+            setShowPricing(false);
+            onGetStarted(); // Redirect to signup
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+export default LandingPage;
     </div>
   );
 }
@@ -642,21 +658,6 @@ function TrustBadge({ icon, text }) {
     <div className="glass rounded-2xl p-4 flex flex-col items-center gap-2">
       <div className="text-yellow-400">{icon}</div>
       <div className="text-sm font-semibold text-center">{text}</div>
-    </div>
-  );
-}
-
-{/* Pricing Modal */}
-      {showPricing && (
-        <PricingPage 
-          onClose={() => setShowPricing(false)}
-          onSelectPlan={(plan) => {
-            console.log('Selected plan:', plan);
-            setShowPricing(false);
-            onGetStarted(); // Redirect to signup
-          }}
-        />
-      )}
     </div>
   );
 }
