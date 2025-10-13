@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, User, Target, DollarSign, Gamepad2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import Toast from './Toast';
 
 function ProfileSettings({ isOpen, onClose }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [profile, setProfile] = useState({
     username: '',
     starting_bankroll: 10000,
@@ -51,31 +53,31 @@ function ProfileSettings({ isOpen, onClose }) {
   };
 
   const saveProfile = async () => {
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          username: profile.username,
-          full_name: profile.full_name,
-          starting_bankroll: profile.starting_bankroll,
-          favorite_game: profile.favorite_game,
-          training_goals: profile.training_goals,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+  setSaving(true);
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({
+        username: profile.username,
+        full_name: profile.full_name,
+        starting_bankroll: profile.starting_bankroll,
+        favorite_game: profile.favorite_game,
+        training_goals: profile.training_goals,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
 
-      if (error) throw error;
+    if (error) throw error;
 
-      alert('Profile saved successfully! ✅');
-      onClose();
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('Failed to save profile: ' + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+    setShowToast(true); // Show toast
+    setTimeout(() => onClose(), 1500); // Close after toast shows
+  } catch (error) {
+    console.error('Error saving profile:', error);
+    alert('Failed to save profile: ' + error.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (!isOpen) return null;
 
@@ -228,6 +230,13 @@ function ProfileSettings({ isOpen, onClose }) {
           </button>
         </div>
       </div>
+      {showToast && (
+  <Toast 
+    message="Profile saved successfully! ✅" 
+    type="success"
+    onClose={() => setShowToast(false)}
+  />
+)}
     </div>
   );
 }
