@@ -214,9 +214,6 @@ function AIAssistantGreeting() {
     
     {/* Chat Window */}
     <div className="fixed bottom-6 right-6 z-40 w-96 h-[500px] glass-strong rounded-2xl shadow-2xl flex flex-col animate-fade-in-up overflow-hidden relative">
-      </div>
-  </>
-)}
           
           {/* Background Image */}
 <div 
@@ -228,7 +225,7 @@ function AIAssistantGreeting() {
   }}
 />
 
-          {/* Content (relative to show above background) */}
+        {/* Content (relative to show above background) */}
           <div className="relative z-10 flex flex-col h-full">
           
           {/* Header */}
