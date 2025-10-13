@@ -11,7 +11,8 @@ function ProfileSettings({ isOpen, onClose }) {
     username: '',
     starting_bankroll: 10000,
     favorite_game: 'blackjack',
-    training_goals: ''
+    training_goals: '',
+    full_name: ''
   });
 
   // Load profile on mount
@@ -25,28 +26,25 @@ function ProfileSettings({ isOpen, onClose }) {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (error) throw error;
 
       if (data) {
-        setProfile(data);
-      } else {
-        // Create default profile if none exists
         setProfile({
-          username: user.email?.split('@')[0] || 'Player',
-          starting_bankroll: 10000,
-          favorite_game: 'blackjack',
-          training_goals: ''
+          username: data.username || '',
+          starting_bankroll: data.starting_bankroll || 10000,
+          favorite_game: data.favorite_game || 'blackjack',
+          training_goals: data.training_goals || '',
+          full_name: data.full_name || ''
         });
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      alert('Failed to load profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,17 +54,16 @@ function ProfileSettings({ isOpen, onClose }) {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user.id,
+        .from('users')
+        .update({
           username: profile.username,
+          full_name: profile.full_name,
           starting_bankroll: profile.starting_bankroll,
           favorite_game: profile.favorite_game,
           training_goals: profile.training_goals,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id'
-        });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -74,7 +71,7 @@ function ProfileSettings({ isOpen, onClose }) {
       onClose();
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile. Please try again.');
+      alert('Failed to save profile: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -111,7 +108,7 @@ function ProfileSettings({ isOpen, onClose }) {
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
                   <User size={18} className="text-yellow-400" />
-                  Display Name
+                  Username
                 </label>
                 <input
                   type="text"
@@ -119,6 +116,21 @@ function ProfileSettings({ isOpen, onClose }) {
                   onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                   className="w-full glass px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
                   placeholder="Enter your username"
+                />
+              </div>
+
+              {/* Full Name */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+                  <User size={18} className="text-blue-400" />
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={profile.full_name}
+                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                  className="w-full glass px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                  placeholder="Enter your full name"
                 />
               </div>
 
