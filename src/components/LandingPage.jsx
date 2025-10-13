@@ -82,6 +82,7 @@ function LandingPage({ onGetStarted }) {
     Get Started <ArrowRight size={18} />
   </button>
 </div>
+          </nav>
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
