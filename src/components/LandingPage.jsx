@@ -57,16 +57,15 @@ function LandingPage({ onGetStarted }) {
         scrolled ? 'glass-dark py-4 shadow-2xl' : 'py-6'
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-<img 
-  src="/images/ace-edge-logo.png" 
-  alt="Ace Edge Logo" 
-  className="h-16 w-auto"
-/>
-<span className="text-2xl font-bold player-label">ACE EDGE</span>
-          </div>
-          
-          <button
+         <div className="flex items-center gap-3 mt-[-2px] ml-2">
+  <img 
+    src="/images/ace-edge-logo.png" 
+    alt="Ace Edge Logo" 
+    className="h-16 w-auto"
+  />
+  <span className="text-2xl font-bold player-label">ACE EDGE</span>
+</div>       
+        <button
             onClick={onGetStarted}
             className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
           >
