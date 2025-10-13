@@ -298,14 +298,14 @@ function AIAssistantGreeting() {
           </div>
           </div>
 
-          {/* Input */}
+                    {/* Input */}
           <div className="glass-dark p-4 rounded-b-2xl border-t border-gray-700">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Ask me anything..."
                 className="flex-1 glass px-4 py-2 rounded-lg text-white text-sm focus:ring-2 focus:ring-rose-400 outline-none"
               />
@@ -316,8 +316,9 @@ function AIAssistantGreeting() {
               >
                 <Send size={18} />
               </button>
-   </div>
-        </div>
+            </div>
+          </div> 
+        </div> 
       )}
     </>
   );
