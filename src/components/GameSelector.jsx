@@ -34,7 +34,7 @@ function GameSelector({ onSelectGame }) {
   <img 
     src="/images/ace-edge-logo.png" 
     alt="Ace Edge Logo" 
-    className="h-22 w-auto"
+    className="h-18 w-auto"
   />
 </div>
           <p className="text-xl text-gray-300">Select Your Game</p>
