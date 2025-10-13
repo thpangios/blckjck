@@ -326,7 +326,8 @@ function AIAssistantGreeting() {
             </div>
           </div> 
         </div> 
-      )}
+      </>
+)}
     </>
   );
 }
