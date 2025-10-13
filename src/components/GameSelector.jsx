@@ -30,9 +30,16 @@ function GameSelector({ onSelectGame }) {
 
         {/* Casino Logo */}
         <div className="text-center mb-12 fade-in-up">
-          <h1 className="text-6xl md:text-7xl font-bold player-label neon-text mb-4">
-            ♠ CASINO ROYALE ♥
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+  <img 
+    src="/images/ace-edge-logo.png" 
+    alt="Ace Edge Logo" 
+    className="h-22 w-auto"
+  />
+</div>
+<h1 className="text-4xl md:text-5xl font-bold player-label neon-text">
+♠ ACE EDGE ♥
+</h1>
           <p className="text-xl text-gray-300">Select Your Game</p>
         </div>
 
