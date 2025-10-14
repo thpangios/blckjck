@@ -2,65 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- ✅ Proper mobile scaling -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+
     <!-- Primary Meta Tags -->
     <title>Ace Edge - AI Casino Training Platform</title>
     <meta name="title" content="Ace Edge - AI Casino Training Platform" />
-    <meta name="description" content="Master casino games with AI-powered strategy coaching. Train in Blackjack, Baccarat, Video Poker & Pai Gow Poker with real-time guidance and card counting systems." />
-    <meta name="keywords" content="casino training, blackjack strategy, card counting, AI coaching, baccarat, video poker, pai gow poker, casino games, gambling strategy" />
+    <meta
+      name="description"
+      content="Master casino games with AI-powered strategy coaching. Train in Blackjack, Baccarat, Video Poker & Pai Gow Poker with real-time guidance and card counting systems."
+    />
+    <meta
+      name="keywords"
+      content="casino training, blackjack strategy, card counting, AI coaching, baccarat, video poker, pai gow poker, casino games, gambling strategy"
+    />
     <meta name="author" content="Ace Edge" />
-    
-    <!-- Favicons (Browser Tabs - Ace Edge Logo) -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Favicons -->
+    <link rel="icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-    
-    <!-- Apple iOS (Home Screen Icon - AI Coach) -->
+
+    <!-- Apple iOS -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ace Edge" />
-    
-    <!-- Android/Chrome (PWA Icons - AI Coach) -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
+
+    <!-- Android / PWA -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#0A0A0A" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
-    
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Open Graph / Facebook / LinkedIn -->
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://aceedge.app/" />
     <meta property="og:title" content="Ace Edge - AI Casino Training Platform" />
-    <meta property="og:description" content="Master casino games with AI-powered strategy coaching. Train in Blackjack, Baccarat, Video Poker & Pai Gow Poker." />
+    <meta
+      property="og:description"
+      content="Master casino games with AI-powered strategy coaching. Train in Blackjack, Baccarat, Video Poker & Pai Gow Poker."
+    />
     <meta property="og:image" content="/pwa-512x512.png" />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
-    
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://aceedge.app/" />
     <meta property="twitter:title" content="Ace Edge - AI Casino Training Platform" />
-    <meta property="twitter:description" content="Master casino games with AI-powered strategy coaching." />
+    <meta
+      property="twitter:description"
+      content="Master casino games with AI-powered strategy coaching."
+    />
     <meta property="twitter:image" content="/pwa-512x512.png" />
-    
+
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div id="root"></div>
+
+  <body class="overflow-x-hidden bg-[#0A0A0A] text-white">
+    <div id="root" class="app-wrapper"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
