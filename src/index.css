@@ -934,3 +934,22 @@ textarea:focus-visible {
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
+/* ============================================
+   MOBILE SCALING FIX
+   ============================================ */
+@media (max-width: 768px) {
+  body {
+    zoom: 0.5;
+  }
+  
+  /* Ensure text is still readable */
+  html {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    zoom: 0.5;
+  }
+}
