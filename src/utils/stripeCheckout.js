@@ -2,31 +2,46 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
 
+/**
+ * Initiates Stripe Checkout for a given product.
+ * @param {string} productId - Stripe Product ID (e.g. 'prod_xxx')
+ */
 export async function handleStripeCheckout(productId) {
-  const response = await fetch(
-    'https://rdrbedgxihxavpplfigm.supabase.co/functions/v1/create-checkout-session',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add Supabase user auth here if your edge function requires it
-      },
-      body: JSON.stringify({ product_id: productId })
-    }
-  );
-  const data = await response.json();
-  const { sessionId, url } = data;
+  try {
+    const response = await fetch(
+      'https://rdrbedgxihxavpplfigm.supabase.co/functions/v1/create-checkout-session',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Optional: include auth if your function checks user identity
+          // 'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      }
+    );
 
-  // If you get a sessionId, use Stripe.js redirection
-  if(sessionId){
-    const stripe = await stripePromise;
-    await stripe.redirectToCheckout({ sessionId });
-  } 
-  // If the edge function returns a direct url, fallback to that
-  else if(url) {
-    window.location = url;
-  } 
-  else {
-    alert('Checkout failed to initialize.');
+    if (!response.ok) {
+      throw new Error(`HTTP error! ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.sessionId) {
+      // Stripe session → redirect
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: data.sessionId,
+      });
+      if (error) throw error;
+    } else if (data.url) {
+      // Fallback to direct URL redirect
+      window.location = data.url;
+    } else {
+      throw new Error('No sessionId or URL returned from server.');
+    }
+  } catch (err) {
+    console.error('Stripe Checkout error:', err);
+    alert('Failed to start checkout. Please try again later.');
   }
 }
