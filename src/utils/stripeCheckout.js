@@ -29,17 +29,13 @@ export async function handleStripeCheckout(priceId) {
 
     const data = await response.json();
 
-    if (data.sessionId) {
-      // Preferred Stripe redirect via sessionId
-      const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-      if (error) throw error;
-    } else if (data.url) {
-      // Fallback (if server returned direct URL)
-      window.location.href = data.url;
-    } else {
+   // ✅ Always redirect directly using the Checkout URL
+if (data.url) {
+  window.location.href = data.url;
+} else {
+  throw new Error('Missing Checkout URL from server response.');
+}
+    else {
       throw new Error('No sessionId or URL returned from server.');
     }
   } catch (err) {
