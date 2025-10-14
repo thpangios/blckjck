@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import GameSelector from './components/GameSelector';
@@ -63,7 +64,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <SubscriptionProvider>
+        <AppContent />
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }
