@@ -105,7 +105,7 @@ export function SubscriptionProvider({ children }) {
         .on(
           "postgres_changes",
           {
-            event: "UPDATE",
+            event: "*",
             schema: "public",
             table: "subscriptions",
             filter: `user_id=eq.${user.id}`,
