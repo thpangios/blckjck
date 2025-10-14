@@ -939,17 +939,24 @@ textarea:focus-visible {
    ============================================ */
 @media (max-width: 768px) {
   body {
-    zoom: 0.5;
-  }
-  
-  /* Ensure text is still readable */
-  html {
-    font-size: 12px;
+    font-size: 15px;
+    padding: 0 12px;
   }
 }
 
 @media (max-width: 480px) {
   body {
-    zoom: 0.5;
+    font-size: 14px;
+    padding: 0 8px;
+  }
+
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .container, .main, .dashboard {
+    width: 100%;
+    max-width: 100%;
   }
 }
