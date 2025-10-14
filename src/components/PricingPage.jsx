@@ -37,7 +37,7 @@ function PricingPage({ onClose, onSelectPlan }) {
         { text: 'Pattern recognition', included: true },
         { text: 'Priority support', included: true },
       ],
-      cta: 'Start Free Trial',
+      cta: 'Upgrade to Ace♠️',
       color: 'yellow',
       popular: true
     },
