@@ -64,13 +64,13 @@ function PricingPage({ onClose, onSelectPlan }) {
     }
   };
 
- const handleSelectPlan = async (planType) => {
+const handleSelectPlan = async (planType) => {
   if (planType === 'ace') {
-    // Stripe checkout for Ace Plan
-    await handleStripeCheckout('prod_TEawIb1sV5yjUy');
+    // ✅ use the correct Stripe PRICE ID
+    await handleStripeCheckout('price_1SI7l1G29kWPfi2iekrWqcT0');
   } else if (planType === 'lifetime') {
-    // Stripe checkout for Lifetime
-    await handleStripeCheckout('prod_TEaykVi7wbqLag');
+    // ✅ use the correct Stripe PRICE ID
+    await handleStripeCheckout('price_1SI7mYG29kWPfi2iDHAw1ntQ');
   } else {
     // Free plan or anything else
     if (onSelectPlan) onSelectPlan(planType);
