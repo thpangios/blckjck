@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^8.0.0",
     "@supabase/supabase-js": "^2.75.0",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.263.1",
