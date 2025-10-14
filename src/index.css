@@ -934,15 +934,3 @@ textarea:focus-visible {
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
-/* ============================================
-   MOBILE SCALING FIX
-   ============================================ */
-/* MOBILE VISUAL SCALE FIX */
-@media (max-width: 768px) {
-  .app-wrapper {
-    transform: scale(0.5);
-    transform-origin: top left;
-    width: 200%; /* compensates for the scaling */
-    height: 200vh; /* optional, prevents cutoff */
-  }
-}
