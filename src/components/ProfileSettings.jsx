@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import Toast from './Toast';
 import { Crown } from 'lucide-react';
-import { handleStripeCheckout } from '../utils/stripeCheckout';
 
 function ProfileSettings({ isOpen, onClose, onShowPricing }) {
   const { user } = useAuth();
@@ -125,21 +124,17 @@ function ProfileSettings({ isOpen, onClose, onShowPricing }) {
         <p className="text-sm text-gray-400">Unlock unlimited training & AI coach</p>
       </div>
     </div>
- <div className="flex gap-3">
-  <button
-    onClick={() => handleStripeCheckout('prod_TEawIb1sV5yjUy')}
-    className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-rose-700 transition-all whitespace-nowrap"
-  >
-    Upgrade to ACE
-  </button>
-
-  <button
-    onClick={() => handleStripeCheckout('prod_TEaykVi7wbqLag')}
-    className="bg-gradient-to-r from-yellow-500 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-emerald-700 transition-all whitespace-nowrap"
-  >
-    Lifetime Access
-  </button>
-</div>
+   <button
+  onClick={() => {
+    onClose();
+    if (onShowPricing) {
+      onShowPricing();
+    }
+  }}
+  className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-rose-700 transition-all whitespace-nowrap"
+>
+  View Plans
+</button>
   </div>
 </div>
               {/* Username */}
