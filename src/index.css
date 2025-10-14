@@ -937,26 +937,12 @@ textarea:focus-visible {
 /* ============================================
    MOBILE SCALING FIX
    ============================================ */
+/* MOBILE VISUAL SCALE FIX */
 @media (max-width: 768px) {
-  body {
-    font-size: 15px;
-    padding: 0 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    font-size: 14px;
-    padding: 0 8px;
-  }
-
-  img, video, iframe {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .container, .main, .dashboard {
-    width: 100%;
-    max-width: 100%;
+  .app-wrapper {
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%; /* compensates for the scaling */
+    height: 200vh; /* optional, prevents cutoff */
   }
 }
