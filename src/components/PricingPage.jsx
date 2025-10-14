@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, ArrowRight } from 'lucide-react';
+import { handleStripeCheckout } from '../utils/stripeCheckout';
 
 function PricingPage({ onClose, onSelectPlan }) {
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -63,11 +64,19 @@ function PricingPage({ onClose, onSelectPlan }) {
     }
   };
 
-  const handleSelectPlan = (planType) => {
-    if (onSelectPlan) {
-      onSelectPlan(planType);
-    }
-  };
+ const handleSelectPlan = async (planType) => {
+  if (planType === 'ace') {
+    // Stripe checkout for Ace Plan
+    await handleStripeCheckout('prod_TEawIb1sV5yjUy');
+  } else if (planType === 'lifetime') {
+    // Stripe checkout for Lifetime
+    await handleStripeCheckout('prod_TEaykVi7wbqLag');
+  } else {
+    // Free plan or anything else
+    if (onSelectPlan) onSelectPlan(planType);
+    if (onClose) onClose();
+  }
+};
 
   return (
     <div 
