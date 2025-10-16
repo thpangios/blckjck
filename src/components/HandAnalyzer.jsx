@@ -971,16 +971,16 @@ export default function HandAnalyzer({ onBack }) {
         </div>
       </div>
 
-      {/* AI Coach Floating Panel */}
-{showAICoach && canAnalyze && (
-        <div className="fixed right-0 top-0 h-full w-full md:w-96 z-50 bg-gray-900/95 md:bg-transparent">
-          <AICoach 
-            game={selectedGame}
-            gameState={buildGameState()}
-            visible={true}
-          />
-        </div>
-      )}
-    </div>
-  );
+  {/* AI Coach Floating Panel — always visible */}
+{canAnalyze && (
+  <div className="fixed right-0 top-0 h-full w-full md:w-96 z-50 bg-gray-900/95 md:bg-transparent">
+    <AICoach 
+      game={selectedGame}
+      gameState={buildGameState()}
+      visible={true}
+    />
+  </div>
+)}
+</div>
+);
 }
