@@ -1,12 +1,99 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import ProfileSettings from './ProfileSettings';
 import AIAssistantGreeting from './AIAssistantGreeting';
-import { LogOut, Settings, Brain } from 'lucide-react';
+import { LogOut, Settings, Brain, Lock } from 'lucide-react';
 import PricingPage from './PricingPage';
 
+// ==================== HAND ANALYZER CARD WITH ACCESS GATE ====================
+function HandAnalyzerCard({ onSelectGame }) {
+  const { canAccessHandAnalyzer, planType } = useSubscription();
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  const handleClick = () => {
+    if (canAccessHandAnalyzer()) {
+      onSelectGame('handanalyzer');
+    } else {
+      setShowUpgrade(true);
+    }
+  };
+
+  return (
+    <>
+      <div className="max-w-4xl mx-auto mb-8">
+        <button
+          onClick={handleClick}
+          className={`w-full group rounded-2xl p-6 transition-all duration-300 border-2 ${
+            canAccessHandAnalyzer()
+              ? 'bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 border-purple-400 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/50'
+              : 'bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 border-gray-600 hover:border-yellow-500 cursor-pointer'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`p-4 rounded-xl ${
+                canAccessHandAnalyzer() ? 'bg-white/10' : 'bg-gray-700/50'
+              }`}>
+                {canAccessHandAnalyzer() ? (
+                  <Brain className="text-white" size={40} />
+                ) : (
+                  <Lock className="text-gray-400" size={40} />
+                )}
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-2xl font-bold text-white">
+                    🧠 Hand Analyzer
+                  </h3>
+                  {canAccessHandAnalyzer() ? (
+                    <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold">
+                      UNLOCKED
+                    </span>
+                  ) : (
+                    <span className="text-xs bg-rose-500 text-white px-2 py-1 rounded-full font-bold">
+                      ACE PRO ONLY
+                    </span>
+                  )}
+                </div>
+                <p className={`text-sm ${
+                  canAccessHandAnalyzer() ? 'text-purple-200' : 'text-gray-400'
+                }`}>
+                  {canAccessHandAnalyzer() 
+                    ? 'Choose your own cards and get professional strategy analysis'
+                    : 'Unlock with Ace Pro - Custom card selection & advanced training'
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="hidden md:block text-4xl group-hover:translate-x-2 transition-transform">
+              {canAccessHandAnalyzer() ? (
+                <span className="text-white">→</span>
+              ) : (
+                <span className="text-gray-400">🔒</span>
+              )}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Upgrade Modal */}
+      {showUpgrade && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <PricingPage 
+            onClose={() => setShowUpgrade(false)}
+            onSelectPlan={() => setShowUpgrade(false)}
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+// ==================== MAIN GAME SELECTOR COMPONENT ====================
 function GameSelector({ onSelectGame }) {
   const { signOut, user } = useAuth();
+  const { planType, isPremium } = useSubscription();
   const [showSettings, setShowSettings] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
 
@@ -22,7 +109,21 @@ function GameSelector({ onSelectGame }) {
         <div className="absolute top-4 right-4 flex items-center gap-3">
           <div className="text-right hidden md:block">
             <p className="text-white font-semibold">{user?.email}</p>
-            <p className="text-gray-400 text-sm">Welcome back!</p>
+            <div className="flex items-center gap-2 justify-end">
+              <p className="text-gray-400 text-sm">
+                {planType === 'free' && '🆓 Free Plan'}
+                {planType === 'ace' && '♠️ Ace Plan'}
+                {planType === 'ace_pro' && '♥️ Ace Pro'}
+              </p>
+              {planType === 'free' && (
+                <button
+                  onClick={() => setShowPricing(true)}
+                  className="text-xs bg-yellow-500 text-black px-2 py-1 rounded font-bold hover:bg-yellow-400 transition"
+                >
+                  UPGRADE
+                </button>
+              )}
+            </div>
           </div>
           
           <button
@@ -51,33 +152,8 @@ function GameSelector({ onSelectGame }) {
           <p className="text-xl text-gray-300">Select Your Game</p>
         </div>
 
-        {/* ✅ NEW: Hand Analyzer Feature Banner */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <button
-            onClick={() => onSelectGame('handanalyzer')}
-            className="w-full group bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/50 border-2 border-purple-400"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-white/10 p-4 rounded-xl">
-                  <Brain className="text-white" size={40} />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-                    🧠 Hand Analyzer
-                    <span className="text-xs bg-yellow-400 text-black px-2 py-1 rounded-full font-bold">NEW</span>
-                  </h3>
-                  <p className="text-purple-200 text-sm">
-                    Choose your own cards and get professional strategy analysis
-                  </p>
-                </div>
-              </div>
-              <div className="hidden md:block text-white text-4xl group-hover:translate-x-2 transition-transform">
-                →
-              </div>
-            </div>
-          </button>
-        </div>
+        {/* Hand Analyzer Feature Banner with Access Gate */}
+        <HandAnalyzerCard onSelectGame={onSelectGame} />
 
         {/* Game Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
