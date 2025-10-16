@@ -1,0 +1,16 @@
+Ace Edge - Robots.txt
+# Allow all search engines to crawl
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://aceedge.app/sitemap.xml
+
+# Block sensitive areas (add if you have them)
+# Disallow: /admin/
+# Disallow: /api/
+# Disallow: /private/
+
+# Crawl-delay (optional - helps prevent overload)
+# Crawl-delay: 1
