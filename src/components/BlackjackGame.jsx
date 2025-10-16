@@ -7,6 +7,7 @@ import CardCountingDisplay from './CardCountingDisplay';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
 
 function BlackjackGame({ onBack }) {
@@ -15,7 +16,14 @@ function BlackjackGame({ onBack }) {
   const [playerHands, setPlayerHands] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [currentHandIndex, setCurrentHandIndex] = useState(0);
-  const { user } = useAuth();
+ const { user } = useAuth();
+const { 
+  canAccessAICoach, 
+  canPlayTraining, 
+  incrementTrainingRounds, 
+  remainingTrainingRounds, 
+  planType 
+} = useSubscription();
 const [balance, setBalance] = useState(10000); // Default fallback
 const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting');
@@ -97,24 +105,36 @@ useEffect(() => {
   const basicStrategy = new BasicStrategy(rules);
 
   // Place bet
-  const placeBet = (amount) => {
-    if (balance >= amount && gameState === 'betting') {
-      const newHand = {
-        cards: [],
-        bet: amount,
-        status: 'active',
-        doubled: false,
-        surrendered: false
-      };
-      setPlayerHands([newHand]);
-      setBalance(balance - amount);
-
-      // Track bet history for heat calculation
-      setBetHistory(prev => [...prev, amount].slice(-30)); // Keep last 30 bets
-
-      setTimeout(() => startGame([newHand]), 300);
+ const placeBet = (amount) => {
+  if (balance >= amount && gameState === 'betting') {
+    
+    // ✅ CHECK: If in training mode, check if user can play
+    if (trainingMode && !canPlayTraining()) {
+      alert(`Training mode limit reached! You have ${remainingTrainingRounds} rounds remaining today.\n\nUpgrade to Ace Plan for unlimited training rounds.`);
+      return; // ❌ Block the bet
     }
-  };
+
+    const newHand = {
+      cards: [],
+      bet: amount,
+      status: 'active',
+      doubled: false,
+      surrendered: false
+    };
+    setPlayerHands([newHand]);
+    setBalance(balance - amount);
+
+    // ✅ INCREMENT: Track training round usage
+    if (trainingMode) {
+      incrementTrainingRounds(true);
+    }
+
+    // Track bet history for heat calculation
+    setBetHistory(prev => [...prev, amount].slice(-30));
+
+    setTimeout(() => startGame([newHand]), 300);
+  }
+};
 
   // Start new game
   const startGame = (hands) => {
@@ -644,6 +664,15 @@ useEffect(() => {
                   <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
                 </div>
               </div>
+            {/* ✅ NEW: Training Rounds Counter - Free Users Only */}
+          {planType === 'free' && trainingMode && (
+            <div className="mt-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg px-4 py-3 text-center">
+              <p className="text-sm text-yellow-400 font-semibold">
+                🎯 Training Rounds Remaining Today: <span className="text-2xl font-bold">{remainingTrainingRounds}</span>
+              </p>
+              <p className="text-xs text-gray-300 mt-1">
+                Upgrade to Ace Plan for unlimited training rounds
+              </p>
             </div>
           )}
           {/* Decision Feedback */}
@@ -977,20 +1006,41 @@ useEffect(() => {
         </details>
       </div>
 
-      {/* AI Strategy Coach */}
-      <AICoach 
-        game="blackjack"
-        gameState={{
-          playerHands,
-          dealerHand,
-          deckManager,
-          gameState,
-          balance,
-          trainingMode
-        }}
-        visible={true}
-      />
-
+ {/* AI Strategy Coach - Only for Ace/Ace Pro Users */}
+{canAccessAICoach() && (
+  <AICoach 
+    game="blackjack"
+    gameState={{
+      playerHands,
+      dealerHand,
+      deckManager,
+      gameState,
+      balance,
+      trainingMode
+    }}
+    visible={true}
+  />
+)}
+{/* Upgrade Prompt for Free Users - No AI Coach */}
+{!canAccessAICoach() && (
+  <div className="max-w-7xl mx-auto mt-6 fade-in-up">
+    <div className="glass-strong rounded-xl p-6 border-2 border-yellow-500/50 text-center">
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <Brain className="text-yellow-400" size={32} />
+        <h3 className="text-2xl font-bold text-yellow-400">AI Strategy Coach Locked</h3>
+      </div>
+      <p className="text-gray-300 mb-4">
+        Get real-time strategy advice and instant answers to your questions with the AI Coach!
+      </p>
+      <button
+        onClick={() => {/* You can trigger pricing modal here */}}
+        className="btn-premium glass-strong px-8 py-3 rounded-xl font-bold text-lg transition-all hover:bg-yellow-600 hover:bg-opacity-60"
+      >
+        Upgrade to Ace Plan - $11.99/month
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
