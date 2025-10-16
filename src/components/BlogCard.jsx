@@ -70,22 +70,3 @@ function Blog() {
 }
 
 export default Blog;
-```
-
----
-
-## ✅ **CHECKLIST - Make Sure You Have:**
-```
-src/
-├── components/
-│   ├── Blog.jsx           ✅ Updated above
-│   ├── BlogCard.jsx       ✅ CREATE THIS (from above)
-│   ├── BlogPost.jsx       ✅ You should have this already
-│   └── ... (your other components)
-```
-```
-public/
-├── posts/
-│   └── how-to-count-cards-in-blackjack.md  ✅ Your article
-├── images/
-│   └── ai-coach.png       ✅ Should exist
