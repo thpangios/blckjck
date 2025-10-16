@@ -12,13 +12,28 @@ export function useSubscription() {
 
 export function SubscriptionProvider({ children }) {
   const { user } = useAuth();
+
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trainingRoundsUsed, setTrainingRoundsUsed] = useState(0);
 
-  // ── Fetch user profile from users table (includes plan info)
+  //──────────────────────────────────────────────
+  // Utility: Determine if two dates fall on the same day
+  const isSameDay = (date) => {
+    if (!date) return false;
+    const d = new Date(date);
+    const t = new Date();
+    return (
+      d.getFullYear() === t.getFullYear() &&
+      d.getMonth() === t.getMonth() &&
+      d.getDate() === t.getDate()
+    );
+  };
+
+  //──────────────────────────────────────────────
+  // Load user profile from Supabase "users" table
   const loadUserProfile = async () => {
-    if (!user) return;
+    if (!user) return null;
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -26,73 +41,81 @@ export function SubscriptionProvider({ children }) {
         .select("*")
         .eq("id", user.id)
         .single();
-
       if (error) throw error;
 
       setUserProfile(data);
-    } catch (error) {
-      console.error("Error loading user profile:", error);
+
+      // compute today's used rounds once profile loaded
+      const playedToday = isSameDay(data.last_training_completed_at);
+      setTrainingRoundsUsed(playedToday ? data.total_training_rounds || 0 : 0);
+
+      return data;
+    } catch (err) {
+      console.error("Error loading user profile:", err);
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Manage daily training usage
-  const loadTrainingRounds = () => {
-    if (!user) return;
-    const today = new Date().toDateString();
-    const stored = localStorage.getItem(`daily_training_rounds_${user.id}`);
+  //──────────────────────────────────────────────
+  // Increment training rounds and update Supabase "users" table
+  const incrementTrainingRounds = async (game) => {
+    if (!user || !userProfile) return false;
 
-    if (stored) {
-      const { date, count } = JSON.parse(stored);
-      if (date === today) {
-        setTrainingRoundsUsed(count);
-      } else {
-        setTrainingRoundsUsed(0);
-        localStorage.setItem(
-          `daily_training_rounds_${user.id}`,
-          JSON.stringify({ date: today, count: 0 })
-        );
-      }
-    } else {
-      localStorage.setItem(
-        `daily_training_rounds_${user.id}`,
-        JSON.stringify({ date: today, count: 0 })
-      );
+    const planType = userProfile.plan_type || "free";
+    if (planType !== "free") return true; // premium = unlimited
+
+    const playedToday = isSameDay(userProfile.last_training_completed_at);
+    const rounds = playedToday ? trainingRoundsUsed : 0;
+
+    if (rounds >= 5) return false;
+
+    const newCount = rounds + 1;
+    const now = new Date().toISOString();
+
+    try {
+      await supabase
+        .from("users")
+        .update({
+          total_training_rounds: newCount,
+          last_training_completed_at: now,
+        })
+        .eq("id", user.id);
+
+      setTrainingRoundsUsed(newCount);
+      setUserProfile({
+        ...userProfile,
+        total_training_rounds: newCount,
+        last_training_completed_at: now,
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Error incrementing training rounds:", err);
+      return false;
     }
   };
 
-  const incrementTrainingRounds = (isTraining = false) => {
-    if (!user || !isTraining) return;
-    const today = new Date().toDateString();
-    const newCount = trainingRoundsUsed + 1;
-    setTrainingRoundsUsed(newCount);
-    localStorage.setItem(
-      `daily_training_rounds_${user.id}`,
-      JSON.stringify({ date: today, count: newCount })
-    );
-  };
-
-  // ── Realtime listener and initial load
+  //──────────────────────────────────────────────
+  // Live profile listener (plan upgrades, usage updates)
   useEffect(() => {
     if (user) {
       loadUserProfile();
-      loadTrainingRounds();
 
-      // Listen for changes to user profile (including plan updates)
       const channel = supabase
         .channel("user-profile-updates")
         .on(
           "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "users",
-            filter: `id=eq.${user.id}`,
-          },
+          { event: "*", schema: "public", table: "users", filter: `id=eq.${user.id}` },
           (payload) => {
-            console.log("User profile updated:", payload);
-            if (payload.new) setUserProfile(payload.new);
+            if (payload.new) {
+              setUserProfile(payload.new);
+
+              const playedToday = isSameDay(payload.new.last_training_completed_at);
+              const rounds = playedToday ? payload.new.total_training_rounds || 0 : 0;
+              setTrainingRoundsUsed(rounds);
+            }
           }
         )
         .subscribe();
@@ -107,113 +130,100 @@ export function SubscriptionProvider({ children }) {
     }
   }, [user]);
 
-  // ── Access helpers
-const planType = userProfile?.plan_type || 'free';
-const planStatus = userProfile?.plan_status || 'active';
+  //──────────────────────────────────────────────
+  // Derived plan metadata
+  const planType = userProfile?.plan_type || "free";
+  const planStatus = userProfile?.plan_status || "active";
 
-// Premium check (Ace or Ace Pro)
-const isPremium = useMemo(() => {
-  return (
-    userProfile &&
-    (planType === "ace" || planType === "ace_pro") &&
-    planStatus === "active"
-  );
-}, [userProfile, planType, planStatus]);
+  // Premium checks
+  const isPremium = useMemo(() => {
+    return (
+      userProfile &&
+      (planType === "ace" || planType === "ace_pro") &&
+      planStatus === "active"
+    );
+  }, [userProfile, planType, planStatus]);
 
-// Ace Pro check (highest tier)
-const isAcePro = useMemo(() => {
-  return (
-    userProfile &&
-    planType === "ace_pro" &&
-    planStatus === "active"
-  );
-}, [userProfile, planType, planStatus]);
+  const isAcePro = useMemo(() => {
+    return (
+      userProfile &&
+      planType === "ace_pro" &&
+      planStatus === "active"
+    );
+  }, [userProfile, planType, planStatus]);
 
-// Training rounds access
-const canPlayTraining = () => {
-  if (planType === 'free') {
-    return trainingRoundsUsed < 5; // Free: 5 rounds per day
-  }
-  return true; // Ace & Ace Pro: Unlimited
-};
+  //──────────────────────────────────────────────
+  // Training limit logic (client-side daily reset)
+  const canPlayTraining = () => {
+    if (planType !== "free") return true;
+    const playedToday = isSameDay(userProfile?.last_training_completed_at);
+    const rounds = playedToday ? trainingRoundsUsed : 0;
+    return rounds < 5;
+  };
 
-const remainingTrainingRounds = useMemo(() => {
-  if (planType === 'free') {
-    return Math.max(0, 5 - trainingRoundsUsed);
-  }
-  return "Unlimited";
-}, [planType, trainingRoundsUsed]);
+  const remainingTrainingRounds = useMemo(() => {
+    if (planType === "free") {
+      const playedToday = isSameDay(userProfile?.last_training_completed_at);
+      const rounds = playedToday ? trainingRoundsUsed : 0;
+      return Math.max(0, 5 - rounds);
+    }
+    return "Unlimited";
+  }, [planType, userProfile, trainingRoundsUsed]);
 
-// Feature access control
-const canAccessAICoach = () => {
-  // Free users: NO access
-  // Ace users: YES
-  // Ace Pro users: YES
-  return planType === 'ace' || planType === 'ace_pro';
-};
+  //──────────────────────────────────────────────
+  // Feature Access Checks
+  const canAccessAICoach = () => planType === "ace" || planType === "ace_pro";
+  const canAccessHandAnalyzer = () => planType === "ace_pro";
+  const canAccessCardCounting = () => planType === "ace" || planType === "ace_pro";
+  const canAccessAdvancedAnalytics = () => planType === "ace" || planType === "ace_pro";
 
-const canAccessHandAnalyzer = () => {
-  // Free users: NO
-  // Ace users: NO
-  // Ace Pro users: YES (exclusive feature!)
-  return planType === 'ace_pro';
-};
+  const canAccessFeature = (feature) => {
+    switch (feature) {
+      case "ai_coach": return canAccessAICoach();
+      case "hand_analyzer": return canAccessHandAnalyzer();
+      case "card_counting": return canAccessCardCounting();
+      case "advanced_analytics":
+      case "unlimited_rounds":
+      case "pattern_recognition":
+        return canAccessAdvancedAnalytics();
+      default:
+        return true;
+    }
+  };
 
-const canAccessCardCounting = () => {
-  // Free users: NO
-  // Ace users: YES
-  // Ace Pro users: YES
-  return planType === 'ace' || planType === 'ace_pro';
-};
-
-const canAccessAdvancedAnalytics = () => {
-  // Free users: NO
-  // Ace users: YES
-  // Ace Pro users: YES
-  return planType === 'ace' || planType === 'ace_pro';
-};
-
-// Generic feature check (backward compatibility)
-const canAccessFeature = (feature) => {
-  switch(feature) {
-    case 'ai_coach':
-      return canAccessAICoach();
-    case 'hand_analyzer':
-      return canAccessHandAnalyzer();
-    case 'card_counting':
-      return canAccessCardCounting();
-    case 'advanced_analytics':
-    case 'unlimited_rounds':
-    case 'pattern_recognition':
-      return canAccessAdvancedAnalytics();
-    default:
-      return true; // Unknown features are accessible by default
-  }
-};
-
+  //──────────────────────────────────────────────
+  // Refresh helper
   const refreshSubscription = async () => {
     if (user) await loadUserProfile();
   };
 
+  //──────────────────────────────────────────────
+  // Context value
   const value = {
-  subscription: userProfile, // For backward compatibility
-  userProfile,
-  loading,
-  trainingRoundsUsed,
-  isPremium,
-  isAcePro, // ✅ NEW
-  planType, // ✅ NEW
-  canPlayTraining,
-  remainingTrainingRounds,
-  incrementTrainingRounds,
-  refreshSubscription,
-  canAccessFeature,
-  // ✅ NEW specific access functions
-  canAccessAICoach,
-  canAccessHandAnalyzer,
-  canAccessCardCounting,
-  canAccessAdvancedAnalytics,
-};
+    subscription: userProfile,
+    userProfile,
+    loading,
+    trainingRoundsUsed,
 
-  return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
+    isPremium,
+    isAcePro,
+    planType,
+
+    canPlayTraining,
+    remainingTrainingRounds,
+    incrementTrainingRounds,
+    refreshSubscription,
+
+    canAccessFeature,
+    canAccessAICoach,
+    canAccessHandAnalyzer,
+    canAccessCardCounting,
+    canAccessAdvancedAnalytics,
+  };
+
+  return (
+    <SubscriptionContext.Provider value={value}>
+      {children}
+    </SubscriptionContext.Provider>
+  );
 }
