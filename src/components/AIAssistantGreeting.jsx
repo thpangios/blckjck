@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
+import { MessageCircle, Send, X, Sparkles, Lock, Crown } from 'lucide-react'; // ✅ Add Lock, Crown
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useSubscription } from '../contexts/SubscriptionContext'; // ✅ ADD THIS
 
 function AIAssistantGreeting() {
   const { user } = useAuth();
+  const { canAccessAICoach, planType } = useSubscription(); // ✅ ADD THIS
   const [isOpen, setIsOpen] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
   const [username, setUsername] = useState('Player');
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false); // ✅ ADD THIS
+
+  
 
   // Load user profile and show greeting
   useEffect(() => {
@@ -188,20 +193,59 @@ function AIAssistantGreeting() {
         </div>
       )}
 
-      {/* Floating Chat Button */}
-      {!isOpen && !showGreeting && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 w-16 h-16 bg-gradient-to-br from-yellow-500 to-rose-600 rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center group overflow-hidden"
-        >
-          <img 
-            src="/images/ai-coach.png" 
-            alt="AI Coach" 
-            className="w-full h-full object-cover rounded-full"
-          />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
-        </button>
+     {/* Floating AI Assistant Button */}
+{!isOpen && (
+  <button
+    onClick={canAccessAICoach() ? () => setIsOpen(true) : handleLockedClick}
+    className={`fixed bottom-6 right-6 p-4 rounded-full shadow-2xl z-40 transition-all duration-300 hover:scale-110 group ${
+      canAccessAICoach() 
+        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700' 
+        : 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-pointer'
+    }`}
+    title={canAccessAICoach() ? 'Open AI Assistant' : 'Upgrade to unlock AI Coach'}
+  >
+    <div className="relative">
+      {canAccessAICoach() ? (
+        <>
+          <MessageCircle size={28} className="text-white" />
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+          </span>
+        </>
+      ) : (
+        <>
+          {/* Locked Icon */}
+          <div className="relative">
+            <MessageCircle size={28} className="text-gray-400" />
+            <Lock 
+              size={16} 
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white bg-red-500 rounded-full p-0.5" 
+            />
+          </div>
+          {/* Upgrade Badge */}
+          <span className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+            PRO
+          </span>
+        </>
       )}
+    </div>
+    
+    {/* Tooltip on Hover */}
+    <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <div className="bg-gray-900 text-white text-sm rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
+        {canAccessAICoach() ? (
+          'Ask me anything! 💬'
+        ) : (
+          <div className="flex items-center gap-2">
+            <Lock size={14} />
+            <span>Upgrade to unlock AI Coach</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </button>
+)}
 
     {/* Chat Window */}
 {isOpen && (
@@ -306,28 +350,98 @@ function AIAssistantGreeting() {
           </div>
 
                     {/* Input */}
-          <div className="glass-dark p-4 rounded-b-2xl border-t border-gray-700">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask me anything..."
-                className="flex-1 glass px-4 py-2 rounded-lg text-white text-sm focus:ring-2 focus:ring-rose-400 outline-none"
-              />
+      <div className="glass-dark p-4 rounded-b-2xl border-t border-gray-700">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+            placeholder="Ask me anything..."
+            className="flex-1 glass px-4 py-2 rounded-lg text-white text-sm focus:ring-2 focus:ring-rose-400 outline-none"
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={!message.trim()}
+            className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white p-2 rounded-lg hover:from-yellow-600 hover:to-rose-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Upgrade Modal for Locked Features */}
+      {showUpgradeModal && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowUpgradeModal(false)}
+        >
+          <div
+            className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 max-w-md w-full border-2 border-purple-500 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-600 p-3 rounded-full">
+                  <Crown size={24} className="text-yellow-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">AI Coach Locked</h3>
+              </div>
               <button
-                onClick={handleSendMessage}
-                disabled={!message.trim()}
-                className="bg-gradient-to-r from-yellow-500 to-rose-600 text-white p-2 rounded-lg hover:from-yellow-600 hover:to-rose-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setShowUpgradeModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
               >
-                <Send size={18} />
+                <X size={24} />
               </button>
             </div>
-          </div> 
-        </div> 
-      </>
-)}
+
+            {/* Content */}
+            <div className="space-y-4 mb-6">
+              <p className="text-gray-300 text-lg">
+                Get instant AI-powered strategy coaching and explanations!
+              </p>
+
+              <div className="bg-gray-800/50 rounded-lg p-4 space-y-2">
+                {[
+                  "Real-time strategy explanations",
+                  "Ask questions about any hand",
+                  "Learn optimal plays instantly",
+                ].map((text, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <Sparkles size={20} className="text-purple-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-gray-300 text-sm">{text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-purple-600/20 border border-purple-500/50 rounded-lg p-4">
+                <p className="text-purple-300 text-sm text-center">
+                  Available with{" "}
+                  <span className="font-bold text-yellow-400">Ace Plan</span> or{" "}
+                  <span className="font-bold text-rose-400">Ace Pro</span>
+                </p>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="space-y-3">
+              <a
+                href="/pricing"
+                className="block w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold py-3 rounded-lg text-center transition-all hover:scale-105"
+              >
+                Upgrade Now - From $11.99/mo
+              </a>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="block w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg text-center transition-colors"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
