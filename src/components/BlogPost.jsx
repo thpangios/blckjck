@@ -12,18 +12,15 @@ function BlogPost() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Reset states when slug changes
     setLoading(true);
     setError(false);
     
-    // Load the markdown file from public/posts/
     fetch(`/posts/${slug}.md`)
       .then(res => {
         if (!res.ok) throw new Error('Post not found');
         return res.text();
       })
       .then(text => {
-        // Extract front matter metadata (between --- and ---)
         const metaRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
         const match = text.match(metaRegex);
         
@@ -31,7 +28,6 @@ function BlogPost() {
           const metaText = match[1];
           const contentText = match[2];
           
-          // Parse metadata into object
           const meta = {};
           metaText.split('\n').forEach(line => {
             const colonIndex = line.indexOf(':');
@@ -45,7 +41,6 @@ function BlogPost() {
           setMetadata(meta);
           setContent(contentText);
         } else {
-          // No front matter, use entire content
           setContent(text);
         }
         
@@ -58,7 +53,6 @@ function BlogPost() {
       });
   }, [slug]);
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
@@ -70,7 +64,6 @@ function BlogPost() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center px-6">
@@ -165,38 +158,7 @@ function BlogPost() {
             prose-td:border prose-td:border-gray-700 prose-td:p-3 prose-td:text-gray-300
             prose-thead:border-b-2 prose-thead:border-yellow-400
           ">
-            <ReactMarkdown
-              components={{
-               // Custom link rendering to handle internal links
-a: ({ node, href, children, ...props }) => {
-  const isInternal = href && (href.startsWith('/') || href.startsWith('#'));
-  return (
-    <a
-      href={href}
-      onClick={isInternal ? (e) => {
-        e.preventDefault();
-        if (href.startsWith('#')) {
-          // Smooth scroll to anchor
-          const element = document.getElementById(href.slice(1));
-          element?.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          navigate(href);
-        }
-      } : undefined}
-      target={isInternal ? undefined : '_blank'}
-      rel={isInternal ? undefined : 'noopener noreferrer'}
-      {...props}
-    >
-      {children}
-    </a>
-  );
-},
-
-                }
-              }}
-            >
-              {content}
-            </ReactMarkdown>
+            <ReactMarkdown>{content}</ReactMarkdown>
           </div>
 
           {/* CTA Section */}
@@ -216,7 +178,7 @@ a: ({ node, href, children, ...props }) => {
             </button>
           </div>
 
-          {/* Share Section (Optional) */}
+          {/* Share Section */}
           <div className="mt-12 pt-8 border-t border-gray-800 text-center">
             <p className="text-gray-400 mb-4">Found this helpful? Share it!</p>
             <div className="flex justify-center gap-4">
