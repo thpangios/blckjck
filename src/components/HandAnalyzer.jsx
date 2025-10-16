@@ -225,13 +225,18 @@ function BlackjackAnalysis({ playerCards, dealerCard }) {
   );
 }
 
-// ==================== VIDEO POKER ANALYSIS (BULLETPROOF VERSION) ====================
+// ==================== VIDEO POKER ANALYSIS (ENHANCED STRATEGY VERSION) ====================
+import React, { useState, useEffect } from 'react';
+import { Calculator, Sparkles, Zap } from 'lucide-react';
+import { VideoPokerRules } from './videoPokerRules';
+import { VideoPokerStrategy } from './videoPokerStrategy'; // <-- Use the enhanced EV/strategy class
+
 function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
   const [analysis, setAnalysis] = useState(null);
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState(null);
 
-  // Calculate strategy when cards or variant changes
+  // Auto‑analyze whenever cards or variant change
   useEffect(() => {
     if (cards.length !== 5) {
       setAnalysis(null);
@@ -241,35 +246,33 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
     setCalculating(true);
     setError(null);
 
-    // Small delay to show calculating state
     const timer = setTimeout(() => {
       try {
-        // Format cards for VideoPokerRules
-        const formattedCards = cards.map(card => ({
-          value: card.rank,
-          suit: card.suit
+        // Normalize card format for internal engine
+        const formattedCards = cards.map(c => ({
+          value: c.rank,
+          suit: c.suit,
         }));
 
         console.log('Analyzing cards:', formattedCards);
         console.log('Variant:', variant);
 
-        // Evaluate current hand
+        // Evaluate currently dealt hand
         const currentHand = VideoPokerRules.evaluateHand(formattedCards, variant);
-        const currentPayout = currentHand 
-          ? VideoPokerRules.getPayout(currentHand, variant, 5) 
+        const currentPayout = currentHand
+          ? VideoPokerRules.getPayout(currentHand, variant, 5)
           : 0;
 
         console.log('Current hand:', currentHand, 'Payout:', currentPayout);
 
-        // Try to calculate optimal strategy
+        // Calculate optimal strategy using combinatorics EV engine
         let optimalStrategy = null;
         try {
-          optimalStrategy = VideoPokerStrategy.findOptimalHold(formattedCards, variant);
-          console.log('Optimal strategy found:', optimalStrategy);
+          optimalStrategy = VideoPokerStrategy.getOptimalHold(formattedCards, variant, 5);
+          console.log('Optimal strategy computed:', optimalStrategy);
         } catch (strategyError) {
-          console.warn('Strategy calculation failed, using fallback:', strategyError);
-          // Fallback: basic strategy
-          optimalStrategy = getBasicStrategy(formattedCards, currentHand, variant);
+          console.error('Strategy error:', strategyError);
+          throw new Error('Advanced strategy failed');
         }
 
         setAnalysis({
@@ -278,163 +281,18 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
           optimalHold: optimalStrategy.holdIndices || [],
           expectedValue: optimalStrategy.expectedValue || 0,
           reasoning: optimalStrategy.reasoning || 'Hold recommended cards',
-          alternatives: optimalStrategy.allOptions || []
+          alternatives: optimalStrategy.allOptions || [],
         });
-
         setCalculating(false);
       } catch (err) {
         console.error('Analysis error:', err);
         setError('Unable to analyze hand. Please try again.');
         setCalculating(false);
       }
-    }, 100);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [cards, variant]);
-
-  // Fallback basic strategy when complex calculation fails
-  const getBasicStrategy = (formattedCards, currentHand, variant) => {
-    console.log('Using basic strategy fallback');
-    
-    // If we have a paying hand, check if we should hold it all
-    if (currentHand && currentHand !== 'No Pair') {
-      const payout = VideoPokerRules.getPayout(currentHand, variant, 5);
-      
-      // Hold all cards for strong hands
-      if (currentHand.includes('Royal') || 
-          currentHand.includes('Straight Flush') || 
-          currentHand === 'Four of a Kind' ||
-          currentHand === 'Full House') {
-        return {
-          holdIndices: [0, 1, 2, 3, 4],
-          expectedValue: payout,
-          reasoning: `Hold all - you have ${currentHand}`,
-          allOptions: []
-        };
-      }
-
-      // For medium hands, hold all
-      if (currentHand === 'Flush' || 
-          currentHand === 'Straight' || 
-          currentHand === 'Three of a Kind') {
-        return {
-          holdIndices: [0, 1, 2, 3, 4],
-          expectedValue: payout,
-          reasoning: `Hold all - you have ${currentHand}`,
-          allOptions: []
-        };
-      }
-
-      // For pairs
-      if (currentHand.includes('Pair') || currentHand === 'Two Pair') {
-        return analyzePairs(formattedCards, currentHand, variant);
-      }
-    }
-
-    // No paying hand - look for high cards or draws
-    return analyzeNoPair(formattedCards, variant);
-  };
-
-  // Analyze pairs
-  const analyzePairs = (formattedCards, handType, variant) => {
-    const ranks = formattedCards.map(c => c.value);
-    const rankCounts = {};
-    ranks.forEach(r => rankCounts[r] = (rankCounts[r] || 0) + 1);
-
-    if (handType === 'Two Pair') {
-      // Hold both pairs
-      const holdIndices = [];
-      Object.entries(rankCounts).forEach(([rank, count]) => {
-        if (count === 2) {
-          formattedCards.forEach((card, idx) => {
-            if (card.value === rank) holdIndices.push(idx);
-          });
-        }
-      });
-      return {
-        holdIndices,
-        expectedValue: VideoPokerRules.getPayout('Two Pair', variant, 5),
-        reasoning: 'Hold both pairs - draw for full house',
-        allOptions: []
-      };
-    }
-
-    // Single pair - check if high or low
-    const pairRank = Object.entries(rankCounts).find(([_, count]) => count === 2)?.[0];
-    const isHighPair = ['J', 'Q', 'K', 'A'].includes(pairRank);
-
-    const holdIndices = [];
-    formattedCards.forEach((card, idx) => {
-      if (card.value === pairRank) holdIndices.push(idx);
-    });
-
-    return {
-      holdIndices,
-      expectedValue: isHighPair ? 1 : 0.5,
-      reasoning: isHighPair 
-        ? 'Hold high pair (Jacks or Better) - draw 3 cards'
-        : 'Hold low pair - draw 3 cards for trips or better',
-      allOptions: []
-    };
-  };
-
-  // Analyze when no pair
-  const analyzeNoPair = (formattedCards, variant) => {
-    const suits = formattedCards.map(c => c.suit);
-    const ranks = formattedCards.map(c => c.value);
-    
-    // Check for 4-card flush
-    const suitCounts = {};
-    suits.forEach(s => suitCounts[s] = (suitCounts[s] || 0) + 1);
-    const maxSuitCount = Math.max(...Object.values(suitCounts));
-    
-    if (maxSuitCount === 4) {
-      const flushSuit = Object.entries(suitCounts).find(([_, count]) => count === 4)[0];
-      const holdIndices = [];
-      formattedCards.forEach((card, idx) => {
-        if (card.suit === flushSuit) holdIndices.push(idx);
-      });
-      return {
-        holdIndices,
-        expectedValue: 1.5,
-        reasoning: 'Hold 4 to flush - 19.1% chance to complete',
-        allOptions: []
-      };
-    }
-
-    // Check for high cards
-    const highCards = ['J', 'Q', 'K', 'A'];
-    const highCardIndices = [];
-    formattedCards.forEach((card, idx) => {
-      if (highCards.includes(card.value)) highCardIndices.push(idx);
-    });
-
-    if (highCardIndices.length >= 2) {
-      return {
-        holdIndices: highCardIndices,
-        expectedValue: 0.5,
-        reasoning: `Hold ${highCardIndices.length} high cards - potential for pairs`,
-        allOptions: []
-      };
-    }
-
-    if (highCardIndices.length === 1) {
-      return {
-        holdIndices: highCardIndices,
-        expectedValue: 0.3,
-        reasoning: 'Hold 1 high card - draw 4 new cards',
-        allOptions: []
-      };
-    }
-
-    // Nothing worth holding
-    return {
-      holdIndices: [],
-      expectedValue: 0.2,
-      reasoning: 'Discard all - draw 5 new cards',
-      allOptions: []
-    };
-  };
 
   if (cards.length !== 5) return null;
 
@@ -477,12 +335,10 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
 
       {analysis && (
         <div className="space-y-4">
-          {/* Dealt Hand */}
+          {/* HAND INFO */}
           <div className="bg-gray-800/50 rounded-lg p-4">
             <p className="text-sm text-gray-400 mb-2">Your Dealt Hand (Before Draw)</p>
-            <p className="text-xl font-bold text-white mb-1">
-              {analysis.currentHand}
-            </p>
+            <p className="text-xl font-bold text-white mb-1">{analysis.currentHand}</p>
             {analysis.currentPayout > 0 ? (
               <p className="text-sm text-green-400">
                 Current value: {analysis.currentPayout} credits
@@ -494,7 +350,7 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
             )}
           </div>
 
-          {/* Visual Hold/Discard */}
+          {/* HOLD/DISCARD DISPLAY */}
           <div className="bg-gray-800/50 rounded-lg p-4">
             <p className="text-sm text-gray-400 mb-3 text-center font-semibold">
               Hold / Discard Strategy
@@ -504,19 +360,37 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
                 const shouldHold = analysis.optimalHold.includes(idx);
                 return (
                   <div key={idx} className="text-center">
-                    <div className={`w-16 h-24 rounded-lg border-2 flex flex-col items-center justify-center font-bold transition-all ${
-                      shouldHold 
-                        ? 'border-green-500 bg-green-500/20 shadow-lg shadow-green-500/30' 
-                        : 'border-red-500/50 bg-red-500/10 opacity-60'
-                    }`}>
-                      <div className={`text-xl ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-white'}`}>
+                    <div
+                      className={`w-16 h-24 rounded-lg border-2 flex flex-col items-center justify-center font-bold transition-all ${
+                        shouldHold
+                          ? 'border-green-500 bg-green-500/20 shadow-lg shadow-green-500/30'
+                          : 'border-red-500/50 bg-red-500/10 opacity-60'
+                      }`}
+                    >
+                      <div
+                        className={`text-xl ${
+                          card.suit === '♥' || card.suit === '♦'
+                            ? 'text-red-500'
+                            : 'text-white'
+                        }`}
+                      >
                         {card.rank}
                       </div>
-                      <div className={`text-2xl ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-white'}`}>
+                      <div
+                        className={`text-2xl ${
+                          card.suit === '♥' || card.suit === '♦'
+                            ? 'text-red-500'
+                            : 'text-white'
+                        }`}
+                      >
                         {card.suit}
                       </div>
                     </div>
-                    <div className={`text-xs mt-1 font-bold uppercase ${shouldHold ? 'text-green-400' : 'text-red-400'}`}>
+                    <div
+                      className={`text-xs mt-1 font-bold uppercase ${
+                        shouldHold ? 'text-green-400' : 'text-red-400'
+                      }`}
+                    >
                       {shouldHold ? '✓ HOLD' : '✗ DRAW'}
                     </div>
                   </div>
@@ -525,44 +399,51 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
             </div>
           </div>
 
-          {/* Optimal Strategy */}
+          {/* OPTIMAL STRATEGY SUMMARY */}
           <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <Zap size={16} className="text-yellow-400" />
               <p className="text-sm text-yellow-400 font-semibold">Optimal Strategy</p>
             </div>
             <p className="text-base font-bold text-white mb-2">
-              {analysis.optimalHold.length === 0 
-                ? 'Draw 5 new cards (discard all)' 
+              {analysis.optimalHold.length === 0
+                ? 'Draw 5 new cards (discard all)'
                 : analysis.optimalHold.length === 5
                 ? 'Hold all 5 cards (no draw)'
-                : `Hold ${analysis.optimalHold.length} card${analysis.optimalHold.length > 1 ? 's' : ''}, draw ${5 - analysis.optimalHold.length}`}
+                : `Hold ${analysis.optimalHold.length} card${
+                    analysis.optimalHold.length > 1 ? 's' : ''
+                  }, draw ${5 - analysis.optimalHold.length}`}
             </p>
             <p className="text-sm text-gray-300 mb-2">{analysis.reasoning}</p>
             <div className="flex items-center justify-between text-sm mt-3 pt-3 border-t border-yellow-500/30">
               <span className="text-gray-400">
-                Expected Value: <span className="text-purple-400 font-semibold">{analysis.expectedValue.toFixed(2)}</span>
+                Expected Value:{' '}
+                <span className="text-purple-400 font-semibold">
+                  {analysis.expectedValue.toFixed(2)}
+                </span>
               </span>
             </div>
           </div>
 
-          {/* Pay Table */}
+          {/* PAY TABLE DISPLAY */}
           <div className="bg-gray-800/50 rounded-lg p-4">
             <p className="text-sm text-gray-400 mb-3">{paytable.name} - Pay Table (5 Coins)</p>
             <div className="grid grid-cols-1 text-xs gap-1">
               {Object.entries(paytable.hands).map(([hand, payouts]) => (
-                <div 
-                  key={hand} 
+                <div
+                  key={hand}
                   className={`flex justify-between p-1.5 rounded ${
-                    analysis.currentHand === hand 
-                      ? 'bg-purple-500/30 text-white font-bold' 
+                    analysis.currentHand === hand
+                      ? 'bg-purple-500/30 text-white font-bold'
                       : 'text-gray-300'
                   }`}
                 >
                   <span>{hand}</span>
-                  <span className={`font-mono ${
-                    analysis.currentHand === hand ? 'text-yellow-400' : 'text-purple-400'
-                  }`}>
+                  <span
+                    className={`font-mono ${
+                      analysis.currentHand === hand ? 'text-yellow-400' : 'text-purple-400'
+                    }`}
+                  >
                     {payouts[4]}
                   </span>
                 </div>
@@ -580,6 +461,8 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
     </div>
   );
 }
+
+export default VideoPokerAnalysis;
 
 // ==================== PAI GOW POKER ANALYSIS ====================
 function PaiGowAnalysis({ cards }) {
