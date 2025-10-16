@@ -1,67 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff } from 'lucide-react';
+import { Settings, TrendingUp, Brain, BarChart3, RotateCcw, Info, X, Palette, Eye, EyeOff, ArrowLeft, Lock } from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { HandCalculator } from '../utils/handCalculator';
 import { BasicStrategy } from '../utils/basicStrategy';
 import CardCountingDisplay from './CardCountingDisplay';
 import AICoach from './AICoach';
-import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
 import PricingPage from './PricingPage';
 
 function BlackjackGame({ onBack }) {
+  const { user } = useAuth();
+  const { 
+    canAccessAICoach, 
+    canPlayTraining, 
+    incrementTrainingRounds, 
+    remainingTrainingRounds, 
+    planType 
+  } = useSubscription();
+
   // Game state
   const [deckManager, setDeckManager] = useState(null);
   const [playerHands, setPlayerHands] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
-  const [showPricing, setShowPricing] = useState(false);
   const [currentHandIndex, setCurrentHandIndex] = useState(0);
- const { user } = useAuth();
-const { 
-  canAccessAICoach, 
-  canPlayTraining, 
-  incrementTrainingRounds, 
-  remainingTrainingRounds, 
-  planType 
-} = useSubscription();
-const [balance, setBalance] = useState(10000); // Default fallback
-const [initialBankroll, setInitialBankroll] = useState(10000);
+  const [balance, setBalance] = useState(10000);
+  const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting');
   const [message, setMessage] = useState('Place your bet to start playing');
   const [showDealerCard, setShowDealerCard] = useState(false);
   const [betHistory, setBetHistory] = useState([]);
-  const [baseBet, setBaseBet] = useState(10); // Base betting unit
+  const [baseBet, setBaseBet] = useState(10);
 
-  // Load user's starting bankroll preference
-useEffect(() => {
-  const loadStartingBankroll = async () => {
-    if (user) {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('starting_bankroll')
-          .eq('id', user.id)
-          .single();
+  // UI State
+  const [showPricing, setShowPricing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [theme, setTheme] = useState('classic');
+  const [cardAnimation, setCardAnimation] = useState(true);
 
-        if (data && data.starting_bankroll) {
-          setBalance(data.starting_bankroll);
-          setInitialBankroll(data.starting_bankroll);
-        }
-      } catch (error) {
-        console.error('Error loading starting bankroll:', error);
-      }
-    }
-  };
-
-  loadStartingBankroll();
-}, [user]);
-
-  // Theme
-  const [theme, setTheme] = useState('classic'); // classic, modern, high-contrast
-
-  // Settings and rules
+  // Rules
   const [rules, setRules] = useState({
     numDecks: 6,
     penetration: 0.75,
@@ -93,10 +72,28 @@ useEffect(() => {
     profitLoss: 0
   });
 
-  // UI State
-  const [showSettings, setShowSettings] = useState(false);
-  const [showStats, setShowStats] = useState(false);
-  const [cardAnimation, setCardAnimation] = useState(true);
+  // Load user's starting bankroll
+  useEffect(() => {
+    const loadStartingBankroll = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .select('starting_bankroll')
+            .eq('id', user.id)
+            .single();
+
+          if (data && data.starting_bankroll) {
+            setBalance(data.starting_bankroll);
+            setInitialBankroll(data.starting_bankroll);
+          }
+        } catch (error) {
+          console.error('Error loading starting bankroll:', error);
+        }
+      }
+    };
+    loadStartingBankroll();
+  }, [user]);
 
   // Initialize deck manager
   useEffect(() => {
@@ -106,37 +103,35 @@ useEffect(() => {
 
   const basicStrategy = new BasicStrategy(rules);
 
-  // Place bet
- const placeBet = (amount) => {
-  if (balance >= amount && gameState === 'betting') {
-    
-    // ✅ CHECK: If in training mode, check if user can play
-    if (trainingMode && !canPlayTraining()) {
-      alert(`Training mode limit reached! You have ${remainingTrainingRounds} rounds remaining today.\n\nUpgrade to Ace Plan for unlimited training rounds.`);
-      return; // ❌ Block the bet
+  // Place bet with training mode check
+  const placeBet = (amount) => {
+    if (balance >= amount && gameState === 'betting') {
+      // Check if user can play training mode
+      if (trainingMode && !canPlayTraining()) {
+        alert(`Training mode limit reached! You have ${remainingTrainingRounds} rounds remaining today.\n\nUpgrade to Ace Plan for unlimited training rounds.`);
+        setShowPricing(true);
+        return;
+      }
+
+      const newHand = {
+        cards: [],
+        bet: amount,
+        status: 'active',
+        doubled: false,
+        surrendered: false
+      };
+      setPlayerHands([newHand]);
+      setBalance(balance - amount);
+
+      // Increment training rounds if in training mode
+      if (trainingMode) {
+        incrementTrainingRounds(true);
+      }
+
+      setBetHistory(prev => [...prev, amount].slice(-30));
+      setTimeout(() => startGame([newHand]), 300);
     }
-
-    const newHand = {
-      cards: [],
-      bet: amount,
-      status: 'active',
-      doubled: false,
-      surrendered: false
-    };
-    setPlayerHands([newHand]);
-    setBalance(balance - amount);
-
-    // ✅ INCREMENT: Track training round usage
-    if (trainingMode) {
-      incrementTrainingRounds(true);
-    }
-
-    // Track bet history for heat calculation
-    setBetHistory(prev => [...prev, amount].slice(-30));
-
-    setTimeout(() => startGame([newHand]), 300);
-  }
-};
+  };
 
   // Start new game
   const startGame = (hands) => {
@@ -217,7 +212,6 @@ useEffect(() => {
     const handValue = HandCalculator.calculateValue(updatedCards);
 
     if (handValue > 21) {
-      // Busted
       updatedHands[currentHandIndex].status = 'busted';
       setPlayerHands(updatedHands);
       if (currentHandIndex < playerHands.length - 1) {
@@ -237,12 +231,10 @@ useEffect(() => {
         endGame(updatedHands);
       }
     } else if (handValue === 21) {
-      // Got 21 - automatically move to next hand or dealer
       updatedHands[currentHandIndex].status = 'stood';
       setPlayerHands(updatedHands);
 
       if (currentHandIndex < playerHands.length - 1) {
-        // Move to next hand
         setCurrentHandIndex(currentHandIndex + 1);
         setMessage(`Hand ${currentHandIndex + 2} - Your turn`);
         if (trainingMode) {
@@ -255,14 +247,12 @@ useEffect(() => {
           );
         }
       } else {
-        // All hands complete - dealer plays
         setMessage('Dealer is playing...');
         setShowDealerCard(true);
         setGameState('dealer');
         setTimeout(() => playDealer(updatedHands), 1000);
       }
     } else {
-      // Normal hit - update strategy advice
       if (trainingMode) {
         updateStrategyAdvice(updatedCards, dealerHand[0], false, false, playerHands.length);
       }
@@ -525,7 +515,7 @@ useEffect(() => {
   };
 
   const resetGame = () => {
-  setBalance(initialBankroll); // Use saved preference instead of hardcoded value
+    setBalance(initialBankroll);
     setStats({
       handsPlayed: 0,
       wins: 0,
@@ -544,7 +534,7 @@ useEffect(() => {
 
   if (!deckManager) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black flex items-center justify-center">
         <div className="text-white text-2xl">Loading casino...</div>
       </div>
     );
@@ -559,30 +549,34 @@ useEffect(() => {
 
   return (
     <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
-      {/* Premium Header */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
+      
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-6">
         <div className="glass-strong rounded-2xl p-6 shadow-2xl">
           <div className="flex justify-between items-center flex-wrap gap-4">
-            {/* Logo WITH Back Button */}
+            
+            {/* Logo & Back Button */}
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
                 className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
               >
-                ← Back
+                <ArrowLeft size={20} />
+                Back
               </button>
-              <div className="text-4xl font-bold player-label neon-text">
+              <div className="text-4xl font-bold player-label">
                 ♠ BLACKJACK ♥
               </div>
             </div>
+
             {/* Stats Bar */}
             <div className="flex gap-6 items-center flex-wrap">
               <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
+                <div className="text-xs text-gray-400 uppercase">Balance</div>
                 <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
               </div>
               <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">True Count</div>
+                <div className="text-xs text-gray-400 uppercase">True Count</div>
                 <div className={`text-2xl font-bold font-mono ${
                   deckManager.getTrueCount() > 2 ? 'text-green-400' :
                   deckManager.getTrueCount() < -2 ? 'text-red-400' : 'text-gray-300'
@@ -591,9 +585,10 @@ useEffect(() => {
                 </div>
               </div>
               <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Penetration</div>
+                <div className="text-xs text-gray-400 uppercase">Deck %</div>
                 <div className="text-xl font-mono text-blue-400">{deckManager.getPenetration()}%</div>
               </div>
+
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <button
@@ -615,11 +610,12 @@ useEffect(() => {
                   className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
                 >
                   <RotateCcw size={16} />
-                  <span className="font-semibold">Reset</span>
+                  Reset
                 </button>
               </div>
             </div>
           </div>
+
           {/* Training Controls */}
           <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
             <label className="flex items-center gap-3 cursor-pointer group">
@@ -632,6 +628,7 @@ useEffect(() => {
               <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
               <span className="font-semibold text-lg">Training Mode</span>
             </label>
+            
             {trainingMode && (
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input
@@ -644,6 +641,7 @@ useEffect(() => {
                 <span className="text-sm">Strategy Hints</span>
               </label>
             )}
+
             <button
               onClick={() => {
                 const themes = ['classic', 'modern', 'high-contrast'];
@@ -656,51 +654,65 @@ useEffect(() => {
               <span className="text-sm capitalize">{theme}</span>
             </button>
           </div>
-          {/* Strategy Advice Panel */}
-          {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
-            <div className="mt-4 training-overlay rounded-xl p-4 slide-in-top">
-              <div className="flex items-start gap-3">
-                <TrendingUp size={20} className="text-yellow-400 mt-1 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-yellow-300 text-lg mb-1">OPTIMAL PLAY: {strategyAdvice.action}</div>
-                  <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
-                </div>
-              </div>
-            {/* ✅ NEW: Training Rounds Counter - Free Users Only */}
-          {planType === 'free' && trainingMode && (
-            <div className="mt-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg px-4 py-3 text-center">
-              <p className="text-sm text-yellow-400 font-semibold">
-                🎯 Training Rounds Remaining Today: <span className="text-2xl font-bold">{remainingTrainingRounds}</span>
-              </p>
-              <p className="text-xs text-gray-300 mt-1">
-                Upgrade to Ace Plan for unlimited training rounds
-              </p>
-            </div>
-          )}
-          {/* Decision Feedback */}
-          {lastDecision && (
-            <div className={`mt-4 rounded-xl p-4 slide-in-top ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{lastDecision.correct ? '✓' : '✗'}</span>
-                <div>
-                  <div className="font-bold text-lg">
-                    {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
-                  </div>
-                  {!lastDecision.correct && (
-                    <div className="text-sm mt-1">
-                      You chose <span className="font-semibold">{lastDecision.action}</span>,
-                      but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
-                      <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
-      {/* Card Counting Display Panel */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
+
+      {/* Training Rounds Counter - Free Users Only */}
+      {planType === 'free' && trainingMode && (
+        <div className="max-w-7xl mx-auto mb-6">
+          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-xl px-6 py-4 text-center">
+            <p className="text-sm text-yellow-400 font-semibold">
+              🎯 Training Rounds Remaining Today: <span className="text-2xl font-bold ml-2">{remainingTrainingRounds}</span>
+            </p>
+            <p className="text-xs text-gray-300 mt-1">
+              Upgrade to Ace Plan for unlimited training rounds
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Strategy Advice Panel */}
+      {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
+        <div className="max-w-7xl mx-auto mb-6">
+          <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-xl p-6">
+            <div className="flex items-start gap-3">
+              <TrendingUp size={24} className="text-yellow-400 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="font-bold text-yellow-300 text-xl mb-2">
+                  OPTIMAL PLAY: {strategyAdvice.action}
+                </div>
+                <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decision Feedback */}
+      {lastDecision && (
+        <div className="max-w-7xl mx-auto mb-6">
+          <div className={`rounded-xl p-6 ${lastDecision.correct ? 'bg-green-500/20 border border-green-500/50' : 'bg-red-500/20 border border-red-500/50'}`}>
+            <div className="flex items-start gap-3">
+              <span className="text-3xl">{lastDecision.correct ? '✓' : '✗'}</span>
+              <div className="flex-1">
+                <div className="font-bold text-xl mb-1">
+                  {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
+                </div>
+                {!lastDecision.correct && (
+                  <div className="text-sm mt-1 text-gray-200">
+                    You chose <span className="font-semibold">{lastDecision.action}</span>,
+                    but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
+                    <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Card Counting Display */}
+      <div className="max-w-7xl mx-auto mb-6">
         <CardCountingDisplay
           deckManager={deckManager}
           betHistory={betHistory}
@@ -708,13 +720,15 @@ useEffect(() => {
           baseBet={baseBet}
         />
       </div>
+
       {/* Game Table */}
       <div className="max-w-7xl mx-auto">
         <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
+          
           {/* Dealer Section */}
           <div className="mb-16">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-3 tracking-widest">DEALER</h2>
+              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-3">DEALER</h2>
               {dealerHand.length > 0 && (
                 <div className="glass inline-block px-6 py-2 rounded-full">
                   <span className="text-2xl font-bold font-mono">
@@ -737,16 +751,18 @@ useEffect(() => {
               ))}
             </div>
           </div>
+
           {/* Message Display */}
           <div className="text-center my-10">
             <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
-              <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
+              <p className="text-3xl font-bold text-yellow-300">{message}</p>
             </div>
           </div>
+
           {/* Player Section */}
           <div className="mb-12">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-4 tracking-widest">PLAYER</h2>
+              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-4">PLAYER</h2>
             </div>
             <div className="flex justify-center gap-6 flex-wrap">
               {playerHands.map((hand, index) => (
@@ -754,7 +770,7 @@ useEffect(() => {
                   key={index}
                   className={`glass-strong rounded-2xl p-6 transition-all duration-300 ${
                     index === currentHandIndex && gameState === 'playing'
-                      ? 'ring-4 ring-yellow-400 pulse-gold'
+                      ? 'ring-4 ring-yellow-400'
                       : ''
                   }`}
                 >
@@ -764,7 +780,7 @@ useEffect(() => {
                       {hand.status === 'busted' && <span className="text-red-400 ml-2">(BUST)</span>}
                       {hand.status === 'stood' && <span className="text-blue-400 ml-2">(STAND)</span>}
                       {hand.status === 'surrendered' && <span className="text-orange-400 ml-2">(SURRENDER)</span>}
-                      {hand.status === 'blackjack' && <span className="text-yellow-400 ml-2 neon-text">(BLACKJACK!)</span>}
+                      {hand.status === 'blackjack' && <span className="text-yellow-400 ml-2">(BLACKJACK!)</span>}
                     </div>
                     <div className="text-3xl font-bold font-mono mb-2">
                       {HandCalculator.calculateValue(hand.cards)}
@@ -785,55 +801,54 @@ useEffect(() => {
               ))}
             </div>
           </div>
+
           {/* Betting Area */}
           {gameState === 'betting' && (
-            <div className="mt-12 fade-in-up">
+            <div className="mt-12">
               <div className="glass-strong rounded-2xl p-8 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-center mb-6 text-yellow-400 player-label tracking-wider">PLACE YOUR BET</h3>
+                <h3 className="text-2xl font-bold text-center mb-6 text-yellow-400 player-label">PLACE YOUR BET</h3>
                 <div className="flex justify-center gap-5 flex-wrap mb-6">
                   {[5, 10, 25, 50, 100, 500].map((amount, index) => (
                     <button
                       key={amount}
                       onClick={() => placeBet(amount)}
                       disabled={balance < amount}
-                      className={`chip-animate relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 btn-premium chip-glow ${
+                      className={`relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 ${
                         amount === 5 ? 'bg-white text-black border-gray-400' :
-                          amount === 10 ? 'bg-red-600 border-red-800 text-white' :
-                          amount === 25 ? 'bg-green-600 border-green-800 text-white' :
-                          amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
-                          amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
-                          'bg-purple-700 border-purple-900 text-white'
+                        amount === 10 ? 'bg-red-600 border-red-800 text-white' :
+                        amount === 25 ? 'bg-green-600 border-green-800 text-white' :
+                        amount === 50 ? 'bg-blue-600 border-blue-800 text-white' :
+                        amount === 100 ? 'bg-black text-yellow-400 border-yellow-600' :
+                        'bg-purple-700 border-purple-900 text-white'
                       } ${balance < amount ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:shadow-2xl'}`}
-                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      <div className="relative z-10">
-                        ${amount}
-                      </div>
+                      ${amount}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
           )}
+
           {/* Action Buttons */}
           {gameState === 'playing' && (
             <div className="mt-10 flex justify-center gap-5 flex-wrap">
               <button
                 onClick={hit}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
               >
                 HIT
               </button>
               <button
                 onClick={stand}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
               >
                 STAND
               </button>
               {canDouble && (
                 <button
                   onClick={doubleDown}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
                   DOUBLE
                 </button>
@@ -841,7 +856,7 @@ useEffect(() => {
               {canSplit && (
                 <button
                   onClick={split}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
                   SPLIT
                 </button>
@@ -849,19 +864,20 @@ useEffect(() => {
               {canSurrender && (
                 <button
                   onClick={surrender}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-xl transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="glass-strong px-8 py-5 rounded-2xl font-bold text-xl transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
                   SURRENDER
                 </button>
               )}
             </div>
           )}
+
           {/* New Round Button */}
           {gameState === 'gameOver' && (
-            <div className="mt-10 text-center fade-in-up">
+            <div className="mt-10 text-center">
               <button
                 onClick={newRound}
-                className="btn-premium glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
+                className="glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl"
               >
                 NEW ROUND
               </button>
@@ -869,6 +885,82 @@ useEffect(() => {
           )}
         </div>
       </div>
+
+      {/* House Rules */}
+      <div className="max-w-7xl mx-auto mt-8">
+        <details className="glass-strong rounded-xl p-5">
+          <summary className="cursor-pointer font-bold text-yellow-400 flex items-center gap-3 text-lg">
+            <Info size={22} />
+            HOUSE RULES
+          </summary>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>{rules.numDecks}-deck shoe</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>Dealer {rules.dealerHitsSoft17 ? 'hits' : 'stands'} on soft 17</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>Blackjack pays {rules.blackjackPays === 1.5 ? '3:2' : '6:5'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>Double after split: {rules.doubleAfterSplit ? 'Yes' : 'No'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>Surrender: {rules.surrenderAllowed ? 'Allowed' : 'Not allowed'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-400">✓</span>
+              <span>Maximum {rules.maxSplits} splits allowed</span>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      {/* AI Coach - Ace/Ace Pro Only */}
+      {canAccessAICoach() && (
+        <AICoach 
+          game="blackjack"
+          gameState={{
+            playerHands,
+            dealerHand,
+            trueCount: deckManager.getTrueCount(),
+            runningCount: deckManager.getRunningCount(),
+            penetration: deckManager.getPenetration(),
+            gameState,
+            balance,
+            trainingMode
+          }}
+          visible={true}
+        />
+      )}
+
+      {/* Upgrade Prompt - Free Users */}
+      {!canAccessAICoach() && (
+        <div className="max-w-7xl mx-auto mt-6">
+          <div className="glass-strong rounded-xl p-6 border-2 border-yellow-500/50 text-center">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Lock className="text-yellow-400" size={32} />
+              <h3 className="text-2xl font-bold text-yellow-400">AI Strategy Coach Locked</h3>
+            </div>
+            <p className="text-gray-300 mb-4">
+              Get real-time strategy advice, card counting tips, and instant answers to your questions!
+            </p>
+            <button
+              onClick={() => setShowPricing(true)}
+              className="glass-strong px-8 py-3 rounded-xl font-bold text-lg transition-all hover:bg-yellow-600 hover:bg-opacity-60"
+            >
+              Upgrade to Ace Plan - $11.99/month
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Statistics Modal */}
       {showStats && (
         <Modal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
@@ -901,6 +993,7 @@ useEffect(() => {
           </div>
         </Modal>
       )}
+
       {/* Settings Modal */}
       {showSettings && (
         <Modal onClose={() => setShowSettings(false)} title="GAME SETTINGS">
@@ -964,7 +1057,7 @@ useEffect(() => {
                   setShowSettings(false);
                   newRound();
                 }}
-                className="w-full btn-premium glass-strong px-8 py-4 rounded-xl font-bold text-lg transition-all hover:bg-green-600 hover:bg-opacity-60"
+                className="w-full glass-strong px-8 py-4 rounded-xl font-bold text-lg transition-all hover:bg-green-600 hover:bg-opacity-60"
               >
                 APPLY SETTINGS & RESTART
               </button>
@@ -972,153 +1065,51 @@ useEffect(() => {
           </div>
         </Modal>
       )}
-{/* House Rules Footer */}
-      <div className="max-w-7xl mx-auto mt-8 fade-in-up">
-        <details className="glass-strong rounded-xl p-5">
-          <summary className="cursor-pointer font-bold text-yellow-400 flex items-center gap-3 text-lg">
-            <Info size={22} />
-            HOUSE RULES
-          </summary>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>{rules.numDecks}-deck shoe</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Dealer {rules.dealerHitsSoft17 ? 'hits' : 'stands'} on soft 17</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Blackjack pays {rules.blackjackPays === 1.5 ? '3:2' : '6:5'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Double after split: {rules.doubleAfterSplit ? 'Yes' : 'No'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Surrender: {rules.surrenderAllowed ? 'Allowed' : 'Not allowed'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Maximum {rules.maxSplits} splits allowed</span>
-            </div>
-          </div>
-        </details>
-      </div>
 
- {/* AI Strategy Coach - Only for Ace/Ace Pro Users */}
-{canAccessAICoach() && (
-  <AICoach 
-    game="blackjack"
-    gameState={{
-      playerHands,
-      dealerHand,
-      deckManager,
-      gameState,
-      balance,
-      trainingMode
-    }}
-    visible={true}
-  />
-)}
-{/* Upgrade Prompt for Free Users - No AI Coach */}
-{!canAccessAICoach() && (
-  <div className="max-w-7xl mx-auto mt-6 fade-in-up">
-    <div className="glass-strong rounded-xl p-6 border-2 border-yellow-500/50 text-center">
-      <div className="flex items-center justify-center gap-3 mb-3">
-        <Brain className="text-yellow-400" size={32} />
-        <h3 className="text-2xl font-bold text-yellow-400">AI Strategy Coach Locked</h3>
-      </div>
-      <p className="text-gray-300 mb-4">
-        Get real-time strategy advice and instant answers to your questions with the AI Coach!
-      </p>
-    <button
-  onClick={() => setShowPricing(true)}
-  className="btn-premium glass-strong px-8 py-3 rounded-xl font-bold text-lg transition-all hover:bg-yellow-600 hover:bg-opacity-60"
->
-  Upgrade to Ace Plan - $11.99/month
-</button>
-    </div>
-  </div>
-)}
-          {showPricing && (
-  <Modal onClose={() => setShowPricing(false)} title="Upgrade to Ace Plan">
-    <PricingPage embedded={true} />
-  </Modal>
-)}
+      {/* Pricing Modal */}
+      {showPricing && (
+        <Modal onClose={() => setShowPricing(false)} title="Upgrade Your Plan">
+          <PricingPage onClose={() => setShowPricing(false)} />
+        </Modal>
+      )}
     </div>
   );
 }
 
-// RoyalEdge Playing Card Component
+// Card Component
 function Card({ card, hidden = false }) {
   const isRed = card.suit === '♥' || card.suit === '♦';
 
   if (hidden) {
-    // 🂠 Card Back — elegant lattice & subtle depth
     return (
-      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-slate-700 shadow-[0_6px_12px_rgba(0,0,0,0.5)] transform-gpu">
-        {/* Base gradient */}
+      <div className="card-back w-28 h-40 rounded-xl relative overflow-hidden border border-slate-700 shadow-[0_6px_12px_rgba(0,0,0,0.5)]">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black" />
-
-        {/* Intricate gold lattice pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,215,0,0.12)_1px,transparent_0)] bg-[length:9px_9px] opacity-80" />
-
-        {/* Gloss reflection */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 mix-blend-overlay" />
-
-        {/* Inner glow */}
         <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/10 shadow-inner" />
       </div>
     );
   }
 
-  // 🂡 Card Face — precision, hierarchy, and polish
   return (
-    <div
-      className="card-face w-28 h-40 rounded-xl relative overflow-hidden border border-neutral-300 bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)]
-        transform-gpu transition-transform duration-200 hover:-translate-y-1 hover:rotate-[0.5deg] hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
-    >
-      {/* Subtle highlight gradient */}
+    <div className="card-face w-28 h-40 rounded-xl relative overflow-hidden border border-neutral-300 bg-gradient-to-br from-neutral-50 to-neutral-100 shadow-[0_8px_12px_rgba(0,0,0,0.25)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_12px_18px_rgba(0,0,0,0.35)]">
       <div className="absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent pointer-events-none" />
-
-      {/* Light sheen bar */}
       <div className="absolute top-0 left-0 w-[55%] h-full bg-gradient-to-r from-white/10 to-transparent opacity-40" />
-
-      {/* Inner gold edge for premium look */}
       <div className="absolute inset-[3px] rounded-lg border border-yellow-400/30" />
-
-      {/* Content Layer */}
+      
       <div className="relative flex flex-col justify-between h-full p-2 pb-3">
-        {/* Top corner */}
-        <div
-          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight ${
-            isRed ? 'text-red-600' : 'text-gray-800'
-          }`}
-        >
+        <div className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
           <div>{card.value}</div>
           <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
         </div>
 
-        {/* Center emblem */}
         <div className="flex-1 flex items-center justify-center">
-          <div
-            className={`text-5xl drop-shadow-sm ${
-              isRed ? 'text-red-600' : 'text-gray-800'
-            }`}
-          >
+          <div className={`text-5xl drop-shadow-sm ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
             {card.suit}
           </div>
         </div>
 
-        {/* Bottom corner (mirrored and visible) */}
-        <div
-          className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${
-            isRed ? 'text-red-600' : 'text-gray-800'
-          }`}
-        >
+        <div className={`text-lg font-semibold font-[Inter] leading-tight tracking-tight text-right rotate-180 ${isRed ? 'text-red-600' : 'text-gray-800'}`}>
           <div>{card.value}</div>
           <div className="text-2xl leading-none mt-[2px]">{card.suit}</div>
         </div>
@@ -1131,7 +1122,7 @@ function Card({ card, hidden = false }) {
 function Modal({ children, onClose, title }) {
   return (
     <div 
-      className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 fade-in-up"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
       onClick={onClose}
     >
       <div 
@@ -1139,11 +1130,8 @@ function Modal({ children, onClose, title }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 glass-strong border-b border-gray-700 p-6 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-yellow-400 player-label tracking-wider">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-all hover:scale-110"
-          >
+          <h2 className="text-3xl font-bold text-yellow-400 player-label">{title}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-all hover:scale-110">
             <X size={28} />
           </button>
         </div>
