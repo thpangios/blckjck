@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { X, Check, ArrowRight } from 'lucide-react';
 import { handleStripeCheckout } from '../utils/stripeCheckout';
+import { useAuth } from '../contexts/AuthContext'; // ✅ MUST HAVE THIS
 
 function PricingPage({ onClose, onSelectPlan }) {
+  const { user } = useAuth(); // ✅ ADD THIS LINE
   const [billingCycle, setBillingCycle] = useState('monthly');
-
   const plans = {
   free: {
     name: 'Free',
@@ -63,6 +64,7 @@ function PricingPage({ onClose, onSelectPlan }) {
   }
 };
 const handleSelectPlan = async (planType) => {
+  // ✅ Check if user exists
   if (!user) {
     alert('Please log in to upgrade');
     return;
@@ -70,10 +72,10 @@ const handleSelectPlan = async (planType) => {
 
   if (planType === 'ace') {
     await handleStripeCheckout('price_1SI7l1G29kWPfi2iekrWqcT0', user.id);
-  } else if (planType === 'ace_pro') { // ✅ CHANGED from 'lifetime'
+  } else if (planType === 'ace_pro') {
     await handleStripeCheckout('price_1SI7mYG29kWPfi2iDHAw1ntQ', user.id);
   } else {
-    // Free plan - just close
+    // Free plan
     if (onSelectPlan) {
       onSelectPlan('free');
     }
