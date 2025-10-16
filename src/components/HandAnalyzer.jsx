@@ -1,10 +1,13 @@
 // /src/components/HandAnalyzer.jsx
-import React, { useState } from 'react';
-import { ArrowLeft, Sparkles, RotateCcw, Brain, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Sparkles, RotateCcw, Brain, MessageCircle, Zap, Calculator } from 'lucide-react';
 import AICoach from './AICoach';
+import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { VideoPokerRules } from '../utils/videoPokerRules';
+import { VideoPokerStrategy } from '../utils/videoPokerStrategy';
 
-// Card Picker Component
+// ==================== CARD PICKER COMPONENT ====================
 function CardPicker({ selectedCards, onSelectCard, maxCards, excludeCards = [] }) {
   const suits = ['♠', '♥', '♦', '♣'];
   const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -73,7 +76,7 @@ function CardPicker({ selectedCards, onSelectCard, maxCards, excludeCards = [] }
   );
 }
 
-// Selected Cards Display
+// ==================== SELECTED CARDS DISPLAY ====================
 function SelectedCardsDisplay({ cards, onRemoveCard, title }) {
   if (cards.length === 0) {
     return (
@@ -109,7 +112,7 @@ function SelectedCardsDisplay({ cards, onRemoveCard, title }) {
   );
 }
 
-// Blackjack Analysis
+// ==================== BLACKJACK ANALYSIS ====================
 function BlackjackAnalysis({ playerCards, dealerCard }) {
   if (playerCards.length === 0) return null;
 
@@ -150,15 +153,10 @@ function BlackjackAnalysis({ playerCards, dealerCard }) {
       if (['A', '8'].includes(playerCards[0].rank)) return "SPLIT";
       if (['10', 'J', 'Q', 'K'].includes(playerCards[0].rank)) return "STAND";
       if (playerCards[0].rank === '9' && ![7, 10, 11].includes(dealerValue)) return "SPLIT";
-      if (['2', '3', '7'].includes(playerCards[0].rank) && dealerValue <= 7) return "SPLIT";
-      if (playerCards[0].rank === '6' && dealerValue <= 6) return "SPLIT";
-      if (playerCards[0].rank === '4' && [5, 6].includes(dealerValue)) return "SPLIT";
     }
 
     if (playerCards.length === 2 && playerHand.value >= 9 && playerHand.value <= 11) {
-      if (playerHand.value === 11) {
-        return dealerValue === 11 ? "HIT" : "DOUBLE DOWN";
-      }
+      if (playerHand.value === 11) return dealerValue === 11 ? "HIT" : "DOUBLE DOWN";
       if (playerHand.value === 10 && dealerValue <= 9) return "DOUBLE DOWN";
       if (playerHand.value === 9 && dealerValue >= 3 && dealerValue <= 6) return "DOUBLE DOWN";
     }
@@ -170,19 +168,13 @@ function BlackjackAnalysis({ playerCards, dealerCard }) {
         if (dealerValue >= 3 && dealerValue <= 6 && playerCards.length === 2) return "DOUBLE DOWN";
         return "STAND";
       }
-      if (playerHand.value === 17 && [3, 4, 5, 6].includes(dealerValue) && playerCards.length === 2) return "DOUBLE DOWN";
-      if ([15, 16].includes(playerHand.value) && [4, 5, 6].includes(dealerValue) && playerCards.length === 2) return "DOUBLE DOWN";
-      if ([13, 14].includes(playerHand.value) && [5, 6].includes(dealerValue) && playerCards.length === 2) return "DOUBLE DOWN";
       return "HIT";
     }
 
     if (playerHand.value >= 17) return "STAND";
     if (playerHand.value <= 11) return "HIT";
     if (playerHand.value >= 13 && dealerValue <= 6) return "STAND";
-    if (playerHand.value === 12) {
-      if ([4, 5, 6].includes(dealerValue)) return "STAND";
-      return "HIT";
-    }
+    if (playerHand.value === 12 && [4, 5, 6].includes(dealerValue)) return "STAND";
     
     return "HIT";
   };
@@ -226,7 +218,6 @@ function BlackjackAnalysis({ playerCards, dealerCard }) {
             <li>• Never split 10s or 5s</li>
             <li>• Stand on hard 17 or higher</li>
             <li>• Double on 11 (except vs Ace)</li>
-            <li>• Surrender 16 vs dealer 9, 10, or Ace</li>
           </ul>
         </div>
       </div>
@@ -234,96 +225,124 @@ function BlackjackAnalysis({ playerCards, dealerCard }) {
   );
 }
 
-// Video Poker Analysis
-function VideoPokerAnalysis({ cards }) {
+// ==================== VIDEO POKER ANALYSIS (ENHANCED) ====================
+function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
+  const [optimalHold, setOptimalHold] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+
+  useEffect(() => {
+    if (cards.length === 5) {
+      setCalculating(true);
+      
+      const formattedCards = cards.map(c => ({
+        value: c.rank,
+        suit: c.suit
+      }));
+
+      setTimeout(() => {
+        const strategy = VideoPokerStrategy.findOptimalHold(formattedCards, variant);
+        setOptimalHold(strategy);
+        setCalculating(false);
+      }, 300);
+    } else {
+      setOptimalHold(null);
+    }
+  }, [cards, variant]);
+
   if (cards.length !== 5) return null;
 
-  const analyzeHand = () => {
-    const rankCounts = {};
-    const suitCounts = {};
-    const ranks = cards.map(c => c.rank);
-    
-    cards.forEach(card => {
-      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
-      suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1;
-    });
-
-    const counts = Object.values(rankCounts).sort((a, b) => b - a);
-    const isFlush = Object.values(suitCounts).some(count => count === 5);
-    
-    const rankValues = { 'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 };
-    const values = ranks.map(r => rankValues[r]).sort((a, b) => a - b);
-    const isStraight = values.every((val, i) => i === 0 || val === values[i - 1] + 1) ||
-                       (values[0] === 2 && values[4] === 14 && values[1] === 3 && values[2] === 4 && values[3] === 5);
-
-    const isRoyal = isStraight && values.includes(14) && values.includes(13) && values.includes(12) && values.includes(11) && values.includes(10);
-
-    if (isRoyal && isFlush) return { hand: 'Royal Flush', payout: 800, rank: 10 };
-    if (isStraight && isFlush) return { hand: 'Straight Flush', payout: 50, rank: 9 };
-    if (counts[0] === 4) return { hand: 'Four of a Kind', payout: 25, rank: 8 };
-    if (counts[0] === 3 && counts[1] === 2) return { hand: 'Full House', payout: 9, rank: 7 };
-    if (isFlush) return { hand: 'Flush', payout: 6, rank: 6 };
-    if (isStraight) return { hand: 'Straight', payout: 4, rank: 5 };
-    if (counts[0] === 3) return { hand: 'Three of a Kind', payout: 3, rank: 4 };
-    if (counts[0] === 2 && counts[1] === 2) return { hand: 'Two Pair', payout: 2, rank: 3 };
-    
-    const highPairs = Object.entries(rankCounts).filter(([rank, count]) => 
-      count === 2 && ['A', 'K', 'Q', 'J'].includes(rank)
-    );
-    if (highPairs.length > 0) return { hand: 'Jacks or Better', payout: 1, rank: 2 };
-
-    return { hand: 'No Pair', payout: 0, rank: 0 };
-  };
-
-  const result = analyzeHand();
-
-  const getHoldRecommendation = () => {
-    if (result.rank >= 7) return "HOLD ALL - Strong paying hand!";
-    if (result.rank >= 4) return "HOLD ALL - Good hand";
-    if (result.rank === 3) return "HOLD BOTH PAIRS";
-    if (result.rank === 2) return "HOLD THE HIGH PAIR";
-    
-    const highCards = cards.filter(c => ['A', 'K', 'Q', 'J'].includes(c.rank));
-    if (highCards.length >= 3) return `HOLD ${highCards.length} HIGH CARDS`;
-    if (highCards.length === 2) return "HOLD 2 HIGH CARDS";
-    if (highCards.length === 1) return "HOLD 1 HIGH CARD";
-    
-    return "DRAW 5 NEW CARDS";
-  };
+  const formattedCards = cards.map(c => ({ value: c.rank, suit: c.suit }));
+  const currentHand = VideoPokerRules.evaluateHand(formattedCards, variant);
+  const payout = currentHand ? VideoPokerRules.getPayout(currentHand, variant, 5) : 0;
+  const paytable = VideoPokerRules.paytables[variant];
 
   return (
     <div className="bg-gradient-to-br from-purple-900/30 to-gray-800/30 rounded-xl p-6 border border-purple-500/30">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="text-purple-400" size={24} />
-        <h3 className="text-xl font-bold text-white">Video Poker Analysis</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="text-purple-400" size={24} />
+          <h3 className="text-xl font-bold text-white">Video Poker Analysis</h3>
+        </div>
+        {calculating && (
+          <div className="flex items-center gap-2 text-sm text-purple-400">
+            <Calculator className="animate-spin" size={16} />
+            Calculating...
+          </div>
+        )}
+      </div>
+
+      {/* Variant Selector */}
+      <div className="mb-4">
+        <label className="block text-sm text-gray-400 mb-2">Game Variant</label>
+        <select
+          value={variant}
+          onChange={(e) => onVariantChange(e.target.value)}
+          className="w-full bg-gray-800 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-purple-500"
+        >
+          <option value="jacksOrBetter">9/6 Jacks or Better (99.54% RTP)</option>
+          <option value="bonusPoker">8/5 Bonus Poker (99.17% RTP)</option>
+          <option value="deucesWild">Full Pay Deuces Wild (100.76% RTP)</option>
+        </select>
       </div>
 
       <div className="space-y-4">
+        {/* Current Hand */}
         <div className="bg-gray-800/50 rounded-lg p-4">
           <p className="text-sm text-gray-400 mb-2">Current Hand</p>
-          <p className="text-2xl font-bold text-white">{result.hand}</p>
+          <p className="text-2xl font-bold text-white">
+            {currentHand || 'No Winning Hand'}
+          </p>
           <p className="text-lg text-green-400 mt-2">
-            {result.payout > 0 ? `Payout: ${result.payout}x ✓` : 'No payout'}
+            {payout > 0 ? `Payout: ${payout} credits (${payout/5}x)` : 'No payout'}
           </p>
         </div>
 
-        <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
-          <p className="text-sm text-yellow-400 mb-2">Hold Recommendation</p>
-          <p className="text-lg font-bold text-white">{getHoldRecommendation()}</p>
-        </div>
+        {/* Optimal Strategy */}
+        {optimalHold && !calculating && (
+          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
+            <p className="text-sm text-yellow-400 mb-2 flex items-center gap-2">
+              <Zap size={16} />
+              Optimal Strategy
+            </p>
+            <p className="text-base font-bold text-white mb-2">
+              {VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)}
+            </p>
+            <p className="text-sm text-gray-300">{optimalHold.reasoning}</p>
+            <p className="text-sm text-purple-400 mt-2">
+              Expected Value: {optimalHold.expectedValue.toFixed(2)} credits
+            </p>
+          </div>
+        )}
 
+        {/* Top Alternative Plays */}
+        {optimalHold && optimalHold.allOptions && optimalHold.allOptions.length > 1 && (
+          <div className="bg-gray-800/50 rounded-lg p-4">
+            <p className="text-sm text-gray-400 mb-3">Top Alternative Plays</p>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {optimalHold.allOptions.slice(0, 5).map((option, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-700 pb-2">
+                  <span className="text-gray-300">
+                    {option.description}
+                  </span>
+                  <span className={`font-mono ${idx === 0 ? 'text-green-400 font-bold' : 'text-gray-400'}`}>
+                    {option.ev.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Pay Table */}
         <div className="bg-gray-800/50 rounded-lg p-4">
-          <p className="text-sm text-gray-400 mb-2">Jacks or Better Pay Table (9/6)</p>
-          <div className="grid grid-cols-2 text-sm text-gray-300 gap-1">
-            <div className="flex justify-between"><span>Royal Flush</span><span className="text-yellow-400 font-bold">800x</span></div>
-            <div className="flex justify-between"><span>Straight Flush</span><span className="text-purple-400 font-bold">50x</span></div>
-            <div className="flex justify-between"><span>Four of a Kind</span><span className="text-blue-400 font-bold">25x</span></div>
-            <div className="flex justify-between"><span>Full House</span><span className="text-green-400 font-bold">9x</span></div>
-            <div className="flex justify-between"><span>Flush</span><span className="font-bold">6x</span></div>
-            <div className="flex justify-between"><span>Straight</span><span className="font-bold">4x</span></div>
-            <div className="flex justify-between"><span>Three of a Kind</span><span className="font-bold">3x</span></div>
-            <div className="flex justify-between"><span>Two Pair</span><span className="font-bold">2x</span></div>
-            <div className="flex justify-between"><span>Jacks or Better</span><span className="font-bold">1x</span></div>
+          <p className="text-sm text-gray-400 mb-2">{paytable.name}</p>
+          <div className="grid grid-cols-1 text-xs text-gray-300 gap-1">
+            {Object.entries(paytable.hands).map(([hand, payouts]) => (
+              <div key={hand} className="flex justify-between">
+                <span>{hand}</span>
+                <span className="text-purple-400 font-mono">{payouts[4]}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -331,7 +350,7 @@ function VideoPokerAnalysis({ cards }) {
   );
 }
 
-// Pai Gow Poker Analysis
+// ==================== PAI GOW POKER ANALYSIS ====================
 function PaiGowAnalysis({ cards }) {
   if (cards.length !== 7) return null;
 
@@ -369,7 +388,7 @@ function PaiGowAnalysis({ cards }) {
       case "One Pair":
         return "Keep the pair in high hand (5-card), play two highest remaining cards in low hand";
       case "Four of a Kind":
-        return "Keep four of a kind together unless it's Aces (split 2-2) or 7s and higher with Ace available";
+        return "Keep four of a kind together unless it's Aces or 7s+ with Ace available";
       case "Full House":
         return "Play the pair in low hand (2-card), three of a kind in high hand";
       case "Three of a Kind":
@@ -407,7 +426,6 @@ function PaiGowAnalysis({ cards }) {
             <li>• Win both hands = win (minus 5% commission)</li>
             <li>• Win one, lose one = push (tie)</li>
             <li>• Lose both hands = lose bet</li>
-            <li>• Joker is semi-wild (completes straights/flushes or acts as Ace)</li>
           </ul>
         </div>
       </div>
@@ -415,13 +433,23 @@ function PaiGowAnalysis({ cards }) {
   );
 }
 
-// Main Hand Analyzer Component
+// ==================== MAIN HAND ANALYZER COMPONENT ====================
 export default function HandAnalyzer({ onBack }) {
-  const { isPremium, canAccessFeature } = useSubscription();
+  const { user } = useAuth();
+  const { isPremium } = useSubscription();
+  
+  // Game state
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
   const [dealerCard, setDealerCard] = useState(null);
   const [showDealerPicker, setShowDealerPicker] = useState(false);
+  
+  // Video Poker specific
+  const [videoPokerVariant, setVideoPokerVariant] = useState('jacksOrBetter');
+  const [optimalHold, setOptimalHold] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+  
+  // AI Coach
   const [showAICoach, setShowAICoach] = useState(false);
 
   const games = [
@@ -429,6 +457,26 @@ export default function HandAnalyzer({ onBack }) {
     { id: 'videopoker', name: 'Video Poker', icon: '🎴', cards: 5, minCards: 5 },
     { id: 'paigowpoker', name: 'Pai Gow Poker', icon: '🀄', cards: 7, minCards: 7 }
   ];
+
+  // Calculate Video Poker optimal strategy
+  useEffect(() => {
+    if (selectedGame === 'videopoker' && selectedCards.length === 5) {
+      setCalculating(true);
+      
+      const formattedCards = selectedCards.map(c => ({
+        value: c.rank,
+        suit: c.suit
+      }));
+
+      setTimeout(() => {
+        const strategy = VideoPokerStrategy.findOptimalHold(formattedCards, videoPokerVariant);
+        setOptimalHold(strategy);
+        setCalculating(false);
+      }, 300);
+    } else {
+      setOptimalHold(null);
+    }
+  }, [selectedCards, selectedGame, videoPokerVariant]);
 
   const handleSelectCard = (rank, suit) => {
     const card = { rank, suit };
@@ -458,6 +506,116 @@ export default function HandAnalyzer({ onBack }) {
     setSelectedCards([]);
     setDealerCard(null);
     setShowDealerPicker(false);
+    setOptimalHold(null);
+  };
+
+  // Helper: Calculate Blackjack hand value
+  const calculateBlackjackValue = (cards) => {
+    let value = 0;
+    let aces = 0;
+
+    cards.forEach(card => {
+      if (card.rank === 'A') {
+        aces++;
+        value += 11;
+      } else if (['J', 'Q', 'K'].includes(card.rank)) {
+        value += 10;
+      } else {
+        value += parseInt(card.rank);
+      }
+    });
+
+    while (value > 21 && aces > 0) {
+      value -= 10;
+      aces--;
+    }
+
+    return { value, isSoft: aces > 0 };
+  };
+
+  // Helper: Get Blackjack recommendation
+  const getBlackjackRecommendation = () => {
+    if (!dealerCard || selectedCards.length === 0) return null;
+    
+    const playerHand = calculateBlackjackValue(selectedCards);
+    const dealerValue = calculateBlackjackValue([dealerCard]).value;
+    
+    if (playerHand.value > 21) return "BUST";
+    if (playerHand.value === 21 && selectedCards.length === 2) return "BLACKJACK";
+    if (playerHand.value >= 17) return "STAND";
+    if (playerHand.value <= 11) return "HIT";
+    if (playerHand.value >= 13 && dealerValue <= 6) return "STAND";
+    if (playerHand.value === 12 && [4, 5, 6].includes(dealerValue)) return "STAND";
+    return "HIT";
+  };
+
+  // Helper: Evaluate Pai Gow hand
+  const evaluatePaiGowHand = () => {
+    const rankCounts = {};
+    selectedCards.forEach(card => {
+      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+    });
+    const counts = Object.values(rankCounts).sort((a, b) => b - a);
+    
+    if (counts[0] === 4) return "Four of a Kind";
+    if (counts[0] === 3 && counts[1] === 2) return "Full House";
+    if (counts[0] === 3) return "Three of a Kind";
+    if (counts[0] === 2 && counts[1] === 2 && counts[2] === 2) return "Three Pairs";
+    if (counts[0] === 2 && counts[1] === 2) return "Two Pairs";
+    if (counts[0] === 2) return "One Pair";
+    return "High Card";
+  };
+
+  // Build comprehensive game state for AI Coach webhook
+  const buildGameState = () => {
+    if (!canAnalyze) return null;
+    
+    const baseState = {
+      mode: 'hand_analyzer',
+      playerCards: selectedCards.map(c => `${c.rank}${c.suit}`)
+    };
+
+    switch(selectedGame) {
+      case 'blackjack':
+        const playerHand = calculateBlackjackValue(selectedCards);
+        return {
+          ...baseState,
+          game: 'blackjack',
+          dealerUpCard: dealerCard ? `${dealerCard.rank}${dealerCard.suit}` : null,
+          dealerValue: dealerCard ? calculateBlackjackValue([dealerCard]).value : null,
+          playerTotal: playerHand.value,
+          isSoft: playerHand.isSoft,
+          recommendedAction: getBlackjackRecommendation()
+        };
+
+      case 'videopoker':
+        const formattedCards = selectedCards.map(c => ({ value: c.rank, suit: c.suit }));
+        const currentHand = VideoPokerRules.evaluateHand(formattedCards, videoPokerVariant);
+        
+        return {
+          ...baseState,
+          game: 'videopoker',
+          variant: videoPokerVariant,
+          currentHand: currentHand || 'No Pair',
+          payout: currentHand ? VideoPokerRules.getPayout(currentHand, videoPokerVariant, 5) : 0,
+          optimalStrategy: optimalHold ? {
+            holdIndices: optimalHold.holdIndices,
+            expectedValue: optimalHold.expectedValue,
+            reasoning: optimalHold.reasoning,
+            holdDescription: VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)
+          } : null
+        };
+
+      case 'paigowpoker':
+        return {
+          ...baseState,
+          game: 'paigowpoker',
+          handType: evaluatePaiGowHand()
+        };
+
+      default:
+        return baseState;
+    }
   };
 
   const currentGame = games.find(g => g.id === selectedGame);
@@ -466,17 +624,7 @@ export default function HandAnalyzer({ onBack }) {
                      selectedGame === 'paigowpoker' ? selectedCards.length === 7 :
                      false;
 
-  // Build game state for AI Coach
-  const buildGameState = () => {
-    if (!canAnalyze) return null;
-    
-    return {
-      playerCards: selectedCards.map(c => `${c.rank}${c.suit}`),
-      dealerCard: dealerCard ? `${dealerCard.rank}${dealerCard.suit}` : null,
-      mode: 'hand_analyzer'
-    };
-  };
-
+  // ==================== GAME SELECTION SCREEN ====================
   if (!selectedGame) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-6">
@@ -542,6 +690,7 @@ export default function HandAnalyzer({ onBack }) {
     );
   }
 
+  // ==================== GAME ANALYSIS SCREEN ====================
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-6">
       <div className="max-w-7xl mx-auto">
@@ -561,12 +710,17 @@ export default function HandAnalyzer({ onBack }) {
             {isPremium && canAnalyze && (
               <button
                 onClick={() => setShowAICoach(!showAICoach)}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${
+                  showAICoach 
+                    ? 'bg-purple-500 text-white' 
+                    : 'bg-purple-600 hover:bg-purple-500 text-white'
+                }`}
               >
                 <MessageCircle size={18} />
-                AI Coach
+                {showAICoach ? 'Hide' : 'Show'} AI Coach
               </button>
             )}
+            
             <button
               onClick={handleReset}
               className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
@@ -585,6 +739,7 @@ export default function HandAnalyzer({ onBack }) {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
+          {/* Left Column - Card Selection */}
           <div className="space-y-6">
             <SelectedCardsDisplay 
               cards={selectedCards}
@@ -594,6 +749,7 @@ export default function HandAnalyzer({ onBack }) {
               title="Your Cards"
             />
 
+            {/* Dealer Card Section (Blackjack only) */}
             {selectedGame === 'blackjack' && (
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                 <h3 className="text-lg font-bold text-white mb-4">Dealer's Upcard</h3>
@@ -650,6 +806,7 @@ export default function HandAnalyzer({ onBack }) {
             />
           </div>
 
+          {/* Right Column - Analysis */}
           <div>
             {canAnalyze ? (
               <>
@@ -657,7 +814,11 @@ export default function HandAnalyzer({ onBack }) {
                   <BlackjackAnalysis playerCards={selectedCards} dealerCard={dealerCard} />
                 )}
                 {selectedGame === 'videopoker' && (
-                  <VideoPokerAnalysis cards={selectedCards} />
+                  <VideoPokerAnalysis 
+                    cards={selectedCards}
+                    variant={videoPokerVariant}
+                    onVariantChange={setVideoPokerVariant}
+                  />
                 )}
                 {selectedGame === 'paigowpoker' && (
                   <PaiGowAnalysis cards={selectedCards} />
@@ -677,9 +838,9 @@ export default function HandAnalyzer({ onBack }) {
         </div>
       </div>
 
-      {/* AI Coach Sidebar */}
-      {showAICoach && isPremium && (
-        <div className="fixed right-0 top-0 h-full w-96 z-50">
+      {/* AI Coach Floating Panel */}
+      {showAICoach && isPremium && canAnalyze && (
+        <div className="fixed right-0 top-0 h-full w-full md:w-96 z-50 bg-gray-900/95 md:bg-transparent">
           <AICoach 
             game={selectedGame}
             gameState={buildGameState()}
