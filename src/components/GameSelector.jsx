@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSettings from './ProfileSettings';
 import AIAssistantGreeting from './AIAssistantGreeting';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, Brain } from 'lucide-react';
 import PricingPage from './PricingPage';
 
 function GameSelector({ onSelectGame }) {
   const { signOut, user } = useAuth();
   const [showSettings, setShowSettings] = useState(false);
-  const [showPricing, setShowPricing] = useState(false); // ADD THIS
+  const [showPricing, setShowPricing] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -40,6 +40,42 @@ function GameSelector({ onSelectGame }) {
           >
             <LogOut size={20} />
             <span className="hidden md:inline">Logout</span>
+          </button>
+        </div>
+
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-6xl font-bold text-yellow-400 player-label mb-4">
+            ACE EDGE
+          </h1>
+          <p className="text-xl text-gray-300">Select Your Game</p>
+        </div>
+
+        {/* ✅ NEW: Hand Analyzer Feature Banner */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <button
+            onClick={() => onSelectGame('handanalyzer')}
+            className="w-full group bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/50 border-2 border-purple-400"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-white/10 p-4 rounded-xl">
+                  <Brain className="text-white" size={40} />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                    🧠 Hand Analyzer
+                    <span className="text-xs bg-yellow-400 text-black px-2 py-1 rounded-full font-bold">NEW</span>
+                  </h3>
+                  <p className="text-purple-200 text-sm">
+                    Choose your own cards and get professional strategy analysis
+                  </p>
+                </div>
+              </div>
+              <div className="hidden md:block text-white text-4xl group-hover:translate-x-2 transition-transform">
+                →
+              </div>
+            </div>
           </button>
         </div>
 
@@ -133,25 +169,25 @@ function GameSelector({ onSelectGame }) {
       </div>
 
       {/* Profile Settings Modal */}
-     <ProfileSettings 
-  isOpen={showSettings} 
-  onClose={() => setShowSettings(false)}
-  onShowPricing={() => {
-    setShowSettings(false);
-    setShowPricing(true);
-  }}
-/>
+      <ProfileSettings 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)}
+        onShowPricing={() => {
+          setShowSettings(false);
+          setShowPricing(true);
+        }}
+      />
+
       {/* Pricing Page */}
-{showPricing && (
-  <PricingPage 
-    onClose={() => setShowPricing(false)}
-    onSelectPlan={(plan) => {
-      console.log('Selected plan:', plan);
-      // TODO: Handle Stripe checkout
-      setShowPricing(false);
-    }}
-  />
-)}
+      {showPricing && (
+        <PricingPage 
+          onClose={() => setShowPricing(false)}
+          onSelectPlan={(plan) => {
+            console.log('Selected plan:', plan);
+            setShowPricing(false);
+          }}
+        />
+      )}
 
       {/* AI Assistant with Greeting */}
       <AIAssistantGreeting />
