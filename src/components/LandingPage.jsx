@@ -70,21 +70,29 @@ function LandingPage({ onGetStarted }) {
       <span className="text-2xl font-bold player-label">ACE EDGE</span>
     </div>
 
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => setShowPricing(true)}
-        className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
-      >
-        Pricing
-      </button>
+<div className="flex items-center gap-4">
+  <a 
+    href="/blog"
+    className="text-gray-300 hover:text-yellow-400 transition-colors font-semibold"
+  >
+    Blog
+  </a>
 
-      <button
-        onClick={onGetStarted}
-        className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
-      >
-        Get Started <ArrowRight size={18} />
-      </button>
-    </div>
+  <button
+    onClick={() => setShowPricing(true)}
+    className="hidden md:block glass px-6 py-3 rounded-xl font-bold hover:bg-white hover:bg-opacity-10 transition-all"
+  >
+    Pricing
+  </button>
+
+  <button
+    onClick={onGetStarted}
+    className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-6 py-3 rounded-xl font-bold hover:from-yellow-600 hover:to-yellow-700 transition-all hover:scale-105 shadow-lg flex items-center gap-2"
+  >
+    Get Started <ArrowRight size={18} />
+  </button>
+</div>
+
   </div>
 </nav>
 
