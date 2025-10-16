@@ -658,7 +658,7 @@ export default function HandAnalyzer({ onBack }) {
         const playerHand = calculateBlackjackValue(selectedCards);
         return {
           ...baseState,
-          game: 'blackjack',
+          game: 'blackjackHandAnalyzer',
           dealerUpCard: dealerCard ? `${dealerCard.rank}${dealerCard.suit}` : null,
           dealerValue: dealerCard ? calculateBlackjackValue([dealerCard]).value : null,
           playerTotal: playerHand.value,
@@ -666,25 +666,26 @@ export default function HandAnalyzer({ onBack }) {
           recommendedAction: getBlackjackRecommendation()
         };
 
-      case 'videopoker':
-        const formattedCards = selectedCards.map(c => ({ value: c.rank, suit: c.suit }));
-        const currentHand = VideoPokerRules.evaluateHand(formattedCards, videoPokerVariant);
-        
-        return {
-          ...baseState,
-          game: 'videopoker',
-          variant: videoPokerVariant,
-          currentHand: currentHand || 'No Pair',
-          payout: currentHand ? VideoPokerRules.getPayout(currentHand, videoPokerVariant, 5) : 0,
-          optimalStrategy: optimalHold ? {
-            holdIndices: optimalHold.holdIndices,
-            expectedValue: optimalHold.expectedValue,
-            reasoning: optimalHold.reasoning,
-            holdDescription: VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)
-          } : null
-        };
+    case 'videopoker':
+    const formattedCards = selectedCards.map(c => ({ value: c.rank, suit: c.suit }));
+    const currentHand = VideoPokerRules.evaluateHand(formattedCards, videoPokerVariant);
+    
+    return {
+      ...baseState,
+      game: 'videopokerHandAnalyzer', // ✅ CHANGED
+      variant: videoPokerVariant,
+      currentHand: currentHand || 'No Pair',
+      payout: currentHand ? VideoPokerRules.getPayout(currentHand, videoPokerVariant, 5) : 0,
+      optimalStrategy: optimalHold ? {
+        holdIndices: optimalHold.holdIndices,
+        expectedValue: optimalHold.expectedValue,
+        reasoning: optimalHold.reasoning,
+        holdDescription: VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)
+      } : null
+    };
 
-      case 'paigowpoker':
+
+      case 'paigowpokerHandAnalyzer':
         return {
           ...baseState,
           game: 'paigowpoker',
