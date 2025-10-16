@@ -1,10 +1,12 @@
 import React from 'react';
-import BlogCard from './BlogCard';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import BlogCard from './BlogCard';
 
 function Blog() {
-  // This will be your list of blog posts
-  // Later we can make this dynamic
+  const navigate = useNavigate();
+
+  // Your blog posts list
   const posts = [
     {
       slug: 'how-to-count-cards-in-blackjack',
@@ -12,7 +14,7 @@ function Blog() {
       excerpt: 'Learn card counting step-by-step with the Hi-Lo system. Complete beginner\'s guide with examples, practice drills, and free training tools. Legal and proven method.',
       date: 'January 18, 2025',
       readTime: 12,
-      image: '/images/blog/card-counting.jpg' // You can add images later
+      image: '/images/ai-coach.png'
     }
     // Add more posts here as you create them
   ];
@@ -31,38 +33,36 @@ function Blog() {
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               Casino Strategy <span className="text-yellow-400">Blog</span>
             </h1>
-            <p className="text-xl text-gray-400">
+            <p className="text-xl text-gray-400 mb-8">
               Master casino games with expert guides, strategy tutorials, and advantage play techniques.
             </p>
+            
+            {/* Back to App Button */}
+            <button
+              onClick={() => navigate('/')}
+              className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to App
+            </button>
           </div>
         </div>
 
         {/* Blog Posts Grid */}
         <div className="max-w-7xl mx-auto px-6 pb-20">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <BlogCard key={post.slug} {...post} />
-            ))}
-          </div>
-
-          {posts.length === 0 && (
+          {posts.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post) => (
+                <BlogCard key={post.slug} {...post} />
+              ))}
+            </div>
+          ) : (
             <div className="text-center text-gray-400 py-20">
-              <p className="text-xl">No posts yet. Check back soon!</p>
+              <p className="text-xl">First article coming soon! 🚀</p>
             </div>
           )}
-        </div>
-
-        {/* Back to Home */}
-        <div className="text-center pb-20">
-          <a 
-            href="/"
-            className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to App
-          </a>
         </div>
       </div>
     </>
