@@ -11,7 +11,8 @@ import BlackjackGame from './components/BlackjackGame';
 import BaccaratGame from './components/BaccaratGame';
 import VideoPokerGame from './components/VideoPokerGame';
 import PaiGowPokerGame from './components/PaiGowPokerGame';
-import SuccessPage from './components/SuccessPage'; // ✅ new import
+import SuccessPage from './components/SuccessPage';
+import HandAnalyzer from './components/HandAnalyzer'; // ✅ NEW IMPORT
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -70,8 +71,10 @@ function AppContent() {
       return <VideoPokerGame onBack={() => setSelectedGame(null)} />;
     case 'paigowpoker':
       return <PaiGowPokerGame onBack={() => setSelectedGame(null)} />;
-    case 'success': // ✅ new condition for success page
+    case 'success':
       return <SuccessPage onBack={() => setSelectedGame(null)} />;
+    case 'handanalyzer': // ✅ NEW ROUTE FOR HAND ANALYZER
+      return <HandAnalyzer onBack={() => setSelectedGame(null)} />;
     default:
       return <GameSelector onSelectGame={setSelectedGame} />;
   }
