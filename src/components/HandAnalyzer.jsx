@@ -232,23 +232,45 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
 
   // Calculate optimal strategy when cards or variant changes
   useEffect(() => {
-    if (cards.length === 5) {
-      setCalculating(true);
-      
+  if (cards.length === 5) {
+    setCalculating(true);
+    
+    try {
       const formattedCards = cards.map(c => ({
         value: c.rank,
         suit: c.suit
       }));
 
+      console.log('Calculating strategy for cards:', formattedCards);
+      console.log('Variant:', variant);
+
       setTimeout(() => {
-        const strategy = VideoPokerStrategy.findOptimalHold(formattedCards, variant);
-        setOptimalHold(strategy);
-        setCalculating(false);
+        try {
+          const strategy = VideoPokerStrategy.findOptimalHold(formattedCards, variant);
+          console.log('Strategy calculated:', strategy);
+          setOptimalHold(strategy);
+        } catch (error) {
+          console.error('Error calculating strategy:', error);
+          // Fallback - set a basic strategy
+          setOptimalHold({
+            holdIndices: [0, 1, 2, 3, 4],
+            expectedValue: 0,
+            reasoning: 'Error calculating optimal strategy - holding all cards',
+            allOptions: []
+          });
+        } finally {
+          setCalculating(false);
+        }
       }, 300);
-    } else {
-      setOptimalHold(null);
+    } catch (error) {
+      console.error('Error formatting cards:', error);
+      setCalculating(false);
     }
-  }, [cards, variant]);
+  } else {
+    setOptimalHold(null);
+    setCalculating(false);
+  }
+}, [cards, variant]);
 
   if (cards.length !== 5) return null;
 
