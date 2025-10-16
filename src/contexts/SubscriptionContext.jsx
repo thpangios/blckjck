@@ -12,49 +12,28 @@ export function useSubscription() {
 
 export function SubscriptionProvider({ children }) {
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trainingRoundsUsed, setTrainingRoundsUsed] = useState(0);
 
-  // ── Fetch subscription from Supabase
-  const loadSubscription = async () => {
+  // ── Fetch user profile from users table (includes plan info)
+  const loadUserProfile = async () => {
     if (!user) return;
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("subscriptions")
+        .from("users")
         .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (!data) {
-        await createFreeSubscription();
-      } else {
-        setSubscription(data);
-      }
-    } catch (error) {
-      console.error("Error loading subscription:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Create initial free subscription
-  const createFreeSubscription = async () => {
-    if (!user) return;
-    try {
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .insert([{ user_id: user.id, plan_type: "free", status: "active" }])
-        .select()
+        .eq("id", user.id)
         .single();
 
       if (error) throw error;
-      setSubscription(data);
+
+      setUserProfile(data);
     } catch (error) {
-      console.error("Error creating free subscription:", error);
+      console.error("Error loading user profile:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,21 +76,23 @@ export function SubscriptionProvider({ children }) {
   // ── Realtime listener and initial load
   useEffect(() => {
     if (user) {
-      loadSubscription();
+      loadUserProfile();
       loadTrainingRounds();
 
+      // Listen for changes to user profile (including plan updates)
       const channel = supabase
-        .channel("subscription-updates")
+        .channel("user-profile-updates")
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
-            table: "subscriptions",
-            filter: `user_id=eq.${user.id}`,
+            table: "users",
+            filter: `id=eq.${user.id}`,
           },
           (payload) => {
-            if (payload.new) setSubscription(payload.new);
+            console.log("User profile updated:", payload);
+            if (payload.new) setUserProfile(payload.new);
           }
         )
         .subscribe();
@@ -120,23 +101,23 @@ export function SubscriptionProvider({ children }) {
         if (channel) supabase.removeChannel(channel);
       };
     } else {
-      setSubscription(null);
+      setUserProfile(null);
       setTrainingRoundsUsed(0);
       setLoading(false);
     }
   }, [user]);
 
   // ── Access helpers
-  const premium = useMemo(() => {
+  const isPremium = useMemo(() => {
     return (
-      subscription &&
-      (subscription.plan_type === "ace" || subscription.plan_type === "lifetime") &&
-      subscription.status === "active"
+      userProfile &&
+      (userProfile.plan_type === "ace" || userProfile.plan_type === "lifetime") &&
+      userProfile.plan_status === "active"
     );
-  }, [subscription]);
+  }, [userProfile]);
 
-  const canPlayTraining = () => (premium ? true : trainingRoundsUsed < 5);
-  const remainingTrainingRounds = premium ? "Unlimited" : Math.max(0, 5 - trainingRoundsUsed);
+  const canPlayTraining = () => (isPremium ? true : trainingRoundsUsed < 5);
+  const remainingTrainingRounds = isPremium ? "Unlimited" : Math.max(0, 5 - trainingRoundsUsed);
 
   const premiumFeatures = [
     "ai_coach",
@@ -147,19 +128,20 @@ export function SubscriptionProvider({ children }) {
   ];
 
   const canAccessFeature = (feature) => {
-    if (premiumFeatures.includes(feature)) return premium;
+    if (premiumFeatures.includes(feature)) return isPremium;
     return true;
   };
 
   const refreshSubscription = async () => {
-    if (user) await loadSubscription();
+    if (user) await loadUserProfile();
   };
 
   const value = {
-    subscription,
+    subscription: userProfile, // For backward compatibility
+    userProfile,
     loading,
     trainingRoundsUsed,
-    isPremium: premium,
+    isPremium,
     canPlayTraining,
     remainingTrainingRounds,
     incrementTrainingRounds,
