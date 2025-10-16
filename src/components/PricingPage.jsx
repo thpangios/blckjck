@@ -63,16 +63,21 @@ function PricingPage({ onClose, onSelectPlan }) {
   }
 };
 const handleSelectPlan = async (planType) => {
+  if (!user) {
+    alert('Please log in to upgrade');
+    return;
+  }
+
   if (planType === 'ace') {
-    // ✅ use the correct Stripe PRICE ID
-    await handleStripeCheckout('price_1SI7l1G29kWPfi2iekrWqcT0');
-  } else if (planType === 'lifetime') {
-    // ✅ use the correct Stripe PRICE ID
-    await handleStripeCheckout('price_1SI7mYG29kWPfi2iDHAw1ntQ');
+    await handleStripeCheckout('price_1SI7l1G29kWPfi2iekrWqcT0', user.id);
+  } else if (planType === 'ace_pro') { // ✅ CHANGED from 'lifetime'
+    await handleStripeCheckout('price_1SI7mYG29kWPfi2iDHAw1ntQ', user.id);
   } else {
-    // Free plan or anything else
-    if (onSelectPlan) onSelectPlan(planType);
-    if (onClose) onClose();
+    // Free plan - just close
+    if (onSelectPlan) {
+      onSelectPlan('free');
+    }
+    onClose();
   }
 };
 
@@ -111,38 +116,38 @@ const handleSelectPlan = async (planType) => {
           </p>
         </div>
 
-        {/* Launch Offer Banner */}
-        <div className="mx-4 md:mx-8 mb-6 bg-gradient-to-r from-rose-600/20 to-yellow-600/20 border border-rose-400/30 rounded-2xl p-3 md:p-4">
-          <div className="flex items-center justify-center gap-2 md:gap-3 text-center flex-wrap">
-            <span className="text-2xl md:text-3xl">♥</span>
-            <p className="text-sm md:text-base text-white font-semibold">
-              <span className="text-rose-400">LAUNCH OFFER:</span> Get Lifetime Access for 50% OFF!
-            </p>
-          </div>
-        </div>
+        {/* Pro Plan Banner */}
+<div className="mx-4 md:mx-8 mb-6 bg-gradient-to-r from-rose-600/20 to-purple-600/20 border border-rose-400/30 rounded-2xl p-3 md:p-4">
+  <div className="flex items-center justify-center gap-2 md:gap-3 text-center flex-wrap">
+    <span className="text-2xl md:text-3xl">♥️</span>
+    <p className="text-sm md:text-base text-white font-semibold">
+      <span className="text-rose-400">NEW:</span> Ace Pro Plan - Full Access to Hand Analyzer!
+    </p>
+  </div>
+</div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-4 md:gap-6 p-4 md:p-8 pt-0">
-          
-          {/* Free Plan */}
-          <PricingCard 
-            plan={plans.free}
-            onSelect={() => handleSelectPlan('free')}
-          />
+      {/* Pricing Cards */}
+<div className="grid md:grid-cols-3 gap-4 md:gap-6 p-4 md:p-8 pt-0">
+  
+  {/* Free Plan */}
+  <PricingCard 
+    plan={plans.free}
+    onSelect={() => handleSelectPlan('free')}
+  />
 
-          {/* Ace Plan */}
-          <PricingCard 
-            plan={plans.ace}
-            onSelect={() => handleSelectPlan('ace')}
-          />
+  {/* Ace Plan */}
+  <PricingCard 
+    plan={plans.ace}
+    onSelect={() => handleSelectPlan('ace')}
+  />
 
-          {/* Lifetime Plan */}
-          <PricingCard 
-            plan={plans.lifetime}
-            onSelect={() => handleSelectPlan('lifetime')}
-          />
+  {/* Ace Pro Plan */}
+  <PricingCard 
+    plan={plans.ace_pro}
+    onSelect={() => handleSelectPlan('ace_pro')}
+  />
 
-        </div>
+</div>
 
         {/* Trust Badges */}
         <div className="border-t border-gray-700 p-4 md:p-8 pt-4 md:pt-6">
