@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader, Sparkles } from 'lucide-react';
 import { sendToAICoach } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext'; // ✅ ADD THIS
 import { v4 as uuidv4 } from 'uuid';
 
 function AICoach({ game, gameState, visible = true }) {
   const { user } = useAuth();
+  const { canAccessAICoach } = useSubscription(); // ✅ ADD THIS
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [sessionId] = useState(() => uuidv4()); // Generate unique session ID
@@ -83,6 +85,11 @@ function AICoach({ game, gameState, visible = true }) {
   };
 
   if (!visible) return null;
+
+  // ✅ Block free users
+if (!canAccessAICoach()) {
+  return null; // Don't show AI Coach at all for free users
+}
 
   return (
     <>
