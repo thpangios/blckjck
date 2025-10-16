@@ -5,13 +5,16 @@ import { VideoPokerStrategy } from '../utils/videoPokerStrategy';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
+import TrainingLimitBanner from './TrainingLimitBanner';
 
 function VideoPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
   const [hand, setHand] = useState([]);
   const [held, setHeld] = useState([false, false, false, false, false]);
   const { user } = useAuth();
+  const { incrementTrainingRounds, canPlayTraining } = useSubscription();
 const [balance, setBalance] = useState(10000); // Default fallback
 const [initialBankroll, setInitialBankroll] = useState(10000);
   const [bet, setBet] = useState(5); // Default to max bet
@@ -184,7 +187,7 @@ useEffect(() => {
     }, 500);
   };
 
-  const evaluateHand = (finalHand) => {
+  const evaluateHand = async (finalHand) => {
     const result = VideoPokerRules.evaluateHand(finalHand, variant);
     const winAmount = VideoPokerRules.getPayout(result, variant, bet);
 
@@ -215,6 +218,10 @@ useEffect(() => {
         handsPlayed: prev.handsPlayed + 1,
         profitLoss: prev.profitLoss - bet
       }));
+    }
+
+    if (trainingMode) {
+      await incrementTrainingRounds('videopoker');
     }
   };
 
@@ -257,6 +264,11 @@ const resetGame = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white p-4">
+      {trainingMode && (
+        <div className="max-w-7xl mx-auto">
+          <TrainingLimitBanner />
+        </div>
+      )}
       
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
