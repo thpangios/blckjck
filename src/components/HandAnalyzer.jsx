@@ -580,10 +580,6 @@ export default function HandAnalyzer({ onBack }) {
   const [videoPokerVariant, setVideoPokerVariant] = useState('jacksOrBetter');
   const [optimalHold, setOptimalHold] = useState(null);
   const [calculating, setCalculating] = useState(false);
-  
-  // AI Coach
-  const showAICoach = true;
-
 
   const games = [
     { id: 'blackjack', name: 'Blackjack', icon: '🃏', cards: 10, minCards: 2 },
@@ -841,19 +837,6 @@ export default function HandAnalyzer({ onBack }) {
           </button>
 
           <div className="flex items-center gap-3">
-            {canAnalyze && (
-              <button
-                onClick={() => setShowAICoach(!showAICoach)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${
-                  showAICoach 
-                    ? 'bg-purple-500 text-white' 
-                    : 'bg-purple-600 hover:bg-purple-500 text-white'
-                }`}
-              >
-                <MessageCircle size={18} />
-                {showAICoach ? 'Hide' : 'Show'} AI Coach
-              </button>
-            )}
             
             <button
               onClick={handleReset}
