@@ -286,27 +286,69 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
       </div>
 
       <div className="space-y-4">
-        {/* Current Hand */}
-        <div className="bg-gray-800/50 rounded-lg p-4">
-          <p className="text-sm text-gray-400 mb-2">Current Hand</p>
-          <p className="text-2xl font-bold text-white">
-            {currentHand || 'No Winning Hand'}
-          </p>
-          <p className="text-lg text-green-400 mt-2">
-            {payout > 0 ? `Payout: ${payout} credits (${payout/5}x)` : 'No payout'}
-          </p>
-        </div>
+  {/* Initial Hand (Before Draw) */}
+  <div className="bg-gray-800/50 rounded-lg p-4">
+    <p className="text-sm text-gray-400 mb-2">Initial Hand (Before Draw)</p>
+    <p className="text-xl font-bold text-white">
+      {currentHand || 'No Winning Hand'}
+    </p>
+    {payout > 0 ? (
+      <p className="text-sm text-gray-400 mt-1">
+        Current value: {payout} credits - but you should draw for better
+      </p>
+    ) : (
+      <p className="text-sm text-gray-400 mt-1">
+        No current win - follow optimal hold below
+      </p>
+    )}
+  </div>
+
+  {/* Visual Card Hold Display */}
+  {optimalHold && !calculating && (
+    <div className="bg-gray-800/50 rounded-lg p-4">
+      <p className="text-sm text-gray-400 mb-3">Cards to Hold/Discard</p>
+      <div className="flex gap-2 justify-center">
+        {cards.map((card, idx) => {
+          const shouldHold = optimalHold.holdIndices.includes(idx);
+          return (
+            <div key={idx} className="text-center">
+              <div className={`w-14 h-20 rounded-lg border-2 flex items-center justify-center text-xs font-bold ${
+                shouldHold 
+                  ? 'border-green-500 bg-green-500/20 text-green-400' 
+                  : 'border-red-500 bg-red-500/20 text-red-400'
+              }`}>
+                <div>
+                  <div className={card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-white'}>
+                    {card.rank}
+                  </div>
+                  <div className={`text-lg ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-white'}`}>
+                    {card.suit}
+                  </div>
+                </div>
+              </div>
+              <p className={`text-xs mt-1 font-bold ${shouldHold ? 'text-green-400' : 'text-red-400'}`}>
+                {shouldHold ? 'HOLD' : 'DISCARD'}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
 
         {/* Optimal Strategy */}
-        {optimalHold && !calculating && (
-          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
-            <p className="text-sm text-yellow-400 mb-2 flex items-center gap-2">
-              <Zap size={16} />
-              Optimal Strategy
-            </p>
-            <p className="text-base font-bold text-white mb-2">
-              {VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)}
-            </p>
+{optimalHold && !calculating && (
+  <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
+    <p className="text-sm text-yellow-400 mb-2 flex items-center gap-2">
+      <Zap size={16} />
+      What to Do Next
+    </p>
+           <p className="text-base font-bold text-white mb-2">
+  {VideoPokerStrategy.getHoldDescription(formattedCards, optimalHold.holdIndices)}
+</p>
+<p className="text-xs text-gray-400 mt-1">
+  After holding these cards, you'll draw {5 - optimalHold.holdIndices.length} new card{5 - optimalHold.holdIndices.length !== 1 ? 's' : ''}
+</p>
             <p className="text-sm text-gray-300">{optimalHold.reasoning}</p>
             <p className="text-sm text-purple-400 mt-2">
               Expected Value: {optimalHold.expectedValue.toFixed(2)} credits
