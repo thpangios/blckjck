@@ -108,46 +108,112 @@ export function SubscriptionProvider({ children }) {
   }, [user]);
 
   // ── Access helpers
-  const isPremium = useMemo(() => {
-    return (
-      userProfile &&
-      (userProfile.plan_type === "ace" || userProfile.plan_type === "lifetime") &&
-      userProfile.plan_status === "active"
-    );
-  }, [userProfile]);
+const planType = userProfile?.plan_type || 'free';
+const planStatus = userProfile?.plan_status || 'active';
 
-  const canPlayTraining = () => (isPremium ? true : trainingRoundsUsed < 5);
-  const remainingTrainingRounds = isPremium ? "Unlimited" : Math.max(0, 5 - trainingRoundsUsed);
+// Premium check (Ace or Ace Pro)
+const isPremium = useMemo(() => {
+  return (
+    userProfile &&
+    (planType === "ace" || planType === "ace_pro") &&
+    planStatus === "active"
+  );
+}, [userProfile, planType, planStatus]);
 
-  const premiumFeatures = [
-    "ai_coach",
-    "card_counting",
-    "advanced_analytics",
-    "unlimited_rounds",
-    "pattern_recognition",
-  ];
+// Ace Pro check (highest tier)
+const isAcePro = useMemo(() => {
+  return (
+    userProfile &&
+    planType === "ace_pro" &&
+    planStatus === "active"
+  );
+}, [userProfile, planType, planStatus]);
 
-  const canAccessFeature = (feature) => {
-    if (premiumFeatures.includes(feature)) return isPremium;
-    return true;
-  };
+// Training rounds access
+const canPlayTraining = () => {
+  if (planType === 'free') {
+    return trainingRoundsUsed < 5; // Free: 5 rounds per day
+  }
+  return true; // Ace & Ace Pro: Unlimited
+};
+
+const remainingTrainingRounds = useMemo(() => {
+  if (planType === 'free') {
+    return Math.max(0, 5 - trainingRoundsUsed);
+  }
+  return "Unlimited";
+}, [planType, trainingRoundsUsed]);
+
+// Feature access control
+const canAccessAICoach = () => {
+  // Free users: NO access
+  // Ace users: YES
+  // Ace Pro users: YES
+  return planType === 'ace' || planType === 'ace_pro';
+};
+
+const canAccessHandAnalyzer = () => {
+  // Free users: NO
+  // Ace users: NO
+  // Ace Pro users: YES (exclusive feature!)
+  return planType === 'ace_pro';
+};
+
+const canAccessCardCounting = () => {
+  // Free users: NO
+  // Ace users: YES
+  // Ace Pro users: YES
+  return planType === 'ace' || planType === 'ace_pro';
+};
+
+const canAccessAdvancedAnalytics = () => {
+  // Free users: NO
+  // Ace users: YES
+  // Ace Pro users: YES
+  return planType === 'ace' || planType === 'ace_pro';
+};
+
+// Generic feature check (backward compatibility)
+const canAccessFeature = (feature) => {
+  switch(feature) {
+    case 'ai_coach':
+      return canAccessAICoach();
+    case 'hand_analyzer':
+      return canAccessHandAnalyzer();
+    case 'card_counting':
+      return canAccessCardCounting();
+    case 'advanced_analytics':
+    case 'unlimited_rounds':
+    case 'pattern_recognition':
+      return canAccessAdvancedAnalytics();
+    default:
+      return true; // Unknown features are accessible by default
+  }
+};
 
   const refreshSubscription = async () => {
     if (user) await loadUserProfile();
   };
 
   const value = {
-    subscription: userProfile, // For backward compatibility
-    userProfile,
-    loading,
-    trainingRoundsUsed,
-    isPremium,
-    canPlayTraining,
-    remainingTrainingRounds,
-    incrementTrainingRounds,
-    refreshSubscription,
-    canAccessFeature,
-  };
+  subscription: userProfile, // For backward compatibility
+  userProfile,
+  loading,
+  trainingRoundsUsed,
+  isPremium,
+  isAcePro, // ✅ NEW
+  planType, // ✅ NEW
+  canPlayTraining,
+  remainingTrainingRounds,
+  incrementTrainingRounds,
+  refreshSubscription,
+  canAccessFeature,
+  // ✅ NEW specific access functions
+  canAccessAICoach,
+  canAccessHandAnalyzer,
+  canAccessCardCounting,
+  canAccessAdvancedAnalytics,
+};
 
   return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
 }
