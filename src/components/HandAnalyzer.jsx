@@ -582,7 +582,8 @@ export default function HandAnalyzer({ onBack }) {
   const [calculating, setCalculating] = useState(false);
   
   // AI Coach
-  const [showAICoach, setShowAICoach] = useState(false);
+  const showAICoach = true;
+
 
   const games = [
     { id: 'blackjack', name: 'Blackjack', icon: '🃏', cards: 10, minCards: 2 },
