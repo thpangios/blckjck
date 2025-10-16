@@ -5,22 +5,25 @@ import { PaiGowPokerStrategy } from '../utils/paiGowPokerStrategy';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
+import TrainingLimitBanner from './TrainingLimitBanner';
 
 function PaiGowPokerGame({ onBack }) {
   const [deck, setDeck] = useState([]);
   const [playerCards, setPlayerCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([]);
-  
+
   // Player's set hands
   const [playerHigh5, setPlayerHigh5] = useState([]);
   const [playerLow2, setPlayerLow2] = useState([]);
-  
+
   // Dealer's set hands
   const [dealerHigh5, setDealerHigh5] = useState([]);
   const [dealerLow2, setDealerLow2] = useState([]);
-  
+
   const { user } = useAuth();
+  const { incrementTrainingRounds, canPlayTraining } = useSubscription();
 const [balance, setBalance] = useState(10000); // Default fallback
 const [initialBankroll, setInitialBankroll] = useState(10000);
   const [bet, setBet] = useState(100);
@@ -244,7 +247,7 @@ useEffect(() => {
     setResult({ outcome: 'loss', reason: 'Foul hand' });
   };
 
-  const compareHands = (dealerSet) => {
+  const compareHands = async (dealerSet) => {
     const playerHigh5Eval = PaiGowPokerRules.evaluate5CardHand(playerHigh5);
     const playerLow2Eval = PaiGowPokerRules.evaluate2CardHand(playerLow2);
     const dealerHigh5Eval = PaiGowPokerRules.evaluate5CardHand(dealerSet.high5);
@@ -325,8 +328,8 @@ useEffect(() => {
 
     setMessage(resultMsg);
     setGameState('result');
-    setResult({ 
-      outcome, 
+    setResult({
+      outcome,
       reason: resultMsg,
       playerHigh5Eval,
       playerLow2Eval,
@@ -335,6 +338,10 @@ useEffect(() => {
       highResult,
       lowResult
     });
+
+    if (trainingMode) {
+      await incrementTrainingRounds('paigowpoker');
+    }
   };
 
   const newRound = () => {
@@ -378,6 +385,11 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-900 to-black text-white p-4">
+      {trainingMode && (
+        <div className="max-w-7xl mx-auto">
+          <TrainingLimitBanner />
+        </div>
+      )}
       
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
