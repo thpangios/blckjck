@@ -7,7 +7,9 @@ import CardCountingDisplay from './CardCountingDisplay';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
+import TrainingLimitBanner from './TrainingLimitBanner';
 
 function BlackjackGame({ onBack }) {
   // Game state
@@ -16,6 +18,7 @@ function BlackjackGame({ onBack }) {
   const [dealerHand, setDealerHand] = useState([]);
   const [currentHandIndex, setCurrentHandIndex] = useState(0);
   const { user } = useAuth();
+  const { incrementTrainingRounds, canPlayTraining, remainingTrainingRounds } = useSubscription();
 const [balance, setBalance] = useState(10000); // Default fallback
 const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting');
@@ -117,8 +120,14 @@ useEffect(() => {
   };
 
   // Start new game
-  const startGame = (hands) => {
+  const startGame = async (hands) => {
     if (!deckManager) return;
+
+    if (trainingMode && !canPlayTraining()) {
+      setMessage('Training limit reached! Disable training mode to continue playing.');
+      setTrainingMode(false);
+      return;
+    }
 
     const card1 = deckManager.dealCard();
     const card2 = deckManager.dealCard();
@@ -141,10 +150,10 @@ useEffect(() => {
       setShowDealerCard(true);
       if (HandCalculator.isBlackjack([dealerCard1, dealerCard2])) {
         setMessage('Push! Both have Blackjack');
-        resolveHand(updatedHands[0], 'push');
+        await resolveHandAndTrack(updatedHands[0], 'push');
       } else {
         setMessage('🎉 BLACKJACK! You Win!');
-        resolveHand(updatedHands[0], 'blackjack');
+        await resolveHandAndTrack(updatedHands[0], 'blackjack');
       }
       return;
     }
@@ -407,7 +416,7 @@ useEffect(() => {
     }, 800);
   };
 
-  const resolveAllHands = (hands, finalDealerHand) => {
+  const resolveAllHands = async (hands, finalDealerHand) => {
     const dealerValue = HandCalculator.calculateValue(finalDealerHand);
     const dealerBusted = dealerValue > 21;
 
@@ -460,9 +469,13 @@ useEffect(() => {
     const resultMsg = `${wins}W · ${losses}L · ${pushes}P`;
     setMessage(resultMsg);
     setGameState('gameOver');
+
+    if (trainingMode) {
+      await incrementTrainingRounds('blackjack');
+    }
   };
 
-  const resolveHand = (hand, result) => {
+  const resolveHand = async (hand, result) => {
     let winnings = 0;
 
     if (result === 'blackjack') {
@@ -485,6 +498,14 @@ useEffect(() => {
 
     setBalance(prev => prev + winnings);
     setGameState('gameOver');
+
+    if (trainingMode) {
+      await incrementTrainingRounds('blackjack');
+    }
+  };
+
+  const resolveHandAndTrack = async (hand, result) => {
+    await resolveHand(hand, result);
   };
 
   const endGame = (hands) => {
@@ -537,6 +558,13 @@ useEffect(() => {
 
   return (
     <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
+      {/* Training Limit Banner */}
+      {trainingMode && (
+        <div className="max-w-7xl mx-auto">
+          <TrainingLimitBanner />
+        </div>
+      )}
+
       {/* Premium Header */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
         <div className="glass-strong rounded-2xl p-6 shadow-2xl">
