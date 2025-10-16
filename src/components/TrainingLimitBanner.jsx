@@ -75,27 +75,14 @@ function TrainingLimitBanner({ onUpgrade }) {
       )}
 
       {/* === Modal for Pricing Page === */}
-     {showPricing && (
-  <div
-    className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-    onClick={() => setShowPricing(false)} // close when clicking backdrop
-  >
-    <div
-      className="relative bg-gray-900 rounded-2xl p-6 w-full max-w-4xl shadow-xl overflow-y-auto max-h-[90vh]"
-      onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
-    >
-      <button
-        onClick={() => setShowPricing(false)}
-        className="absolute top-3 right-3 text-gray-400 hover:text-white transition z-[60]"
-      >
-        <X size={24} />
-      </button>
-      <div className="relative z-[50]">
-        <PricingPage />
-      </div>
+    {showPricing && (
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div className="relative bg-gray-900 rounded-2xl p-0 w-full max-w-6xl shadow-xl overflow-y-auto max-h-[90vh]">
+      <PricingPage onClose={() => setShowPricing(false)} />
     </div>
   </div>
 )}
+
 
     </>
   );
