@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft } from 'lucide-react';
+import { Settings, BarChart3, RotateCcw, Info, X, ArrowLeft, Brain } from 'lucide-react';
 import { DeckManager } from '../utils/deckManager';
 import { BaccaratRules } from '../utils/baccaratRules';
 import BaccaratRoadmapDisplay from './BaccaratRoadmapDisplay';
 import AICoach from './AICoach';
 import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
+import TrainingLimitBanner from './TrainingLimitBanner';
 
 function BaccaratGame({ onBack }) {
   const [deckManager, setDeckManager] = useState(null);
   const [playerHand, setPlayerHand] = useState([]);
   const [bankerHand, setBankerHand] = useState([]);
   const { user } = useAuth();
+  const { incrementTrainingRounds, canPlayTraining } = useSubscription();
+  const [trainingMode, setTrainingMode] = useState(false);
 const [balance, setBalance] = useState(10000); // Default fallback
 const [initialBankroll, setInitialBankroll] = useState(10000);
   const [gameState, setGameState] = useState('betting'); // betting, dealing, reveal, gameOver
@@ -211,7 +215,7 @@ useEffect(() => {
   };
 
   // Resolve hand and pay out
-  const resolveHand = (finalPlayerHand, finalBankerHand) => {
+  const resolveHand = async (finalPlayerHand, finalBankerHand) => {
     const pTotal = BaccaratRules.calculateHandValue(finalPlayerHand);
     const bTotal = BaccaratRules.calculateHandValue(finalBankerHand);
 
@@ -279,6 +283,10 @@ useEffect(() => {
 
     setMessage(resultMsg);
     setGameState('gameOver');
+
+    if (trainingMode) {
+      await incrementTrainingRounds('baccarat');
+    }
   };
 
   // New round
@@ -323,6 +331,11 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black text-white p-4">
+      {trainingMode && (
+        <div className="max-w-7xl mx-auto">
+          <TrainingLimitBanner />
+        </div>
+      )}
       
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6 fade-in-up">
@@ -377,6 +390,20 @@ useEffect(() => {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Training Mode Toggle */}
+          <div className="mt-4 flex gap-4 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={trainingMode}
+                onChange={(e) => setTrainingMode(e.target.checked)}
+                className="w-5 h-5 cursor-pointer"
+              />
+              <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
+              <span className="font-semibold text-lg">Training Mode</span>
+            </label>
           </div>
         </div>
       </div>
