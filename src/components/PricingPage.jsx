@@ -64,7 +64,6 @@ function PricingPage({ onClose, onSelectPlan }) {
   }
 };
 const handleSelectPlan = async (planType) => {
-  // ✅ Check if user exists
   if (!user) {
     alert('Please log in to upgrade');
     return;
@@ -73,7 +72,7 @@ const handleSelectPlan = async (planType) => {
   if (planType === 'ace') {
     await handleStripeCheckout('price_1SI7l1G29kWPfi2iekrWqcT0', user.id);
   } else if (planType === 'ace_pro') {
-    await handleStripeCheckout('price_1SI7mYG29kWPfi2iDHAw1ntQ', user.id);
+    await handleStripeCheckout('price_1SIsBeG29kWPfi2iX2Ov4LA7', user.id); // ✅ NEW PRICE ID
   } else {
     // Free plan
     if (onSelectPlan) {
