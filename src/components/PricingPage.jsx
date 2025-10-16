@@ -6,64 +6,62 @@ function PricingPage({ onClose, onSelectPlan }) {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = {
-    free: {
-      name: 'Free',
-      price: 0,
-      period: 'forever',
-      icon: '♣', // Club card suit
-      features: [
-        { text: 'Access to all 4 games', included: true },
-        { text: '5 training rounds per day (total)', included: true },
-        { text: 'Basic strategy hints', included: true },
-        { text: 'AI Strategy Coach', included: false },
-        { text: 'Unlimited training rounds', included: false },
-        { text: 'Advanced analytics', included: false },
-        { text: 'Card counting tools', included: false },
-      ],
-      cta: 'Current Plan',
-      color: 'gray',
-      popular: false
-    },
-    ace: {
-      name: 'Ace Plan',
-      price: 11.99,
-      period: 'per month',
-      icon: '♠', // Spade card suit
-      features: [
-        { text: 'Access to all 4 games', included: true },
-        { text: 'Unlimited training rounds', included: true },
-        { text: 'Full AI Strategy Coach', included: true },
-        { text: 'Advanced analytics & stats', included: true },
-        { text: 'Card counting tools', included: true },
-        { text: 'Pattern recognition', included: true },
-        { text: 'Priority support', included: true },
-      ],
-      cta: 'Upgrade to Ace♠️',
-      color: 'yellow',
-      popular: true
-    },
-    lifetime: {
-      name: 'Lifetime Access',
-      price: 149,
-      originalPrice: 299,
-      period: 'one-time payment',
-      icon: '♥', // Heart card suit
-      features: [
-        { text: 'Everything in Ace Plan', included: true },
-        { text: 'Pay once, own forever', included: true },
-        { text: 'All future updates included', included: true },
-        { text: 'Early access to new games', included: true },
-        { text: 'Exclusive lifetime badge', included: true },
-        { text: 'VIP support channel', included: true },
-        { text: 'No recurring fees ever', included: true },
-      ],
-      cta: 'Claim Lifetime Deal',
-      color: 'rose',
-      popular: false,
-      badge: '50% OFF - Launch Offer'
-    }
-  };
-
+  free: {
+    name: 'Free',
+    price: 0,
+    period: 'forever',
+    icon: '♣',
+    features: [
+      { text: 'Access to all 4 games', included: true },
+      { text: 'Unlimited regular play', included: true },
+      { text: '5 training rounds per day (total)', included: true },
+      { text: 'Basic strategy hints', included: true },
+      { text: 'AI Strategy Coach', included: false },
+      { text: 'Hand Analyzer', included: false },
+      { text: 'Card counting tools', included: false },
+    ],
+    cta: 'Current Plan',
+    color: 'gray',
+    popular: false
+  },
+  ace: {
+    name: 'Ace Plan',
+    price: 11.99,
+    period: 'per month',
+    icon: '♠',
+    features: [
+      { text: 'Everything in Free Plan', included: true },
+      { text: 'Unlimited training rounds', included: true },
+      { text: 'Full AI Strategy Coach', included: true },
+      { text: 'Card counting tools', included: true },
+      { text: 'Advanced analytics & stats', included: true },
+      { text: 'Pattern recognition', included: true },
+      { text: 'Hand Analyzer', included: false },
+    ],
+    cta: 'Upgrade to Ace♠️',
+    color: 'yellow',
+    popular: true
+  },
+  ace_pro: {
+    name: 'Ace Pro Plan',
+    price: 22.99,
+    period: 'per month',
+    icon: '♥',
+    features: [
+      { text: 'Everything in Ace Plan', included: true },
+      { text: 'Full Hand Analyzer access', included: true },
+      { text: 'Custom card selection training', included: true },
+      { text: 'Advanced scenario practice', included: true },
+      { text: 'Priority AI responses', included: true },
+      { text: 'VIP support channel', included: true },
+      { text: 'Early access to new features', included: true },
+    ],
+    cta: 'Upgrade to Ace Pro♦️',
+    color: 'rose',
+    popular: false,
+    badge: 'BEST VALUE'
+  }
+};
 const handleSelectPlan = async (planType) => {
   if (planType === 'ace') {
     // ✅ use the correct Stripe PRICE ID
