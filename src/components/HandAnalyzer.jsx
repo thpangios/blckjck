@@ -462,8 +462,6 @@ function VideoPokerAnalysis({ cards, variant, onVariantChange }) {
   );
 }
 
-export default VideoPokerAnalysis;
-
 // ==================== PAI GOW POKER ANALYSIS ====================
 function PaiGowAnalysis({ cards }) {
   if (cards.length !== 7) return null;
