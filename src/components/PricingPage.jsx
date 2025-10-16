@@ -56,7 +56,7 @@ function PricingPage({ onClose, onSelectPlan }) {
       { text: 'VIP support channel', included: true },
       { text: 'Early access to new features', included: true },
     ],
-    cta: 'Upgrade to Ace Pro♦️',
+    cta: 'Upgrade to Ace Pro♥️',
     color: 'rose',
     popular: false,
     badge: 'BEST VALUE'
