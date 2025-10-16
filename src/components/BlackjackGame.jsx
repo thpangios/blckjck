@@ -9,12 +9,14 @@ import { buildGameContext } from '../utils/aiCoachService';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../lib/supabase';
+import PricingPage from './PricingPage';
 
 function BlackjackGame({ onBack }) {
   // Game state
   const [deckManager, setDeckManager] = useState(null);
   const [playerHands, setPlayerHands] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
+  const [showPricing, setShowPricing] = useState(false);
   const [currentHandIndex, setCurrentHandIndex] = useState(0);
  const { user } = useAuth();
 const { 
@@ -1032,14 +1034,19 @@ useEffect(() => {
       <p className="text-gray-300 mb-4">
         Get real-time strategy advice and instant answers to your questions with the AI Coach!
       </p>
-      <button
-        onClick={() => {/* You can trigger pricing modal here */}}
-        className="btn-premium glass-strong px-8 py-3 rounded-xl font-bold text-lg transition-all hover:bg-yellow-600 hover:bg-opacity-60"
-      >
-        Upgrade to Ace Plan - $11.99/month
-      </button>
+    <button
+  onClick={() => setShowPricing(true)}
+  className="btn-premium glass-strong px-8 py-3 rounded-xl font-bold text-lg transition-all hover:bg-yellow-600 hover:bg-opacity-60"
+>
+  Upgrade to Ace Plan - $11.99/month
+</button>
     </div>
   </div>
+)}
+          {showPricing && (
+  <Modal onClose={() => setShowPricing(false)} title="Upgrade to Ace Plan">
+    <PricingPage embedded={true} />
+  </Modal>
 )}
     </div>
   );
