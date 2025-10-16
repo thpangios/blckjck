@@ -167,29 +167,31 @@ function BlogPost() {
           ">
             <ReactMarkdown
               components={{
-                // Custom link rendering to handle internal links
-                a: ({ node, href, children, ...props }) => {
-                  const isInternal = href && (href.startsWith('/') || href.startsWith('#'));
-                  return (
-                    
-                      href={href}
-                      onClick={isInternal ? (e) => {
-                        e.preventDefault();
-                        if (href.startsWith('#')) {
-                          // Smooth scroll to anchor
-                          const element = document.getElementById(href.slice(1));
-                          element?.scrollIntoView({ behavior: 'smooth' });
-                        } else {
-                          navigate(href);
-                        }
-                      } : undefined}
-                      target={isInternal ? undefined : '_blank'}
-                      rel={isInternal ? undefined : 'noopener noreferrer'}
-                      {...props}
-                    >
-                      {children}
-                    </a>
-                  );
+               // Custom link rendering to handle internal links
+a: ({ node, href, children, ...props }) => {
+  const isInternal = href && (href.startsWith('/') || href.startsWith('#'));
+  return (
+    <a
+      href={href}
+      onClick={isInternal ? (e) => {
+        e.preventDefault();
+        if (href.startsWith('#')) {
+          // Smooth scroll to anchor
+          const element = document.getElementById(href.slice(1));
+          element?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          navigate(href);
+        }
+      } : undefined}
+      target={isInternal ? undefined : '_blank'}
+      rel={isInternal ? undefined : 'noopener noreferrer'}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+},
+
                 }
               }}
             >
