@@ -7,16 +7,16 @@ function Blog() {
   const navigate = useNavigate();
 
   // Your blog posts list
-  const posts = [
-    {
-      slug: 'how-to-count-cards-in-blackjack',
-      title: 'How to Count Cards in Blackjack: Complete Beginner\'s Guide',
-      excerpt: 'Learn card counting step-by-step with the Hi-Lo system. Complete beginner\'s guide with examples, practice drills, and free training tools. Legal and proven method.',
-      date: 'January 18, 2025',
-      readTime: 12,
-      image: '/images/ai-coach.png'
-    }
-     {
+const posts = [
+  {
+    slug: 'how-to-count-cards-in-blackjack',
+    title: "How to Count Cards in Blackjack: Complete Beginner's Guide",
+    excerpt: 'Learn card counting step-by-step with the Hi-Lo system. Complete beginner\'s guide with examples, practice drills, and free training tools. Legal and proven method.',
+    date: 'January 18, 2025',
+    readTime: 12,
+    image: '/images/ai-coach.png'
+  },
+  {
     slug: 'blackjack-basic-strategy-chart',
     title: 'Blackjack Basic Strategy Chart - Free Printable PDF & Complete Guide',
     excerpt: 'Master blackjack with our free printable basic strategy chart. Reduce house edge to 0.5% with perfect play. Includes hard hands, soft hands, and pair splitting.',
@@ -25,6 +25,7 @@ function Blog() {
     image: '/images/cin-image.png'
   }
 ];
+
   return (
     <>
       <Helmet>
