@@ -324,27 +324,107 @@
       margin-top: 1.5em;
       margin-bottom: 1.5em;
     }
-    .prose table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2em;
-      margin-bottom: 2em;
-    }
-    .prose thead {
-      border-bottom: 2px solid #facc15;
-    }
-    .prose th {
-      border: 1px solid #374151;
-      background-color: #1f2937;
-      padding: 0.75rem;
-      text-align: left;
-      font-weight: 700;
-    }
-    .prose td {
-      border: 1px solid #374151;
-      padding: 0.75rem;
-      color: #d1d5db;
-    }
+/* ✨ ENHANCED TABLE STYLES */
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(250, 204, 21, 0.2);
+}
+
+.prose thead {
+  background: linear-gradient(to right, #ca8a04, #eab308, #facc15);
+  border-bottom: 2px solid #b45309;
+}
+
+.prose thead tr:first-child th:first-child {
+  border-top-left-radius: 0.75rem;
+}
+
+.prose thead tr:first-child th:last-child {
+  border-top-right-radius: 0.75rem;
+}
+
+.prose th {
+  border: none;
+  border-right: 1px solid rgba(180, 83, 9, 0.3);
+  background-color: transparent;
+  padding: 0.875rem 0.75rem;
+  text-align: left;
+  font-weight: 700;
+  color: #000000;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.prose th:last-child {
+  border-right: none;
+}
+
+.prose tbody {
+  background-color: rgba(31, 41, 55, 0.3);
+}
+
+.prose tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.prose tbody tr:nth-child(even) {
+  background-color: rgba(31, 41, 55, 0.5);
+}
+
+.prose tbody tr:hover {
+  background-color: rgba(250, 204, 21, 0.05);
+}
+
+.prose td {
+  border: none;
+  border-right: 1px solid rgba(55, 65, 81, 0.5);
+  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+  padding: 0.875rem 0.75rem;
+  color: #d1d5db;
+  font-size: 0.875rem;
+}
+
+.prose td:last-child {
+  border-right: none;
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.prose tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 0.75rem;
+}
+
+.prose tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 0.75rem;
+}
+
+/* First column styling (usually row headers) */
+.prose tbody td:first-child {
+  font-weight: 600;
+  color: #facc15;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .prose table {
+    font-size: 0.75rem;
+  }
+  
+  .prose th,
+  .prose td {
+    padding: 0.5rem 0.375rem;
+  }
+}
     .prose img {
       border-radius: 0.75rem;
       box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
