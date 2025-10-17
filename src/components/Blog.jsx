@@ -6,11 +6,10 @@ import BlogCard from './BlogCard';
 function Blog() {
   const navigate = useNavigate();
 
-  // Your blog posts list
-const posts = [
+ const posts = [
   {
     slug: 'how-to-count-cards-in-blackjack',
-    title: "How to Count Cards in Blackjack: Complete Beginner's Guide",
+    title: 'How to Count Cards in Blackjack: Complete Beginner\'s Guide',
     excerpt: 'Learn card counting step-by-step with the Hi-Lo system. Complete beginner\'s guide with examples, practice drills, and free training tools. Legal and proven method.',
     date: 'January 18, 2025',
     readTime: 12,
@@ -22,7 +21,16 @@ const posts = [
     excerpt: 'Master blackjack with our free printable basic strategy chart. Reduce house edge to 0.5% with perfect play. Includes hard hands, soft hands, and pair splitting.',
     date: 'January 19, 2025',
     readTime: 10,
-    image: '/images/cin-image.png'
+    image: '/images/ai-coach.png'
+  },
+  // ✨ ADD THIS:
+  {
+    slug: 'is-card-counting-illegal',
+    title: 'Is Card Counting Illegal? The Truth About Casino Advantage Play',
+    excerpt: 'Card counting is 100% legal but casinos can ban you. Learn the laws, your rights, casino countermeasures, famous cases, and how to practice legally.',
+    date: 'January 20, 2025',
+    readTime: 8,
+    image: '/images/ai-coach.png'
   }
 ];
 
