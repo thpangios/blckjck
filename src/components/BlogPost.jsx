@@ -135,29 +135,31 @@ function BlogPost() {
           </header>
 
           {/* Article Content */}
-          <div className="prose prose-invert prose-lg max-w-none
-            prose-headings:text-white prose-headings:font-bold prose-headings:scroll-mt-24
-            prose-h1:text-4xl prose-h1:mb-6
-            prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-yellow-400
-            prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-            prose-h4:text-xl prose-h4:mt-6 prose-h4:mb-3
-            prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6
-            prose-a:text-yellow-400 prose-a:no-underline prose-a:font-semibold hover:prose-a:text-yellow-300 hover:prose-a:underline
-            prose-strong:text-white prose-strong:font-bold
-            prose-em:text-gray-300 prose-em:italic
-            prose-ul:text-gray-300 prose-ul:my-6 prose-ul:list-disc
-            prose-ol:text-gray-300 prose-ol:my-6 prose-ol:list-decimal
-            prose-li:my-2 prose-li:leading-relaxed
-            prose-code:text-yellow-400 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:font-mono
-            prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:p-4
-            prose-blockquote:border-l-4 prose-blockquote:border-yellow-400 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-400
-            prose-img:rounded-xl prose-img:shadow-2xl prose-img:my-8 prose-img:w-full
-            prose-hr:border-gray-800 prose-hr:my-12
-            prose-table:border-collapse prose-table:w-full prose-table:my-8
-            prose-th:border prose-th:border-gray-700 prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left prose-th:font-bold
-            prose-td:border prose-td:border-gray-700 prose-td:p-3 prose-td:text-gray-300
-            prose-thead:border-b-2 prose-thead:border-yellow-400
-          ">
+ <div className="prose prose-invert prose-lg max-w-none
+  prose-headings:text-white prose-headings:font-bold prose-headings:scroll-mt-24
+  prose-h1:text-4xl prose-h1:mb-6
+  prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-yellow-400
+  prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+  prose-h4:text-xl prose-h4:mt-6 prose-h4:mb-3
+  prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6
+  prose-a:text-yellow-400 prose-a:no-underline prose-a:font-semibold hover:prose-a:text-yellow-300 hover:prose-a:underline
+  prose-strong:text-white prose-strong:font-bold
+  prose-em:text-gray-300 prose-em:italic
+  prose-ul:text-gray-300 prose-ul:my-6 prose-ul:list-disc
+  prose-ol:text-gray-300 prose-ol:my-6 prose-ol:list-decimal
+  prose-li:my-2 prose-li:leading-relaxed
+  prose-code:text-yellow-400 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:font-mono
+  prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:p-4
+  prose-blockquote:border-l-4 prose-blockquote:border-yellow-400 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-400
+  prose-img:rounded-xl prose-img:shadow-2xl prose-img:my-8 prose-img:w-full
+  prose-hr:border-gray-800 prose-hr:my-12
+  [&_table]:border-collapse [&_table]:w-full [&_table]:my-8 [&_table]:text-sm [&_table]:shadow-xl [&_table]:rounded-lg [&_table]:overflow-hidden
+  [&_thead]:bg-gradient-to-r [&_thead]:from-yellow-600 [&_thead]:to-yellow-500
+  [&_th]:border [&_th]:border-gray-700 [&_th]:p-3 [&_th]:text-left [&_th]:font-bold [&_th]:text-black [&_th]:uppercase [&_th]:text-xs [&_th]:tracking-wide
+  [&_td]:border [&_td]:border-gray-700 [&_td]:p-3 [&_td]:text-gray-300 [&_td]:bg-gray-800/50
+  [&_tbody_tr]:hover:bg-gray-700/30 [&_tbody_tr]:transition-colors
+  [&_tbody_tr:nth-child(even)]:bg-gray-800/30
+">
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
 
