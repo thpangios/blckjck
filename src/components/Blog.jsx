@@ -16,9 +16,15 @@ function Blog() {
       readTime: 12,
       image: '/images/ai-coach.png'
     }
-    // Add more posts here as you create them
-  ];
-
+     {
+    slug: 'blackjack-basic-strategy-chart',
+    title: 'Blackjack Basic Strategy Chart - Free Printable PDF & Complete Guide',
+    excerpt: 'Master blackjack with our free printable basic strategy chart. Reduce house edge to 0.5% with perfect play. Includes hard hands, soft hands, and pair splitting.',
+    date: 'January 19, 2025',
+    readTime: 10,
+    image: '/images/cin-image.png'
+  }
+];
   return (
     <>
       <Helmet>
