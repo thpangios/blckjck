@@ -565,6 +565,7 @@ useEffect(() => {
             </div>
           )}
         </div>
+        </div>
       </div>
 
       {/* Statistics Modal */}
