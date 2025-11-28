@@ -973,41 +973,6 @@ useEffect(() => {
           </div>
         </Modal>
       )}
-{/* House Rules Footer */}
-      <div className="max-w-7xl mx-auto mt-8 fade-in-up">
-        <details className="glass-strong rounded-xl p-5">
-          <summary className="cursor-pointer font-bold text-yellow-400 flex items-center gap-3 text-lg">
-            <Info size={22} />
-            HOUSE RULES
-          </summary>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>{rules.numDecks}-deck shoe</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Dealer {rules.dealerHitsSoft17 ? 'hits' : 'stands'} on soft 17</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Blackjack pays {rules.blackjackPays === 1.5 ? '3:2' : '6:5'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Double after split: {rules.doubleAfterSplit ? 'Yes' : 'No'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Surrender: {rules.surrenderAllowed ? 'Allowed' : 'Not allowed'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">✓</span>
-              <span>Maximum {rules.maxSplits} splits allowed</span>
-            </div>
-          </div>
-        </details>
-      </div>
 
       {/* AI Strategy Coach */}
       <AICoach 
