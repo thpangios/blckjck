@@ -330,106 +330,110 @@ useEffect(() => {
   const totalBet = playerBet + bankerBet + tieBet + playerPairBet + bankerPairBet;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-black text-white p-4">
+    <div className="h-screen overflow-hidden flex flex-col bg-gradient-to-br from-gray-900 via-green-900 to-black text-white">
       {trainingMode && (
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full px-4 pt-2">
           <TrainingLimitBanner />
         </div>
       )}
-      
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <div className="glass-strong rounded-2xl p-6 shadow-2xl">
+
+      {/* Compact Sticky Header */}
+      <div className="w-full px-4 py-2 fade-in-up flex-shrink-0">
+        <div className="glass-strong rounded-xl p-3 md:p-4 shadow-xl">
           <div className="flex justify-between items-center flex-wrap gap-4">
-            
+
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
+                className="glass px-3 py-1.5 rounded-lg hover:bg-opacity-60 transition-all text-sm"
               >
-                <ArrowLeft size={20} />
+                <ArrowLeft size={16} />
                 Back
               </button>
-              <div className="text-4xl font-bold player-label neon-text">
+              <div className="text-xl md:text-2xl font-bold player-label neon-text">
                 🎰 BACCARAT
               </div>
             </div>
-            
-            <div className="flex gap-6 items-center flex-wrap">
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
-                <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
+
+            <div className="flex gap-3 md:gap-4 items-center flex-wrap text-sm md:text-base">
+              <div className="stat-card p-2 rounded-lg">
+                <div className="text-xs text-gray-400">Balance</div>
+                <div className="text-lg md:text-xl font-bold text-yellow-400 font-mono">${balance}</div>
               </div>
 
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Total Bet</div>
-                <div className="text-2xl font-bold text-green-400 font-mono">${totalBet}</div>
+              <div className="stat-card p-2 rounded-lg">
+                <div className="text-xs text-gray-400">Bet</div>
+                <div className="text-lg md:text-xl font-bold text-green-400 font-mono">${totalBet}</div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <button
                   onClick={() => setShowStats(!showStats)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass p-2 rounded-lg hover:bg-opacity-60 transition-all"
+                  title="Statistics"
                 >
-                  <BarChart3 size={20} className="text-blue-400" />
+                  <BarChart3 size={18} className="text-blue-400" />
                 </button>
 
                 <button
                   onClick={() => setShowRules(!showRules)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass p-2 rounded-lg hover:bg-opacity-60 transition-all"
+                  title="Rules"
                 >
-                  <Info size={20} className="text-purple-400" />
+                  <Info size={18} className="text-purple-400" />
                 </button>
 
                 <button
                   onClick={resetGame}
-                  className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  className="glass p-2 rounded-lg hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  title="Reset"
                 >
-                  <RotateCcw size={16} />
-                  Reset
+                  <RotateCcw size={18} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Training Mode Toggle */}
-          <div className="mt-4 flex gap-4 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
-            <label className="flex items-center gap-3 cursor-pointer group">
+          {/* Compact Training Mode Toggle */}
+          <div className="mt-3 flex gap-3 items-center justify-center flex-wrap border-t border-gray-700 pt-3 text-sm">
+            <label className="flex items-center gap-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={trainingMode}
                 onChange={(e) => setTrainingMode(e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer"
               />
-              <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
-              <span className="font-semibold text-lg">Training Mode</span>
+              <Brain size={16} className="text-blue-400 group-hover:text-blue-300" />
+              <span className="font-semibold">Training</span>
             </label>
           </div>
         </div>
       </div>
 
-      {/* Roadmap Display */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <BaccaratRoadmapDisplay results={roadmap} pendingCommission={pendingCommission} />
-      </div>
+      {/* Scrollable Game Area */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Roadmap - Hidden on mobile, collapsible on desktop */}
+          <div className="mb-2 hidden lg:block">
+            <BaccaratRoadmapDisplay results={roadmap} pendingCommission={pendingCommission} />
+          </div>
 
-      {/* Game Table */}
-      <div className="max-w-7xl mx-auto">
-        <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
+          {/* Compact Game Table */}
+          <div className="felt-texture table-border rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 lg:p-8 relative">
           
-          {/* Banker Section */}
-          <div className="mb-12">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-red-400 mb-3 tracking-widest">BANKER</h2>
+          {/* Compact Banker Section */}
+          <div className="mb-4 md:mb-6">
+            <div className="text-center mb-3">
+              <h2 className="text-xl md:text-2xl font-bold player-label text-red-400 mb-2 tracking-widest">BANKER</h2>
               {bankerHand.length > 0 && (
-                <div className="glass inline-block px-6 py-3 rounded-full">
-                  <span className="text-3xl font-bold font-mono">{bankerTotal}</span>
-                  {winner === 'banker' && <span className="ml-3 text-yellow-400">👑 WINNER</span>}
+                <div className="glass inline-block px-4 py-1.5 rounded-full">
+                  <span className="text-lg md:text-2xl font-bold font-mono">{bankerTotal}</span>
+                  {winner === 'banker' && <span className="ml-2 text-yellow-400 text-sm">👑</span>}
                 </div>
               )}
             </div>
-            
-            <div className="flex justify-center gap-3 flex-wrap">
+
+            <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
               {bankerHand.map((card, index) => (
                 <div key={card.id} className="card-deal" style={{animationDelay: `${index * 0.2}s`}}>
                   <BaccaratCard card={card} />
@@ -438,26 +442,26 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Message */}
-          <div className="text-center my-10">
-            <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
-              <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
+          {/* Compact Message */}
+          <div className="text-center my-3 md:my-4">
+            <div className="glass-strong inline-block px-6 md:px-8 py-2 md:py-3 rounded-xl">
+              <p className="text-lg md:text-2xl font-bold text-yellow-300 tracking-wide">{message}</p>
             </div>
           </div>
 
-          {/* Player Section */}
-          <div className="mb-12">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-blue-400 mb-3 tracking-widest">PLAYER</h2>
+          {/* Compact Player Section */}
+          <div className="mb-4 md:mb-6">
+            <div className="text-center mb-3">
+              <h2 className="text-xl md:text-2xl font-bold player-label text-blue-400 mb-2 tracking-widest">PLAYER</h2>
               {playerHand.length > 0 && (
-                <div className="glass inline-block px-6 py-3 rounded-full">
-                  <span className="text-3xl font-bold font-mono">{playerTotal}</span>
-                  {winner === 'player' && <span className="ml-3 text-yellow-400">👑 WINNER</span>}
+                <div className="glass inline-block px-4 py-1.5 rounded-full">
+                  <span className="text-lg md:text-2xl font-bold font-mono">{playerTotal}</span>
+                  {winner === 'player' && <span className="ml-2 text-yellow-400 text-sm">👑</span>}
                 </div>
               )}
             </div>
-            
-            <div className="flex justify-center gap-3 flex-wrap">
+
+            <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
               {playerHand.map((card, index) => (
                 <div key={card.id} className="card-deal" style={{animationDelay: `${index * 0.2}s`}}>
                   <BaccaratCard card={card} />
@@ -466,49 +470,49 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Betting Area */}
+          {/* Compact Betting Area */}
           {gameState === 'betting' && (
-            <div className="mt-12 fade-in-up">
-              <div className="glass-strong rounded-2xl p-8 max-w-5xl mx-auto">
-                
-                {/* Main Bets */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="mt-4 md:mt-6 fade-in-up">
+              <div className="glass-strong rounded-xl p-4 md:p-6 max-w-4xl mx-auto">
+
+                {/* Main Bets - Compact Grid */}
+                <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
                   <BettingSpot
                     title="PLAYER"
-                    subtitle="Pays 1:1"
+                    subtitle="1:1"
                     amount={playerBet}
                     color="blue"
                     onBet={(amt) => placeBet('player', amt)}
                   />
                   <BettingSpot
                     title="TIE"
-                    subtitle="Pays 8:1"
+                    subtitle="8:1"
                     amount={tieBet}
                     color="green"
                     onBet={(amt) => placeBet('tie', amt)}
                   />
                   <BettingSpot
                     title="BANKER"
-                    subtitle="Pays 0.95:1"
+                    subtitle="0.95:1"
                     amount={bankerBet}
                     color="red"
                     onBet={(amt) => placeBet('banker', amt)}
                   />
                 </div>
 
-                {/* Side Bets */}
-                <div className="grid md:grid-cols-2 gap-6 mb-8 max-w-2xl mx-auto">
+                {/* Side Bets - Compact */}
+                <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6 max-w-md mx-auto">
                   <BettingSpot
-                    title="PLAYER PAIR"
-                    subtitle="Pays 11:1"
+                    title="P-PAIR"
+                    subtitle="11:1"
                     amount={playerPairBet}
                     color="purple"
                     onBet={(amt) => placeBet('playerPair', amt)}
                     small
                   />
                   <BettingSpot
-                    title="BANKER PAIR"
-                    subtitle="Pays 11:1"
+                    title="B-PAIR"
+                    subtitle="11:1"
                     amount={bankerPairBet}
                     color="orange"
                     onBet={(amt) => placeBet('bankerPair', amt)}
@@ -516,8 +520,8 @@ useEffect(() => {
                   />
                 </div>
 
-                {/* Chips */}
-                <div className="flex justify-center gap-4 flex-wrap mb-6">
+                {/* Compact Chips */}
+                <div className="flex justify-center gap-2 md:gap-3 flex-wrap mb-4">
                   {[10, 25, 50, 100, 500, 1000].map((amount, index) => (
                     <div
                       key={amount}
@@ -529,18 +533,18 @@ useEffect(() => {
                   ))}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex justify-center gap-4 flex-wrap">
+                {/* Compact Action Buttons */}
+                <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
                   <button
                     onClick={clearBets}
-                    className="btn-premium glass px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105"
+                    className="btn-premium glass px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105"
                   >
-                    CLEAR BETS
+                    CLEAR
                   </button>
                   <button
                     onClick={deal}
                     disabled={totalBet === 0}
-                    className="btn-premium glass-strong px-12 py-4 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed pulse-gold"
+                    className="btn-premium glass-strong px-8 md:px-10 py-2 md:py-3 rounded-xl font-bold text-lg md:text-xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed pulse-gold"
                   >
                     DEAL
                   </button>
@@ -549,12 +553,12 @@ useEffect(() => {
             </div>
           )}
 
-          {/* New Round Button */}
+          {/* Compact New Round Button */}
           {gameState === 'gameOver' && (
-            <div className="mt-10 text-center fade-in-up">
+            <div className="mt-4 md:mt-6 text-center fade-in-up">
               <button
                 onClick={newRound}
-                className="btn-premium glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
+                className="btn-premium glass-strong px-10 md:px-14 py-4 md:py-5 rounded-xl font-bold text-xl md:text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
               >
                 NEW ROUND
               </button>

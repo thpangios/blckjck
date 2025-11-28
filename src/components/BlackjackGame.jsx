@@ -557,97 +557,97 @@ useEffect(() => {
     currentHand.cards.length === 2 && gameState === 'playing';
 
   return (
-    <div className={`min-h-screen ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black p-4`}>
+    <div className={`h-screen overflow-hidden flex flex-col ${theme === 'classic' ? 'theme-classic' : theme === 'modern' ? 'theme-modern' : 'theme-high-contrast'} bg-gradient-to-br from-gray-900 via-green-900 to-black`}>
       {/* Training Limit Banner */}
       {trainingMode && (
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full px-4 pt-2">
           <TrainingLimitBanner />
         </div>
       )}
 
-      {/* Premium Header */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <div className="glass-strong rounded-2xl p-6 shadow-2xl">
+      {/* Compact Sticky Header */}
+      <div className="w-full px-4 py-2 fade-in-up flex-shrink-0">
+        <div className="glass-strong rounded-xl p-3 md:p-4 shadow-xl">
           <div className="flex justify-between items-center flex-wrap gap-4">
             {/* Logo WITH Back Button */}
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all flex items-center gap-2"
+                className="glass px-3 py-1.5 rounded-lg hover:bg-opacity-60 transition-all text-sm"
               >
                 ← Back
               </button>
-              <div className="text-4xl font-bold player-label neon-text">
+              <div className="text-xl md:text-2xl font-bold player-label neon-text">
                 ♠ BLACKJACK ♥
               </div>
             </div>
-            {/* Stats Bar */}
-            <div className="flex gap-6 items-center flex-wrap">
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Balance</div>
-                <div className="text-3xl font-bold text-yellow-400 font-mono">${balance}</div>
+            {/* Compact Stats Bar */}
+            <div className="flex gap-3 md:gap-4 items-center flex-wrap text-sm md:text-base">
+              <div className="stat-card p-2 rounded-lg">
+                <div className="text-xs text-gray-400">Balance</div>
+                <div className="text-lg md:text-xl font-bold text-yellow-400 font-mono">${balance}</div>
               </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">True Count</div>
-                <div className={`text-2xl font-bold font-mono ${
+              <div className="stat-card p-2 rounded-lg">
+                <div className="text-xs text-gray-400">Count</div>
+                <div className={`text-lg md:text-xl font-bold font-mono ${
                   deckManager.getTrueCount() > 2 ? 'text-green-400' :
                   deckManager.getTrueCount() < -2 ? 'text-red-400' : 'text-gray-300'
                 }`}>
                   {deckManager.getTrueCount() > 0 ? '+' : ''}{deckManager.getTrueCount()}
                 </div>
               </div>
-              <div className="stat-card p-3 rounded-xl">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Penetration</div>
-                <div className="text-xl font-mono text-blue-400">{deckManager.getPenetration()}%</div>
+              <div className="stat-card p-2 rounded-lg hidden md:block">
+                <div className="text-xs text-gray-400">Penetration</div>
+                <div className="text-lg font-mono text-blue-400">{deckManager.getPenetration()}%</div>
               </div>
-              {/* Action Buttons */}
-              <div className="flex gap-2">
+              {/* Compact Action Buttons */}
+              <div className="flex gap-1.5">
                 <button
                   onClick={() => setShowStats(!showStats)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass p-2 rounded-lg hover:bg-opacity-60 transition-all"
                   title="Statistics"
                 >
-                  <BarChart3 size={20} className="text-blue-400" />
+                  <BarChart3 size={18} className="text-blue-400" />
                 </button>
                 <button
                   onClick={() => setShowSettings(!showSettings)}
-                  className="glass p-3 rounded-lg hover:bg-opacity-60 transition-all hover:scale-105"
+                  className="glass p-2 rounded-lg hover:bg-opacity-60 transition-all"
                   title="Settings"
                 >
-                  <Settings size={20} className="text-purple-400" />
+                  <Settings size={18} className="text-purple-400" />
                 </button>
                 <button
                   onClick={resetGame}
-                  className="glass px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  className="glass p-2 rounded-lg hover:bg-red-600 hover:bg-opacity-40 transition-all"
+                  title="Reset"
                 >
-                  <RotateCcw size={16} />
-                  <span className="font-semibold">Reset</span>
+                  <RotateCcw size={18} />
                 </button>
               </div>
             </div>
           </div>
-          {/* Training Controls */}
-          <div className="mt-6 flex gap-6 items-center justify-center flex-wrap border-t border-gray-700 pt-4">
-            <label className="flex items-center gap-3 cursor-pointer group">
+          {/* Compact Training Controls - Single Row */}
+          <div className="mt-3 flex gap-3 md:gap-4 items-center justify-center flex-wrap border-t border-gray-700 pt-3 text-sm">
+            <label className="flex items-center gap-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={trainingMode}
                 onChange={(e) => setTrainingMode(e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer"
               />
-              <Brain size={22} className="text-blue-400 group-hover:text-blue-300" />
-              <span className="font-semibold text-lg">Training Mode</span>
+              <Brain size={16} className="text-blue-400 group-hover:text-blue-300" />
+              <span className="font-semibold">Training</span>
             </label>
             {trainingMode && (
-              <label className="flex items-center gap-3 cursor-pointer group">
+              <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={showStrategy}
                   onChange={(e) => setShowStrategy(e.target.checked)}
                   className="w-4 h-4 cursor-pointer"
                 />
-                {showStrategy ? <Eye size={18} className="text-green-400" /> : <EyeOff size={18} className="text-gray-400" />}
-                <span className="text-sm">Strategy Hints</span>
+                {showStrategy ? <Eye size={16} className="text-green-400" /> : <EyeOff size={16} className="text-gray-400" />}
+                <span className="text-xs">Hints</span>
               </label>
             )}
             <button
@@ -656,39 +656,37 @@ useEffect(() => {
                 const currentIndex = themes.indexOf(theme);
                 setTheme(themes[(currentIndex + 1) % themes.length]);
               }}
-              className="flex items-center gap-2 glass px-4 py-2 rounded-lg hover:bg-opacity-60 transition-all"
+              className="flex items-center gap-1.5 glass px-3 py-1 rounded-lg hover:bg-opacity-60 transition-all text-xs"
             >
-              <Palette size={18} />
-              <span className="text-sm capitalize">{theme}</span>
+              <Palette size={14} />
+              <span className="capitalize">{theme}</span>
             </button>
           </div>
-          {/* Strategy Advice Panel */}
+          {/* Compact Strategy Advice */}
           {trainingMode && showStrategy && strategyAdvice && gameState === 'playing' && (
-            <div className="mt-4 training-overlay rounded-xl p-4 slide-in-top">
-              <div className="flex items-start gap-3">
-                <TrendingUp size={20} className="text-yellow-400 mt-1 flex-shrink-0" />
+            <div className="mt-2 training-overlay rounded-lg p-2 text-xs md:text-sm">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={14} className="text-yellow-400 flex-shrink-0" />
                 <div>
-                  <div className="font-bold text-yellow-300 text-lg mb-1">OPTIMAL PLAY: {strategyAdvice.action}</div>
-                  <div className="text-sm text-gray-200">{strategyAdvice.reason}</div>
+                  <span className="font-bold text-yellow-300">OPTIMAL: {strategyAdvice.action}</span>
+                  <span className="text-gray-200 ml-2">{strategyAdvice.reason}</span>
                 </div>
               </div>
             </div>
           )}
-          {/* Decision Feedback */}
+          {/* Compact Decision Feedback */}
           {lastDecision && (
-            <div className={`mt-4 rounded-xl p-4 slide-in-top ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{lastDecision.correct ? '✓' : '✗'}</span>
+            <div className={`mt-2 rounded-lg p-2 text-xs md:text-sm ${lastDecision.correct ? 'feedback-success' : 'feedback-error'}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{lastDecision.correct ? '✓' : '✗'}</span>
                 <div>
-                  <div className="font-bold text-lg">
-                    {lastDecision.correct ? 'Perfect Decision!' : 'Suboptimal Play'}
-                  </div>
+                  <span className="font-bold">
+                    {lastDecision.correct ? 'Perfect!' : 'Suboptimal'}
+                  </span>
                   {!lastDecision.correct && (
-                    <div className="text-sm mt-1">
-                      You chose <span className="font-semibold">{lastDecision.action}</span>,
-                      but <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> was optimal
-                      <div className="text-gray-300 mt-1">{lastDecision.reason}</div>
-                    </div>
+                    <span className="ml-2">
+                      {lastDecision.action} → <span className="font-semibold text-yellow-300">{lastDecision.optimal}</span> better
+                    </span>
                   )}
                 </div>
               </div>
@@ -696,37 +694,41 @@ useEffect(() => {
           )}
         </div>
       </div>
-      {/* Card Counting Display Panel */}
-      <div className="max-w-7xl mx-auto mb-6 fade-in-up">
-        <CardCountingDisplay
-          deckManager={deckManager}
-          betHistory={betHistory}
-          currentBet={playerHands[0]?.bet || 0}
-          baseBet={baseBet}
-        />
-      </div>
-      {/* Game Table */}
-      <div className="max-w-7xl mx-auto">
-        <div className="felt-texture table-border rounded-[3rem] shadow-2xl p-12 relative">
+
+      {/* Scrollable Game Area */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Optional: Collapsible Card Counting - Hidden by default on mobile */}
+          <div className="mb-2 hidden lg:block">
+            <CardCountingDisplay
+              deckManager={deckManager}
+              betHistory={betHistory}
+              currentBet={playerHands[0]?.bet || 0}
+              baseBet={baseBet}
+            />
+          </div>
+
+          {/* Compact Game Table */}
+          <div className="felt-texture table-border rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 lg:p-8 relative">
           {/* Dealer Section */}
-          <div className="mb-16">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-3 tracking-widest">DEALER</h2>
+          <div className="mb-4 md:mb-6">
+            <div className="text-center mb-3">
+              <h2 className="text-xl md:text-2xl font-bold player-label text-yellow-400 mb-2 tracking-widest">DEALER</h2>
               {dealerHand.length > 0 && (
-                <div className="glass inline-block px-6 py-2 rounded-full">
-                  <span className="text-2xl font-bold font-mono">
+                <div className="glass inline-block px-4 py-1.5 rounded-full">
+                  <span className="text-lg md:text-xl font-bold font-mono">
                     {showDealerCard
                       ? HandCalculator.calculateValue(dealerHand)
                       : `${dealerHand[0].value}${dealerHand[0].suit}`
                     }
                   </span>
                   {showDealerCard && HandCalculator.isSoft(dealerHand) && (
-                    <span className="text-sm text-gray-400 ml-2">(soft)</span>
+                    <span className="text-xs text-gray-400 ml-2">(soft)</span>
                   )}
                 </div>
               )}
             </div>
-            <div className="flex justify-center gap-3 flex-wrap">
+            <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
               {dealerHand.map((card, index) => (
                 <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${index * 0.1}s` }}>
                   <Card card={card} hidden={index === 1 && !showDealerCard} />
@@ -734,44 +736,44 @@ useEffect(() => {
               ))}
             </div>
           </div>
-          {/* Message Display */}
-          <div className="text-center my-10">
-            <div className="glass-strong inline-block px-10 py-5 rounded-2xl">
-              <p className="text-3xl font-bold text-yellow-300 tracking-wide">{message}</p>
+          {/* Compact Message Display */}
+          <div className="text-center my-3 md:my-4">
+            <div className="glass-strong inline-block px-6 md:px-8 py-2 md:py-3 rounded-xl">
+              <p className="text-lg md:text-2xl font-bold text-yellow-300 tracking-wide">{message}</p>
             </div>
           </div>
           {/* Player Section */}
-          <div className="mb-12">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold player-label text-yellow-400 mb-4 tracking-widest">PLAYER</h2>
+          <div className="mb-4 md:mb-6">
+            <div className="text-center mb-3">
+              <h2 className="text-xl md:text-2xl font-bold player-label text-yellow-400 mb-2 tracking-widest">PLAYER</h2>
             </div>
-            <div className="flex justify-center gap-6 flex-wrap">
+            <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
               {playerHands.map((hand, index) => (
                 <div
                   key={index}
-                  className={`glass-strong rounded-2xl p-6 transition-all duration-300 ${
+                  className={`glass-strong rounded-xl p-3 md:p-4 transition-all duration-300 ${
                     index === currentHandIndex && gameState === 'playing'
-                      ? 'ring-4 ring-yellow-400 pulse-gold'
+                      ? 'ring-2 md:ring-4 ring-yellow-400 pulse-gold'
                       : ''
                   }`}
                 >
-                  <div className="text-center mb-4">
-                    <div className="font-bold text-lg text-gray-300 mb-2">
+                  <div className="text-center mb-2">
+                    <div className="font-bold text-sm md:text-base text-gray-300 mb-1">
                       Hand {index + 1}
-                      {hand.status === 'busted' && <span className="text-red-400 ml-2">(BUST)</span>}
-                      {hand.status === 'stood' && <span className="text-blue-400 ml-2">(STAND)</span>}
-                      {hand.status === 'surrendered' && <span className="text-orange-400 ml-2">(SURRENDER)</span>}
-                      {hand.status === 'blackjack' && <span className="text-yellow-400 ml-2 neon-text">(BLACKJACK!)</span>}
+                      {hand.status === 'busted' && <span className="text-red-400 ml-1 text-xs">(BUST)</span>}
+                      {hand.status === 'stood' && <span className="text-blue-400 ml-1 text-xs">(STAND)</span>}
+                      {hand.status === 'surrendered' && <span className="text-orange-400 ml-1 text-xs">(SURR)</span>}
+                      {hand.status === 'blackjack' && <span className="text-yellow-400 ml-1 text-xs neon-text">(BJ!)</span>}
                     </div>
-                    <div className="text-3xl font-bold font-mono mb-2">
+                    <div className="text-2xl md:text-3xl font-bold font-mono mb-1">
                       {HandCalculator.calculateValue(hand.cards)}
-                      {HandCalculator.isSoft(hand.cards) && <span className="text-sm text-gray-400 ml-2">(soft)</span>}
+                      {HandCalculator.isSoft(hand.cards) && <span className="text-xs text-gray-400 ml-1">(soft)</span>}
                     </div>
-                    <div className="text-green-400 font-semibold text-lg">
+                    <div className="text-green-400 font-semibold text-sm md:text-base">
                       ${hand.bet}{hand.doubled && ' (x2)'}
                     </div>
                   </div>
-                  <div className="flex gap-3 justify-center flex-wrap">
+                  <div className="flex gap-2 justify-center flex-wrap">
                     {hand.cards.map((card, cardIndex) => (
                       <div key={card.id} className={cardAnimation ? 'card-deal' : ''} style={{ animationDelay: `${cardIndex * 0.1}s` }}>
                         <Card card={card} />
@@ -782,18 +784,18 @@ useEffect(() => {
               ))}
             </div>
           </div>
-          {/* Betting Area */}
+          {/* Compact Betting Area */}
           {gameState === 'betting' && (
-            <div className="mt-12 fade-in-up">
-              <div className="glass-strong rounded-2xl p-8 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-center mb-6 text-yellow-400 player-label tracking-wider">PLACE YOUR BET</h3>
-                <div className="flex justify-center gap-5 flex-wrap mb-6">
+            <div className="mt-4 md:mt-6 fade-in-up">
+              <div className="glass-strong rounded-xl p-4 md:p-6 max-w-2xl mx-auto">
+                <h3 className="text-lg md:text-xl font-bold text-center mb-3 md:mb-4 text-yellow-400 player-label tracking-wider">PLACE YOUR BET</h3>
+                <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
                   {[5, 10, 25, 50, 100, 500].map((amount, index) => (
                     <button
                       key={amount}
                       onClick={() => placeBet(amount)}
                       disabled={balance < amount}
-                      className={`chip-animate relative w-24 h-24 rounded-full border-4 font-bold text-xl transition-all hover:scale-110 btn-premium chip-glow ${
+                      className={`chip-animate relative w-16 h-16 md:w-20 md:h-20 rounded-full border-2 md:border-4 font-bold text-sm md:text-lg transition-all hover:scale-110 btn-premium chip-glow ${
                         amount === 5 ? 'bg-white text-black border-gray-400' :
                           amount === 10 ? 'bg-red-600 border-red-800 text-white' :
                           amount === 25 ? 'bg-green-600 border-green-800 text-white' :
@@ -812,25 +814,25 @@ useEffect(() => {
               </div>
             </div>
           )}
-          {/* Action Buttons */}
+          {/* Compact Action Buttons */}
           {gameState === 'playing' && (
-            <div className="mt-10 flex justify-center gap-5 flex-wrap">
+            <div className="mt-4 md:mt-6 flex justify-center gap-2 md:gap-3 flex-wrap">
               <button
                 onClick={hit}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="btn-premium glass-strong px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-lg md:text-xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
               >
                 HIT
               </button>
               <button
                 onClick={stand}
-                className="btn-premium glass-strong px-10 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                className="btn-premium glass-strong px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-lg md:text-xl transition-all hover:bg-red-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
               >
                 STAND
               </button>
               {canDouble && (
                 <button
                   onClick={doubleDown}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium glass-strong px-5 md:px-6 py-3 md:py-4 rounded-xl font-bold text-lg md:text-xl transition-all hover:bg-yellow-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
                   DOUBLE
                 </button>
@@ -838,7 +840,7 @@ useEffect(() => {
               {canSplit && (
                 <button
                   onClick={split}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium glass-strong px-5 md:px-6 py-3 md:py-4 rounded-xl font-bold text-lg md:text-xl transition-all hover:bg-purple-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
                   SPLIT
                 </button>
@@ -846,19 +848,19 @@ useEffect(() => {
               {canSurrender && (
                 <button
                   onClick={surrender}
-                  className="btn-premium glass-strong px-8 py-5 rounded-2xl font-bold text-xl transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
+                  className="btn-premium glass-strong px-4 md:px-6 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all hover:bg-orange-600 hover:bg-opacity-60 hover:scale-105 shadow-xl"
                 >
-                  SURRENDER
+                  SURR
                 </button>
               )}
             </div>
           )}
           {/* New Round Button */}
           {gameState === 'gameOver' && (
-            <div className="mt-10 text-center fade-in-up">
+            <div className="mt-4 md:mt-6 text-center fade-in-up">
               <button
                 onClick={newRound}
-                className="btn-premium glass-strong px-16 py-6 rounded-2xl font-bold text-3xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
+                className="btn-premium glass-strong px-10 md:px-14 py-4 md:py-5 rounded-xl font-bold text-xl md:text-2xl transition-all hover:bg-green-600 hover:bg-opacity-60 hover:scale-105 shadow-2xl pulse-gold"
               >
                 NEW ROUND
               </button>
