@@ -867,7 +867,9 @@ useEffect(() => {
             </div>
           )}
         </div>
+        </div>
       </div>
+
       {/* Statistics Modal */}
       {showStats && (
         <Modal onClose={() => setShowStats(false)} title="SESSION STATISTICS">
